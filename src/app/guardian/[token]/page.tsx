@@ -17,8 +17,8 @@ export default async function GuardianConfirmPage({
   return (
     <main className="flex-1 flex items-center justify-center px-6 py-20">
       <div className="w-full max-w-md flex flex-col gap-6 text-center">
-        <div className="font-display text-xl text-[#faf7f0]">Akashia</div>
-        <h1 className="font-display text-2xl text-[#faf7f0]">
+        <div className="font-display text-xl text-foreground">Akashia</div>
+        <h1 className="font-display text-2xl text-foreground">
           Hola, {guardian.name}
         </h1>
         <p className="text-muted leading-relaxed">
@@ -29,7 +29,7 @@ export default async function GuardianConfirmPage({
         </p>
 
         {guardian.confirmation ? (
-          <div className="rounded-xl border border-border bg-white/[0.03] px-5 py-4 text-sm text-muted">
+          <div className="rounded-xl border border-border bg-surface px-5 py-4 text-sm text-muted">
             Ya confirmaste esto el{" "}
             {new Date(guardian.confirmation.confirmedAt).toLocaleDateString(
               "es"

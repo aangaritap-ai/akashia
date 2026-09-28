@@ -4,10 +4,10 @@ export default function Home() {
   return (
     <main className="flex-1 flex flex-col">
       <section className="flex flex-col items-center text-center gap-7 px-6 pt-24 pb-20">
-        <div className="text-xs font-semibold tracking-[0.14em] uppercase text-accent">
+        <div className="text-xs font-semibold tracking-[0.14em] uppercase text-gold">
           Un registro para siempre
         </div>
-        <h1 className="font-display font-medium text-6xl sm:text-7xl text-[#faf7f0]">
+        <h1 className="font-display font-medium text-6xl sm:text-7xl text-foreground">
           Akashia
         </h1>
         <p className="max-w-xl text-lg leading-relaxed text-muted">
@@ -17,22 +17,22 @@ export default function Home() {
         <div className="flex gap-3 mt-2">
           <Link
             href="/signup"
-            className="rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-[#221806] hover:brightness-110"
+            className="rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-background hover:brightness-110"
           >
             Crear mi cuenta
           </Link>
           <Link
             href="/login"
-            className="rounded-lg border border-border px-6 py-3 text-sm font-semibold hover:bg-white/5"
+            className="rounded-lg border border-border px-6 py-3 text-sm font-semibold hover:bg-black/[0.03]"
           >
             Ya tengo cuenta
           </Link>
         </div>
       </section>
 
-      <section className="px-6 py-16 flex justify-center border-t border-border bg-white/[0.02]">
+      <section className="px-6 py-16 flex justify-center border-t border-border bg-black/[0.015]">
         <div className="max-w-3xl flex flex-col gap-12">
-          <h2 className="text-center font-display font-medium text-3xl text-[#faf7f0]">
+          <h2 className="text-center font-display font-medium text-3xl text-foreground">
             Cómo funciona
           </h2>
           <div className="grid sm:grid-cols-3 gap-6">
@@ -55,12 +55,12 @@ export default function Home() {
             ].map((s) => (
               <div
                 key={s.n}
-                className="rounded-2xl border border-border bg-white/[0.03] p-6 flex flex-col gap-3"
+                className="rounded-2xl border border-border bg-surface p-6 flex flex-col gap-3 shadow-sm"
               >
-                <div className="w-9 h-9 rounded-full bg-accent/15 text-accent flex items-center justify-center font-display">
+                <div className="w-9 h-9 rounded-full bg-accent/10 text-accent flex items-center justify-center font-display">
                   {s.n}
                 </div>
-                <div className="font-semibold text-[#faf7f0]">{s.title}</div>
+                <div className="font-semibold text-foreground">{s.title}</div>
                 <div className="text-sm text-muted leading-relaxed">
                   {s.body}
                 </div>
@@ -72,7 +72,7 @@ export default function Home() {
 
       <section className="px-6 py-20 flex justify-center">
         <div className="max-w-xl text-center flex flex-col gap-4">
-          <h2 className="font-display font-medium text-2xl text-[#faf7f0]">
+          <h2 className="font-display font-medium text-2xl text-foreground">
             Tu privacidad, primero
           </h2>
           <p className="text-muted leading-relaxed">

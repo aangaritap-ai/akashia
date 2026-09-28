@@ -50,19 +50,19 @@ export default async function SignupPage({
     <main className="flex-1 flex items-center justify-center px-6 py-20">
       <div className="w-full max-w-sm flex flex-col gap-6">
         <div className="text-center">
-          <Link href="/" className="font-display text-2xl text-[#faf7f0]">
+          <Link href="/" className="font-display text-2xl text-foreground">
             Akashia
           </Link>
           <p className="text-muted text-sm mt-2">Crea tu cuenta</p>
         </div>
 
         {error === "exists" && (
-          <div className="text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3">
+          <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
             Ya existe una cuenta con ese correo.
           </div>
         )}
         {error === "invalid" && (
-          <div className="text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3">
+          <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
             Revisa tus datos — la contraseña necesita al menos 6 caracteres.
           </div>
         )}
@@ -77,7 +77,7 @@ export default async function SignupPage({
               name="name"
               type="text"
               required
-              className="rounded-lg border border-border bg-white/5 px-4 py-2.5 text-sm outline-none focus:border-accent"
+              className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
             />
           </div>
           <div className="flex flex-col gap-1.5">
@@ -89,7 +89,7 @@ export default async function SignupPage({
               name="email"
               type="email"
               required
-              className="rounded-lg border border-border bg-white/5 px-4 py-2.5 text-sm outline-none focus:border-accent"
+              className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
             />
           </div>
           <div className="flex flex-col gap-1.5">
@@ -102,12 +102,12 @@ export default async function SignupPage({
               type="password"
               minLength={6}
               required
-              className="rounded-lg border border-border bg-white/5 px-4 py-2.5 text-sm outline-none focus:border-accent"
+              className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
             />
           </div>
           <button
             type="submit"
-            className="mt-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-[#221806] hover:brightness-110"
+            className="mt-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-background hover:brightness-110"
           >
             Crear cuenta
           </button>

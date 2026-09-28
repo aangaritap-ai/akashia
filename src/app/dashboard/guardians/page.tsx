@@ -19,7 +19,7 @@ export default async function GuardiansPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="font-display text-2xl text-[#faf7f0]">
+        <h1 className="font-display text-2xl text-foreground">
           Tus guardianes
         </h1>
         <p className="text-sm text-muted mt-2 max-w-lg">
@@ -34,7 +34,7 @@ export default async function GuardiansPage() {
       <AddGuardianForm />
 
       {confirmed > 0 && (
-        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-5 py-4 text-sm text-amber-200">
+        <div className="rounded-xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm text-amber-800">
           {confirmed} de {needed} confirmaciones recibidas.
           {confirmed >= needed &&
             " Se activó la entrega de las cápsulas marcadas para el fallecimiento."}
@@ -45,17 +45,17 @@ export default async function GuardiansPage() {
         {guardians.map((g) => (
           <div
             key={g.id}
-            className="rounded-xl border border-border bg-white/[0.03] px-5 py-4 flex items-center justify-between"
+            className="rounded-xl border border-border bg-surface px-5 py-4 flex items-center justify-between shadow-sm"
           >
             <div>
-              <div className="font-semibold text-[#faf7f0]">{g.name}</div>
+              <div className="font-semibold text-foreground">{g.name}</div>
               <div className="text-sm text-muted">{g.email}</div>
             </div>
             <span
               className={`text-xs rounded-full px-3 py-1 ${
                 g.confirmation
-                  ? "bg-red-500/15 text-red-300"
-                  : "bg-white/10 text-muted"
+                  ? "bg-red-50 text-red-700"
+                  : "bg-black/5 text-muted"
               }`}
             >
               {g.confirmation ? "Confirmó fallecimiento" : "Invitado"}

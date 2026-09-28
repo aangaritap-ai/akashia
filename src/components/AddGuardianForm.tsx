@@ -37,19 +37,19 @@ export default function AddGuardianForm() {
   return (
     <form
       onSubmit={onSubmit}
-      className="rounded-xl border border-border bg-white/[0.03] p-5 flex flex-col gap-3"
+      className="rounded-xl border border-border bg-surface p-5 flex flex-col gap-3 shadow-sm"
     >
-      <div className="text-sm font-semibold text-[#faf7f0]">
+      <div className="text-sm font-semibold text-foreground">
         Añadir guardián
       </div>
-      {error && <div className="text-sm text-red-300">{error}</div>}
+      {error && <div className="text-sm text-red-600">{error}</div>}
       <div className="flex flex-col sm:flex-row gap-3">
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Nombre"
           required
-          className="flex-1 rounded-lg border border-border bg-white/5 px-4 py-2.5 text-sm outline-none focus:border-accent"
+          className="flex-1 rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-accent"
         />
         <input
           value={email}
@@ -57,12 +57,12 @@ export default function AddGuardianForm() {
           type="email"
           placeholder="Correo"
           required
-          className="flex-1 rounded-lg border border-border bg-white/5 px-4 py-2.5 text-sm outline-none focus:border-accent"
+          className="flex-1 rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-accent"
         />
         <button
           type="submit"
           disabled={loading}
-          className="rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-[#221806] hover:brightness-110 disabled:opacity-60"
+          className="rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-background hover:brightness-110 disabled:opacity-60"
         >
           {loading ? "Enviando..." : "Invitar"}
         </button>

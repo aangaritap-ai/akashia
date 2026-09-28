@@ -23,17 +23,17 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl text-[#faf7f0]">Tus cápsulas</h1>
+        <h1 className="font-display text-2xl text-foreground">Tus cápsulas</h1>
         <Link
           href="/dashboard/capsules/new"
-          className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-[#221806] hover:brightness-110"
+          className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-background hover:brightness-110"
         >
           + Nueva cápsula
         </Link>
       </div>
 
       {guardianCount === 0 && (
-        <div className="rounded-xl border border-accent/30 bg-accent/10 px-5 py-4 text-sm text-[#f5e6c8] flex items-center justify-between gap-4">
+        <div className="rounded-xl border border-accent/20 bg-accent/[0.06] px-5 py-4 text-sm text-accent flex items-center justify-between gap-4">
           <span>
             Aún no tienes guardianes. Sin ellos, tus cápsulas &quot;al
             fallecer&quot; nunca podrán entregarse.
@@ -48,7 +48,7 @@ export default async function DashboardPage() {
       )}
 
       {capsules.length === 0 ? (
-        <div className="rounded-xl border border-border bg-white/[0.02] px-6 py-16 text-center text-muted">
+        <div className="rounded-xl border border-border bg-surface px-6 py-16 text-center text-muted">
           Todavía no has creado ninguna cápsula.
           <br />
           <Link href="/dashboard/capsules/new" className="text-accent">
@@ -60,10 +60,10 @@ export default async function DashboardPage() {
           {capsules.map((c) => (
             <div
               key={c.id}
-              className="rounded-xl border border-border bg-white/[0.03] px-5 py-4 flex items-center justify-between gap-4"
+              className="rounded-xl border border-border bg-surface px-5 py-4 flex items-center justify-between gap-4 shadow-sm"
             >
               <div>
-                <div className="font-semibold text-[#faf7f0]">{c.title}</div>
+                <div className="font-semibold text-foreground">{c.title}</div>
                 <div className="text-sm text-muted">
                   Para {c.recipientName} · {typeLabel[c.type]} ·{" "}
                   {c.triggerType === "DEATH"
@@ -75,11 +75,11 @@ export default async function DashboardPage() {
               </div>
               <div className="text-xs">
                 {c.delivered ? (
-                  <span className="rounded-full bg-emerald-500/15 text-emerald-300 px-3 py-1">
+                  <span className="rounded-full bg-emerald-50 text-emerald-700 px-3 py-1">
                     Entregada
                   </span>
                 ) : (
-                  <span className="rounded-full bg-white/10 text-muted px-3 py-1">
+                  <span className="rounded-full bg-black/5 text-muted px-3 py-1">
                     Guardada
                   </span>
                 )}

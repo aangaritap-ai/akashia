@@ -1,12 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #171225;
-  --surface: #1f1a30;
-  --foreground: #f5f1e8;
-  --muted: #b8b0cc;
-  --accent: #e3a857;
-  --border: rgba(255, 255, 255, 0.08);
+  --background: #faf6ef;
+  --surface: #ffffff;
+  --foreground: #221d16;
+  --muted: #6b6152;
+  --accent: #1b3a5c;
+  --accent-foreground: #faf6ef;
+  --gold: #b8935a;
+  --border: rgba(31, 26, 15, 0.12);
   --font-display: var(--font-fraunces);
   --font-sans: var(--font-public-sans);
 }
@@ -17,6 +19,8 @@
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-gold: var(--gold);
   --color-border: var(--border);
   --font-display: var(--font-display);
   --font-sans: var(--font-sans);
@@ -31,5 +35,5 @@ body {
 input,
 textarea,
 select {
-  color-scheme: dark;
+  color-scheme: light;
 }

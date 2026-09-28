@@ -71,10 +71,10 @@ export default function NewCapsulePage() {
 
   return (
     <div className="flex flex-col gap-8 max-w-xl">
-      <h1 className="font-display text-2xl text-[#faf7f0]">Nueva cápsula</h1>
+      <h1 className="font-display text-2xl text-foreground">Nueva cápsula</h1>
 
       {error && (
-        <div className="text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3">
+        <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
           {error}
         </div>
       )}
@@ -87,7 +87,7 @@ export default function NewCapsulePage() {
             onChange={(e) => setTitle(e.target.value)}
             required
             placeholder="Para tu graduación"
-            className="rounded-lg border border-border bg-white/5 px-4 py-2.5 text-sm outline-none focus:border-accent"
+            className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
           />
         </div>
 
@@ -119,7 +119,7 @@ export default function NewCapsulePage() {
               onChange={(e) => setTextContent(e.target.value)}
               required
               rows={6}
-              className="rounded-lg border border-border bg-white/5 px-4 py-3 text-sm outline-none focus:border-accent resize-none"
+              className="rounded-lg border border-border bg-surface px-4 py-3 text-sm outline-none focus:border-accent resize-none"
             />
           </div>
         ) : (
@@ -132,7 +132,7 @@ export default function NewCapsulePage() {
               accept={type === "AUDIO" ? "audio/*" : "video/*"}
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               required
-              className="text-sm text-muted file:mr-4 file:rounded-lg file:border-0 file:bg-accent file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#221806]"
+              className="text-sm text-muted file:mr-4 file:rounded-lg file:border-0 file:bg-accent file:px-4 file:py-2 file:text-sm file:font-semibold file:text-background"
             />
           </div>
         )}
@@ -144,7 +144,7 @@ export default function NewCapsulePage() {
               value={recipientName}
               onChange={(e) => setRecipientName(e.target.value)}
               required
-              className="rounded-lg border border-border bg-white/5 px-4 py-2.5 text-sm outline-none focus:border-accent"
+              className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
             />
           </div>
           <div className="flex flex-col gap-1.5">
@@ -154,7 +154,7 @@ export default function NewCapsulePage() {
               value={recipientEmail}
               onChange={(e) => setRecipientEmail(e.target.value)}
               required
-              className="rounded-lg border border-border bg-white/5 px-4 py-2.5 text-sm outline-none focus:border-accent"
+              className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
             />
           </div>
         </div>
@@ -191,7 +191,7 @@ export default function NewCapsulePage() {
               value={triggerDate}
               onChange={(e) => setTriggerDate(e.target.value)}
               required
-              className="mt-2 rounded-lg border border-border bg-white/5 px-4 py-2.5 text-sm outline-none focus:border-accent"
+              className="mt-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
             />
           )}
           {triggerType === "DEATH" && (
@@ -204,7 +204,7 @@ export default function NewCapsulePage() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-[#221806] hover:brightness-110 disabled:opacity-60"
+          className="mt-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-background hover:brightness-110 disabled:opacity-60"
         >
           {loading ? "Guardando..." : "Guardar cápsula"}
         </button>

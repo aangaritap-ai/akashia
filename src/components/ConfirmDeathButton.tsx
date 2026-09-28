@@ -26,7 +26,7 @@ export default function ConfirmDeathButton({ token }: { token: string }) {
 
   if (state === "done") {
     return (
-      <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm text-emerald-200">
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">
         Gracias por confirmarlo.{" "}
         {triggered
           ? "Con esto se activó la entrega de los mensajes."
@@ -38,14 +38,14 @@ export default function ConfirmDeathButton({ token }: { token: string }) {
   return (
     <div className="flex flex-col gap-3">
       {state === "error" && (
-        <div className="text-sm text-red-300">
+        <div className="text-sm text-red-600">
           Ocurrió un error. Intenta de nuevo.
         </div>
       )}
       <button
         onClick={confirm}
         disabled={state === "loading"}
-        className="rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-[#221806] hover:brightness-110 disabled:opacity-60"
+        className="rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-background hover:brightness-110 disabled:opacity-60"
       >
         {state === "loading" ? "Confirmando..." : "Sí, confirmo el fallecimiento"}
       </button>

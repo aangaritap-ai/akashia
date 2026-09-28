@@ -18,7 +18,7 @@ export default async function DashboardLayout({
   return (
     <div className="flex-1 flex flex-col">
       <header className="border-b border-border px-6 py-4 flex items-center justify-between">
-        <Link href="/dashboard" className="font-display text-xl text-[#faf7f0]">
+        <Link href="/dashboard" className="font-display text-xl text-foreground">
           Akashia
         </Link>
         <nav className="flex items-center gap-5 text-sm text-muted">
