@@ -1,0 +1,27 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { deliverCapsule } from "@/lib/delivery";
+
+export async function GET(req: Request) {
+  const authHeader = req.headers.get("authorization");
+  if (
+    process.env.CRON_SECRET &&
+    authHeader !== `Bearer ${process.env.CRON_SECRET}`
+  ) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  const due = await prisma.capsule.findMany({
+    where: {
+      triggerType: "DATE",
+      delivered: false,
+      triggerDate: { lte: new Date() },
+    },
+  });
+
+  for (const capsule of due) {
+    await deliverCapsule(capsule.id);
+  }
+
+  return NextResponse.json({ ok: true, delivered: due.length });
+}

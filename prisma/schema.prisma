@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  lastActiveAt DateTime @default(now())
+
+  capsules   Capsule[]
+  guardians  Guardian[]
+  isDeceased Boolean    @default(false)
+}
+
+enum GuardianStatus {
+  PENDING
+  ACCEPTED
+}
+
+model Guardian {
+  id        String         @id @default(cuid())
+  ownerId   String
+  owner     User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name      String
+  email     String
+  status    GuardianStatus @default(PENDING)
+  token     String         @unique @default(cuid())
+  invitedAt DateTime       @default(now())
+
+  confirmation DeathConfirmation?
+}
+
+model DeathConfirmation {
+  id          String   @id @default(cuid())
+  guardianId  String   @unique
+  guardian    Guardian @relation(fields: [guardianId], references: [id], onDelete: Cascade)
+  confirmedAt DateTime @default(now())
+}
+
+enum CapsuleType {
+  TEXT
+  AUDIO
+  VIDEO
+}
+
+enum TriggerType {
+  DATE
+  DEATH
+}
+
+model Capsule {
+  id             String      @id @default(cuid())
+  ownerId        String
+  owner          User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  title          String
+  type           CapsuleType
+  textContent    String?
+  mediaUrl       String?
+  recipientName  String
+  recipientEmail String
+  triggerType    TriggerType
+  triggerDate    DateTime?
+  delivered      Boolean     @default(false)
+  deliveredAt    DateTime?
+  createdAt      DateTime    @default(now())
+}
