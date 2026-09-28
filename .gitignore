@@ -37,6 +37,9 @@ yarn-error.log*
 prisma/*.db
 prisma/*.db-journal
 
+# accidental sensitive files
+recovery-codes.txt
+
 # vercel
 .vercel
 
