@@ -17,26 +17,28 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex-1 flex flex-col">
-      <header className="border-b border-border px-6 py-4 flex items-center justify-between">
+      <header className="border-b border-border px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <Link href="/dashboard" className="font-display text-xl text-foreground">
           Akashia
         </Link>
-        <nav className="flex items-center gap-5 text-sm text-muted">
+        <nav className="flex items-center gap-3 sm:gap-5 text-sm text-muted">
           <Link href="/dashboard" className="hover:text-foreground">
             Cápsulas
           </Link>
           <Link href="/dashboard/guardians" className="hover:text-foreground">
             Guardianes
           </Link>
-          <span className="text-foreground/70">{session.user.name}</span>
+          <span className="hidden sm:inline text-foreground/70">
+            {session.user.name}
+          </span>
           <form action={logout}>
             <button type="submit" className="hover:text-foreground">
-              Cerrar sesión
+              Salir
             </button>
           </form>
         </nav>
       </header>
-      <main className="flex-1 px-6 py-10">
+      <main className="flex-1 px-4 sm:px-6 py-10">
         <div className="max-w-3xl mx-auto w-full">{children}</div>
       </main>
     </div>
