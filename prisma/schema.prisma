@@ -19,6 +19,16 @@ model User {
   guardians           Guardian[]
   isDeceased          Boolean              @default(false)
   passwordResetTokens PasswordResetToken[]
+  memorialMessages    MemorialMessage[]
+}
+
+model MemorialMessage {
+  id           String   @id @default(cuid())
+  ownerId      String
+  owner        User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  authorName   String
+  message      String
+  createdAt    DateTime @default(now())
 }
 
 model PasswordResetToken {
