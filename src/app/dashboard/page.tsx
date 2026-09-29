@@ -15,6 +15,7 @@ export default async function DashboardPage() {
   const [capsules, guardianCount] = await Promise.all([
     prisma.capsule.findMany({
       where: { ownerId: userId },
+      include: { recipients: true },
       orderBy: { createdAt: "desc" },
     }),
     prisma.guardian.count({ where: { ownerId: userId } }),
@@ -57,35 +58,48 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {capsules.map((c) => (
-            <div
-              key={c.id}
-              className="rounded-xl border border-border bg-surface px-5 py-4 flex items-center justify-between gap-4 shadow-sm"
-            >
-              <div>
-                <div className="font-semibold text-foreground">{c.title}</div>
-                <div className="text-sm text-muted">
-                  Para {c.recipientName} · {typeLabel[c.type]} ·{" "}
-                  {c.triggerType === "DEATH"
-                    ? "Al fallecer"
-                    : `El ${new Date(c.triggerDate!).toLocaleDateString(
-                        "es"
-                      )}`}
+          {capsules.map((c) => {
+            const allDelivered =
+              c.recipients.length > 0 &&
+              c.recipients.every((r) => r.delivered);
+            const someDelivered = c.recipients.some((r) => r.delivered);
+            return (
+              <div
+                key={c.id}
+                className="rounded-xl border border-border bg-surface px-5 py-4 flex items-center justify-between gap-4 shadow-sm"
+              >
+                <div>
+                  <div className="font-semibold text-foreground">
+                    {c.title}
+                  </div>
+                  <div className="text-sm text-muted">
+                    Para {c.recipients.map((r) => r.name).join(", ")} ·{" "}
+                    {typeLabel[c.type]} ·{" "}
+                    {c.triggerType === "DEATH"
+                      ? "Al fallecer"
+                      : `El ${new Date(c.triggerDate!).toLocaleDateString(
+                          "es"
+                        )}`}
+                  </div>
+                </div>
+                <div className="text-xs">
+                  {allDelivered ? (
+                    <span className="rounded-full bg-emerald-50 text-emerald-700 px-3 py-1">
+                      Entregada
+                    </span>
+                  ) : someDelivered ? (
+                    <span className="rounded-full bg-amber-50 text-amber-700 px-3 py-1">
+                      Entregada parcialmente
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-black/5 text-muted px-3 py-1">
+                      Guardada
+                    </span>
+                  )}
                 </div>
               </div>
-              <div className="text-xs">
-                {c.delivered ? (
-                  <span className="rounded-full bg-emerald-50 text-emerald-700 px-3 py-1">
-                    Entregada
-                  </span>
-                ) : (
-                  <span className="rounded-full bg-black/5 text-muted px-3 py-1">
-                    Guardada
-                  </span>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

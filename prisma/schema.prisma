@@ -68,18 +68,26 @@ enum TriggerType {
 }
 
 model Capsule {
-  id             String      @id @default(cuid())
-  ownerId        String
-  owner          User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  title          String
-  type           CapsuleType
-  textContent    String?
-  mediaUrl       String?
-  recipientName  String
-  recipientEmail String
-  triggerType    TriggerType
-  triggerDate    DateTime?
-  delivered      Boolean     @default(false)
-  deliveredAt    DateTime?
-  createdAt      DateTime    @default(now())
+  id          String      @id @default(cuid())
+  ownerId     String
+  owner       User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  title       String
+  type        CapsuleType
+  textContent String?
+  mediaUrl    String?
+  triggerType TriggerType
+  triggerDate DateTime?
+  createdAt   DateTime    @default(now())
+
+  recipients CapsuleRecipient[]
+}
+
+model CapsuleRecipient {
+  id         String   @id @default(cuid())
+  capsuleId  String
+  capsule    Capsule  @relation(fields: [capsuleId], references: [id], onDelete: Cascade)
+  name       String
+  email      String
+  delivered  Boolean  @default(false)
+  deliveredAt DateTime?
 }

@@ -13,8 +13,7 @@ export default function NewCapsulePage() {
   const [type, setType] = useState<CapsuleType>("TEXT");
   const [textContent, setTextContent] = useState("");
   const [file, setFile] = useState<File | null>(null);
-  const [recipientName, setRecipientName] = useState("");
-  const [recipientEmail, setRecipientEmail] = useState("");
+  const [recipients, setRecipients] = useState([{ name: "", email: "" }]);
   const [triggerType, setTriggerType] = useState<TriggerType>("DATE");
   const [triggerDate, setTriggerDate] = useState("");
 
@@ -51,8 +50,7 @@ export default function NewCapsulePage() {
           type,
           textContent: type === "TEXT" ? textContent : null,
           mediaUrl,
-          recipientName,
-          recipientEmail,
+          recipients,
           triggerType,
           triggerDate: triggerType === "DATE" ? triggerDate : null,
         }),
@@ -137,26 +135,64 @@ export default function NewCapsulePage() {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm text-muted">Nombre del destinatario</label>
-            <input
-              value={recipientName}
-              onChange={(e) => setRecipientName(e.target.value)}
-              required
-              className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm text-muted">Su correo</label>
-            <input
-              type="email"
-              value={recipientEmail}
-              onChange={(e) => setRecipientEmail(e.target.value)}
-              required
-              className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
-            />
-          </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm text-muted">
+            ¿Para quién es? (puedes agregar varias personas)
+          </label>
+          {recipients.map((r, i) => (
+            <div key={i} className="grid grid-cols-2 gap-3 items-start">
+              <input
+                value={r.name}
+                onChange={(e) =>
+                  setRecipients((prev) =>
+                    prev.map((p, idx) =>
+                      idx === i ? { ...p, name: e.target.value } : p
+                    )
+                  )
+                }
+                required
+                placeholder="Nombre"
+                className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
+              />
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  value={r.email}
+                  onChange={(e) =>
+                    setRecipients((prev) =>
+                      prev.map((p, idx) =>
+                        idx === i ? { ...p, email: e.target.value } : p
+                      )
+                    )
+                  }
+                  required
+                  placeholder="Correo"
+                  className="flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
+                />
+                {recipients.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setRecipients((prev) => prev.filter((_, idx) => idx !== i))
+                    }
+                    aria-label="Quitar destinatario"
+                    className="text-muted hover:text-red-600 px-2"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() =>
+              setRecipients((prev) => [...prev, { name: "", email: "" }])
+            }
+            className="self-start text-sm text-accent font-semibold mt-1"
+          >
+            + Agregar otra persona
+          </button>
         </div>
 
         <div className="flex flex-col gap-1.5">

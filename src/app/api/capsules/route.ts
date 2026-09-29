@@ -8,8 +8,9 @@ const schema = z.object({
   type: z.enum(["TEXT", "AUDIO", "VIDEO"]),
   textContent: z.string().optional().nullable(),
   mediaUrl: z.string().optional().nullable(),
-  recipientName: z.string().min(1),
-  recipientEmail: z.string().email(),
+  recipients: z
+    .array(z.object({ name: z.string().min(1), email: z.string().email() }))
+    .min(1),
   triggerType: z.enum(["DATE", "DEATH"]),
   triggerDate: z.string().optional().nullable(),
 });
@@ -56,12 +57,13 @@ export async function POST(req: Request) {
       type: data.type,
       textContent: data.textContent ?? null,
       mediaUrl: data.mediaUrl ?? null,
-      recipientName: data.recipientName,
-      recipientEmail: data.recipientEmail,
       triggerType: data.triggerType,
       triggerDate: data.triggerDate
         ? new Date(`${data.triggerDate}T12:00:00`)
         : null,
+      recipients: {
+        create: data.recipients.map((r) => ({ name: r.name, email: r.email })),
+      },
     },
   });
 

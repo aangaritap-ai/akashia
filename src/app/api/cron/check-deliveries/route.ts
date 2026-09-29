@@ -14,9 +14,10 @@ export async function GET(req: Request) {
   const due = await prisma.capsule.findMany({
     where: {
       triggerType: "DATE",
-      delivered: false,
       triggerDate: { lte: new Date() },
+      recipients: { some: { delivered: false } },
     },
+    select: { id: true },
   });
 
   for (const capsule of due) {
