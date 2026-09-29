@@ -15,9 +15,20 @@ model User {
   createdAt    DateTime @default(now())
   lastActiveAt DateTime @default(now())
 
-  capsules   Capsule[]
-  guardians  Guardian[]
-  isDeceased Boolean    @default(false)
+  capsules            Capsule[]
+  guardians           Guardian[]
+  isDeceased          Boolean              @default(false)
+  passwordResetTokens PasswordResetToken[]
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String    @unique @default(cuid())
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
 }
 
 enum GuardianStatus {

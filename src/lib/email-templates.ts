@@ -24,6 +24,16 @@ export function guardianInviteEmail(opts: {
   );
 }
 
+export function passwordResetEmail(opts: { name: string; resetUrl: string }) {
+  return wrap(
+    "Recupera tu contraseña",
+    `<p>Hola ${opts.name},</p>
+     <p>Recibimos una solicitud para restablecer tu contraseña en Akashia. Si fuiste tú, haz clic abajo:</p>
+     <p><a href="${opts.resetUrl}" style="display:inline-block;background:#1B3A5C;color:#FAF6EF;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:600;">Elegir nueva contraseña</a></p>
+     <p style="color:#8A8172;font-size:13px;">Este enlace vence en 1 hora. Si no fuiste tú, ignora este correo.</p>`
+  );
+}
+
 export function guardianConfirmedNoticeEmail(opts: {
   ownerName: string;
   guardianName: string;
