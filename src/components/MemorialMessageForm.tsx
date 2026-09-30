@@ -8,32 +8,59 @@ export default function MemorialMessageForm({ userId }: { userId: string }) {
   const [authorName, setAuthorName] = useState("");
   const [message, setMessage] = useState("");
   const [isPublic, setIsPublic] = useState(true);
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+
+  function onFileChange(f: File | null) {
+    setFile(f);
+    setPreview(f ? URL.createObjectURL(f) : null);
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const res = await fetch(`/api/memorial/${userId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ authorName, message, isPublic }),
-    });
+    try {
+      let imageUrl: string | null = null;
 
-    setLoading(false);
+      if (file) {
+        const form = new FormData();
+        form.append("file", file);
+        const uploadRes = await fetch("/api/memorial/upload", {
+          method: "POST",
+          body: form,
+        });
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok) {
+          throw new Error(uploadData.error || "No se pudo subir la foto");
+        }
+        imageUrl = uploadData.url;
+      }
 
-    if (!res.ok) {
-      setError("No se pudo enviar el mensaje. Intenta de nuevo.");
-      return;
+      const res = await fetch(`/api/memorial/${userId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ authorName, message, imageUrl, isPublic }),
+      });
+
+      if (!res.ok) {
+        throw new Error("No se pudo enviar el mensaje. Intenta de nuevo.");
+      }
+
+      setAuthorName("");
+      setMessage("");
+      onFileChange(null);
+      setSent(true);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Algo salió mal");
+    } finally {
+      setLoading(false);
     }
-
-    setAuthorName("");
-    setMessage("");
-    setSent(true);
-    router.refresh();
   }
 
   return (
@@ -65,6 +92,35 @@ export default function MemorialMessageForm({ userId }: { userId: string }) {
         rows={4}
         className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-accent resize-none"
       />
+
+      <div className="flex flex-col gap-2">
+        <label className="text-xs text-muted">Foto (opcional)</label>
+        {preview && (
+          <div className="relative w-fit">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={preview}
+              alt="Vista previa"
+              className="max-h-40 rounded-lg border border-border"
+            />
+            <button
+              type="button"
+              onClick={() => onFileChange(null)}
+              className="absolute -top-2 -right-2 bg-background border border-border rounded-full w-6 h-6 text-xs text-muted hover:text-red-600"
+              aria-label="Quitar foto"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
+          className="text-xs text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-accent/15 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-accent"
+        />
+      </div>
+
       <div className="flex items-center gap-2">
         <button
           type="button"

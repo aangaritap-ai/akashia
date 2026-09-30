@@ -13,6 +13,7 @@ export default function GuardianActions({
   const router = useRouter();
   const [busy, setBusy] = useState<"delete" | "resend" | null>(null);
   const [resent, setResent] = useState(false);
+  const [resendError, setResendError] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
 
   async function remove() {
@@ -24,8 +25,14 @@ export default function GuardianActions({
 
   async function resend() {
     setBusy("resend");
-    await fetch(`/api/guardians/${id}/resend`, { method: "POST" });
+    setResendError(null);
+    const res = await fetch(`/api/guardians/${id}/resend`, { method: "POST" });
     setBusy(null);
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setResendError(data.error || "No se pudo enviar el correo");
+      return;
+    }
     setResent(true);
     setTimeout(() => setResent(false), 3000);
   }
@@ -52,23 +59,34 @@ export default function GuardianActions({
   }
 
   return (
-    <div className="flex items-center gap-3 text-xs">
-      {canResend && (
+    <div className="flex flex-col items-end gap-1">
+      <div className="flex items-center gap-3 text-xs">
+        {canResend && (
+          <button
+            onClick={resend}
+            disabled={busy !== null}
+            className="text-accent font-semibold hover:underline disabled:opacity-50"
+          >
+            {resent
+              ? "Enviado"
+              : busy === "resend"
+                ? "Enviando..."
+                : "Reenviar"}
+          </button>
+        )}
         <button
-          onClick={resend}
+          onClick={() => setConfirming(true)}
           disabled={busy !== null}
-          className="text-accent font-semibold hover:underline disabled:opacity-50"
+          className="text-muted hover:text-red-600 disabled:opacity-50"
         >
-          {resent ? "Enviado" : busy === "resend" ? "Enviando..." : "Reenviar"}
+          Eliminar
         </button>
+      </div>
+      {resendError && (
+        <div className="text-xs text-red-600 max-w-[220px] text-right">
+          {resendError}
+        </div>
       )}
-      <button
-        onClick={() => setConfirming(true)}
-        disabled={busy !== null}
-        className="text-muted hover:text-red-600 disabled:opacity-50"
-      >
-        Eliminar
-      </button>
     </div>
   );
 }

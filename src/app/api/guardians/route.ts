@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, EmailSendError } from "@/lib/email";
 import { guardianInviteEmail } from "@/lib/email-templates";
 
 const schema = z.object({
@@ -36,15 +36,23 @@ export async function POST(req: Request) {
 
   const confirmUrl = `${process.env.APP_URL || "http://localhost:3000"}/guardian/${guardian.token}`;
 
-  await sendEmail({
-    to: guardian.email,
-    subject: `${owner.name} te designó como guardián en Akashia`,
-    html: guardianInviteEmail({
-      guardianName: guardian.name,
-      ownerName: owner.name,
-      confirmUrl,
-    }),
-  });
+  let emailError: string | null = null;
+  try {
+    await sendEmail({
+      to: guardian.email,
+      subject: `${owner.name} te designó como guardián en Akashia`,
+      html: guardianInviteEmail({
+        guardianName: guardian.name,
+        ownerName: owner.name,
+        confirmUrl,
+      }),
+    });
+  } catch (err) {
+    emailError =
+      err instanceof EmailSendError
+        ? "El guardián se agregó, pero el correo de invitación no se pudo enviar. Usa 'Reenviar' más tarde, o comparte el enlace manualmente."
+        : "El guardián se agregó, pero ocurrió un error inesperado enviando el correo.";
+  }
 
-  return NextResponse.json({ ok: true, guardian });
+  return NextResponse.json({ ok: true, guardian, emailError });
 }

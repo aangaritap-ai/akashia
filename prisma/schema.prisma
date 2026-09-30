@@ -29,6 +29,7 @@ model MemorialMessage {
   owner      User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   authorName String
   message    String
+  imageUrl   String?
   isPublic   Boolean  @default(true)
   createdAt  DateTime @default(now())
 }

@@ -9,11 +9,13 @@ export default function AddGuardianForm() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setWarning(null);
 
     const res = await fetch("/api/guardians", {
       method: "POST",
@@ -21,12 +23,16 @@ export default function AddGuardianForm() {
       body: JSON.stringify({ name, email }),
     });
 
+    const data = await res.json().catch(() => ({}));
     setLoading(false);
 
     if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
       setError(data.error || "No se pudo añadir el guardián");
       return;
+    }
+
+    if (data.emailError) {
+      setWarning(data.emailError);
     }
 
     setName("");
@@ -43,6 +49,11 @@ export default function AddGuardianForm() {
         Añadir guardián
       </div>
       {error && <div className="text-sm text-red-600">{error}</div>}
+      {warning && (
+        <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+          {warning}
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row gap-3">
         <input
           value={name}

@@ -37,6 +37,14 @@ export default async function MemorialFeedPage() {
                 key={m.id}
                 className="rounded-xl border border-border bg-surface px-5 py-4 shadow-sm"
               >
+                {m.imageUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={m.imageUrl}
+                    alt=""
+                    className="w-full max-h-96 object-cover rounded-lg mb-3"
+                  />
+                )}
                 <div className="text-sm whitespace-pre-line text-foreground">
                   {m.message}
                 </div>

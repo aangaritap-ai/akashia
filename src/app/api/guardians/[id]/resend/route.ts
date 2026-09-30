@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, EmailSendError } from "@/lib/email";
 import { guardianInviteEmail } from "@/lib/email-templates";
 
 export async function POST(
@@ -24,15 +24,23 @@ export async function POST(
 
   const confirmUrl = `${process.env.APP_URL || "http://localhost:3000"}/guardian/${guardian.token}`;
 
-  await sendEmail({
-    to: guardian.email,
-    subject: `${guardian.owner.name} te designó como guardián en Akashia`,
-    html: guardianInviteEmail({
-      guardianName: guardian.name,
-      ownerName: guardian.owner.name,
-      confirmUrl,
-    }),
-  });
+  try {
+    await sendEmail({
+      to: guardian.email,
+      subject: `${guardian.owner.name} te designó como guardián en Akashia`,
+      html: guardianInviteEmail({
+        guardianName: guardian.name,
+        ownerName: guardian.owner.name,
+        confirmUrl,
+      }),
+    });
+  } catch (err) {
+    const message =
+      err instanceof EmailSendError
+        ? err.message
+        : "No se pudo enviar el correo";
+    return NextResponse.json({ error: message }, { status: 502 });
+  }
 
   return NextResponse.json({ ok: true });
 }
