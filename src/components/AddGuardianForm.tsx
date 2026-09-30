@@ -12,6 +12,7 @@ export default function AddGuardianForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<FoundUser[]>([]);
@@ -52,6 +53,7 @@ export default function AddGuardianForm() {
     setLoading(true);
     setError(null);
     setWarning(null);
+    setNotice(null);
 
     const res = await fetch("/api/guardians", {
       method: "POST",
@@ -69,6 +71,10 @@ export default function AddGuardianForm() {
 
     if (data.emailError) {
       setWarning(data.emailError);
+    } else if (data.notified) {
+      setNotice(
+        "Como ya tiene cuenta en Akashia, también le llegó una notificación dentro de la app."
+      );
     }
 
     setName("");
@@ -88,6 +94,11 @@ export default function AddGuardianForm() {
       {warning && (
         <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
           {warning}
+        </div>
+      )}
+      {notice && (
+        <div className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
+          {notice}
         </div>
       )}
 

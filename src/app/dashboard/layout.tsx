@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth, signOut } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export default async function DashboardLayout({
   children,
@@ -9,6 +10,10 @@ export default async function DashboardLayout({
   if (!session?.user) {
     redirect("/login");
   }
+
+  const unreadCount = await prisma.notification.count({
+    where: { userId: session.user.id, read: false },
+  });
 
   async function logout() {
     "use server";
@@ -33,6 +38,17 @@ export default async function DashboardLayout({
           </Link>
           <Link href="/memorial" className="hover:text-foreground">
             Feed
+          </Link>
+          <Link
+            href="/dashboard/notifications"
+            className="hover:text-foreground flex items-center gap-1.5"
+          >
+            Notificaciones
+            {unreadCount > 0 && (
+              <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-accent text-background text-[10px] font-semibold px-1">
+                {unreadCount}
+              </span>
+            )}
           </Link>
           <span className="hidden sm:inline text-foreground/70">
             {session.user.name}

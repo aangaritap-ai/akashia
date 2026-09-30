@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendEmail, EmailSendError } from "@/lib/email";
 import { guardianInviteEmail } from "@/lib/email-templates";
+import { notifyGuardianInvite } from "@/lib/notifications";
 
 export async function POST(
   _req: Request,
@@ -24,6 +25,12 @@ export async function POST(
 
   const confirmUrl = `${process.env.APP_URL || "http://localhost:3000"}/guardian/${guardian.token}`;
 
+  const notified = await notifyGuardianInvite({
+    guardianEmail: guardian.email,
+    guardianToken: guardian.token,
+    ownerName: guardian.owner.name,
+  });
+
   try {
     await sendEmail({
       to: guardian.email,
@@ -35,12 +42,14 @@ export async function POST(
       }),
     });
   } catch (err) {
-    const message =
-      err instanceof EmailSendError
-        ? err.message
-        : "No se pudo enviar el correo";
-    return NextResponse.json({ error: message }, { status: 502 });
+    if (!notified) {
+      const message =
+        err instanceof EmailSendError
+          ? err.message
+          : "No se pudo enviar el correo";
+      return NextResponse.json({ error: message }, { status: 502 });
+    }
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, notified });
 }
