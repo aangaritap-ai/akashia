@@ -7,6 +7,7 @@ export default function MemorialMessageForm({ userId }: { userId: string }) {
   const router = useRouter();
   const [authorName, setAuthorName] = useState("");
   const [message, setMessage] = useState("");
+  const [isPublic, setIsPublic] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
@@ -19,7 +20,7 @@ export default function MemorialMessageForm({ userId }: { userId: string }) {
     const res = await fetch(`/api/memorial/${userId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ authorName, message }),
+      body: JSON.stringify({ authorName, message, isPublic }),
     });
 
     setLoading(false);
@@ -64,6 +65,30 @@ export default function MemorialMessageForm({ userId }: { userId: string }) {
         rows={4}
         className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-accent resize-none"
       />
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setIsPublic(true)}
+          className={`rounded-lg px-3 py-1.5 text-xs border ${
+            isPublic
+              ? "border-accent bg-accent/15 text-accent"
+              : "border-border text-muted"
+          }`}
+        >
+          Público — aparece en el feed
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsPublic(false)}
+          className={`rounded-lg px-3 py-1.5 text-xs border ${
+            !isPublic
+              ? "border-accent bg-accent/15 text-accent"
+              : "border-border text-muted"
+          }`}
+        >
+          Privado — solo aquí
+        </button>
+      </div>
       <button
         type="submit"
         disabled={loading}

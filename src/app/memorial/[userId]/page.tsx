@@ -50,9 +50,16 @@ export default async function MemorialPage({
                 <div className="text-sm whitespace-pre-line text-foreground">
                   {m.message}
                 </div>
-                <div className="text-xs text-muted mt-3">
-                  — {m.authorName} ·{" "}
-                  {new Date(m.createdAt).toLocaleDateString("es")}
+                <div className="text-xs text-muted mt-3 flex items-center gap-2">
+                  <span>
+                    — {m.authorName} ·{" "}
+                    {new Date(m.createdAt).toLocaleDateString("es")}
+                  </span>
+                  {!m.isPublic && (
+                    <span className="rounded-full bg-black/5 px-2 py-0.5">
+                      Privado
+                    </span>
+                  )}
                 </div>
               </div>
             ))

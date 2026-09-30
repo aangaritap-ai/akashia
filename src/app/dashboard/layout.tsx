@@ -31,6 +31,9 @@ export default async function DashboardLayout({
           <Link href="/dashboard/memorial" className="hover:text-foreground">
             Memorial
           </Link>
+          <Link href="/memorial" className="hover:text-foreground">
+            Feed
+          </Link>
           <span className="hidden sm:inline text-foreground/70">
             {session.user.name}
           </span>

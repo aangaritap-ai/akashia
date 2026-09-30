@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { requiredConfirmations } from "@/lib/delivery";
 import AddGuardianForm from "@/components/AddGuardianForm";
+import GuardianActions from "@/components/GuardianActions";
 
 export default async function GuardiansPage() {
   const session = await auth();
@@ -45,21 +46,30 @@ export default async function GuardiansPage() {
         {guardians.map((g) => (
           <div
             key={g.id}
-            className="rounded-xl border border-border bg-surface px-5 py-4 flex items-center justify-between shadow-sm"
+            className="rounded-xl border border-border bg-surface px-5 py-4 flex items-center justify-between gap-4 shadow-sm"
           >
             <div>
               <div className="font-semibold text-foreground">{g.name}</div>
               <div className="text-sm text-muted">{g.email}</div>
             </div>
-            <span
-              className={`text-xs rounded-full px-3 py-1 ${
-                g.confirmation
-                  ? "bg-red-50 text-red-700"
-                  : "bg-black/5 text-muted"
-              }`}
-            >
-              {g.confirmation ? "Confirmó fallecimiento" : "Invitado"}
-            </span>
+            <div className="flex flex-col items-end gap-2">
+              <span
+                className={`text-xs rounded-full px-3 py-1 whitespace-nowrap ${
+                  g.confirmation
+                    ? "bg-red-50 text-red-700"
+                    : g.userId
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "bg-black/5 text-muted"
+                }`}
+              >
+                {g.confirmation
+                  ? "Confirmó fallecimiento"
+                  : g.userId
+                    ? "Registrado"
+                    : "Invitado (pendiente)"}
+              </span>
+              <GuardianActions id={g.id} canResend={!g.userId} />
+            </div>
           </div>
         ))}
       </div>

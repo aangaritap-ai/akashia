@@ -16,19 +16,21 @@ model User {
   lastActiveAt DateTime @default(now())
 
   capsules            Capsule[]
-  guardians           Guardian[]
+  guardians           Guardian[]           @relation("OwnerGuardians")
+  guardianRoles       Guardian[]           @relation("GuardianAccount")
   isDeceased          Boolean              @default(false)
   passwordResetTokens PasswordResetToken[]
   memorialMessages    MemorialMessage[]
 }
 
 model MemorialMessage {
-  id           String   @id @default(cuid())
-  ownerId      String
-  owner        User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  authorName   String
-  message      String
-  createdAt    DateTime @default(now())
+  id         String   @id @default(cuid())
+  ownerId    String
+  owner      User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  authorName String
+  message    String
+  isPublic   Boolean  @default(true)
+  createdAt  DateTime @default(now())
 }
 
 model PasswordResetToken {
@@ -49,12 +51,17 @@ enum GuardianStatus {
 model Guardian {
   id        String         @id @default(cuid())
   ownerId   String
-  owner     User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  owner     User           @relation("OwnerGuardians", fields: [ownerId], references: [id], onDelete: Cascade)
   name      String
   email     String
   status    GuardianStatus @default(PENDING)
   token     String         @unique @default(cuid())
   invitedAt DateTime       @default(now())
+
+  // Set once the invited person registers/logs in with a matching account
+  // and formally accepts the guardian role.
+  userId String?
+  user   User?   @relation("GuardianAccount", fields: [userId], references: [id])
 
   confirmation DeathConfirmation?
 }
@@ -88,6 +95,9 @@ model Capsule {
   triggerType TriggerType
   triggerDate DateTime?
   createdAt   DateTime    @default(now())
+
+  editCount Int     @default(0)
+  sealed    Boolean @default(false)
 
   recipients CapsuleRecipient[]
 }

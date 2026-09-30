@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 const schema = z.object({
   authorName: z.string().min(1).max(80),
   message: z.string().min(1).max(2000),
+  isPublic: z.boolean().optional(),
 });
 
 export async function POST(
@@ -29,6 +30,7 @@ export async function POST(
       ownerId: userId,
       authorName: parsed.data.authorName,
       message: parsed.data.message,
+      isPublic: parsed.data.isPublic ?? true,
     },
   });
 

@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { guardianConfirmedNoticeEmail } from "@/lib/email-templates";
 import { deliverAllDeathCapsules, requiredConfirmations } from "@/lib/delivery";
 
 export async function POST(req: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
   const { token } = await req.json();
   if (!token) {
     return NextResponse.json({ error: "Falta el token" }, { status: 400 });
@@ -17,16 +23,18 @@ export async function POST(req: Request) {
   if (!guardian) {
     return NextResponse.json({ error: "Enlace inválido" }, { status: 404 });
   }
+  if (guardian.userId !== session.user.id) {
+    return NextResponse.json(
+      { error: "Esta invitación no corresponde a tu cuenta" },
+      { status: 403 }
+    );
+  }
   if (guardian.confirmation) {
     return NextResponse.json({ ok: true, alreadyConfirmed: true });
   }
 
   await prisma.deathConfirmation.create({
     data: { guardianId: guardian.id },
-  });
-  await prisma.guardian.update({
-    where: { id: guardian.id },
-    data: { status: "ACCEPTED" },
   });
 
   const allGuardians = await prisma.guardian.findMany({

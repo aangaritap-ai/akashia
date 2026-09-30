@@ -5,15 +5,24 @@ import { AuthError } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { signIn } from "@/lib/auth";
 
+function safeCallback(url: string | undefined) {
+  return url && url.startsWith("/") && !url.startsWith("//") ? url : "/dashboard";
+}
+
 export default async function SignupPage({
   searchParams,
 }: PageProps<"/signup">) {
   const params = await searchParams;
   const error = params?.error;
+  const callbackUrl = safeCallback(
+    typeof params?.callbackUrl === "string" ? params.callbackUrl : undefined
+  );
+  const prefillEmail = typeof params?.email === "string" ? params.email : "";
 
   async function signup(formData: FormData) {
     "use server";
 
+    const dest = safeCallback(formData.get("callbackUrl") as string);
     const name = String(formData.get("name") || "").trim();
     const email = String(formData.get("email") || "")
       .trim()
@@ -21,12 +30,16 @@ export default async function SignupPage({
     const password = String(formData.get("password") || "");
 
     if (!name || !email || password.length < 6) {
-      redirect("/signup?error=invalid");
+      redirect(
+        `/signup?error=invalid&callbackUrl=${encodeURIComponent(dest)}&email=${encodeURIComponent(email)}`
+      );
     }
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
-      redirect("/signup?error=exists");
+      redirect(
+        `/signup?error=exists&callbackUrl=${encodeURIComponent(dest)}&email=${encodeURIComponent(email)}`
+      );
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
@@ -36,7 +49,7 @@ export default async function SignupPage({
       await signIn("credentials", {
         email,
         password,
-        redirectTo: "/dashboard",
+        redirectTo: dest,
       });
     } catch (err) {
       if (err instanceof AuthError) {
@@ -58,7 +71,14 @@ export default async function SignupPage({
 
         {error === "exists" && (
           <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-            Ya existe una cuenta con ese correo.
+            Ya existe una cuenta con ese correo.{" "}
+            <Link
+              href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}&email=${encodeURIComponent(prefillEmail)}`}
+              className="underline"
+            >
+              Entra en su lugar
+            </Link>
+            .
           </div>
         )}
         {error === "invalid" && (
@@ -68,6 +88,7 @@ export default async function SignupPage({
         )}
 
         <form action={signup} className="flex flex-col gap-4">
+          <input type="hidden" name="callbackUrl" value={callbackUrl} />
           <div className="flex flex-col gap-1.5">
             <label htmlFor="name" className="text-sm text-muted">
               Nombre
@@ -88,6 +109,7 @@ export default async function SignupPage({
               id="email"
               name="email"
               type="email"
+              defaultValue={prefillEmail}
               required
               className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
             />
@@ -115,7 +137,10 @@ export default async function SignupPage({
 
         <p className="text-center text-sm text-muted">
           ¿Ya tienes cuenta?{" "}
-          <Link href="/login" className="text-accent">
+          <Link
+            href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}&email=${encodeURIComponent(prefillEmail)}`}
+            className="text-accent"
+          >
             Entra
           </Link>
         </p>

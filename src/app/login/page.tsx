@@ -3,23 +3,33 @@ import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import { signIn } from "@/lib/auth";
 
+function safeCallback(url: string | undefined) {
+  return url && url.startsWith("/") && !url.startsWith("//") ? url : "/dashboard";
+}
+
 export default async function LoginPage({
   searchParams,
 }: PageProps<"/login">) {
   const params = await searchParams;
   const error = params?.error;
+  const callbackUrl = safeCallback(
+    typeof params?.callbackUrl === "string" ? params.callbackUrl : undefined
+  );
+  const prefillEmail =
+    typeof params?.email === "string" ? params.email : "";
 
   async function login(formData: FormData) {
     "use server";
+    const dest = safeCallback(formData.get("callbackUrl") as string);
     try {
       await signIn("credentials", {
         email: formData.get("email"),
         password: formData.get("password"),
-        redirectTo: "/dashboard",
+        redirectTo: dest,
       });
     } catch (err) {
       if (err instanceof AuthError) {
-        redirect("/login?error=1");
+        redirect(`/login?error=1&callbackUrl=${encodeURIComponent(dest)}`);
       }
       throw err;
     }
@@ -42,6 +52,7 @@ export default async function LoginPage({
         )}
 
         <form action={login} className="flex flex-col gap-4">
+          <input type="hidden" name="callbackUrl" value={callbackUrl} />
           <div className="flex flex-col gap-1.5">
             <label htmlFor="email" className="text-sm text-muted">
               Correo
@@ -50,6 +61,7 @@ export default async function LoginPage({
               id="email"
               name="email"
               type="email"
+              defaultValue={prefillEmail}
               required
               className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
             />
@@ -82,7 +94,10 @@ export default async function LoginPage({
 
         <p className="text-center text-sm text-muted">
           ¿No tienes cuenta?{" "}
-          <Link href="/signup" className="text-accent">
+          <Link
+            href={`/signup?callbackUrl=${encodeURIComponent(callbackUrl)}&email=${encodeURIComponent(prefillEmail)}`}
+            className="text-accent"
+          >
             Crea una
           </Link>
         </p>

@@ -82,7 +82,7 @@ export default async function DashboardPage() {
                         )}`}
                   </div>
                 </div>
-                <div className="text-xs">
+                <div className="flex flex-col items-end gap-2 text-xs">
                   {allDelivered ? (
                     <span className="rounded-full bg-emerald-50 text-emerald-700 px-3 py-1">
                       Entregada
@@ -96,6 +96,17 @@ export default async function DashboardPage() {
                       Guardada
                     </span>
                   )}
+                  {!someDelivered &&
+                    (c.sealed ? (
+                      <span className="text-muted">Sellada</span>
+                    ) : (
+                      <Link
+                        href={`/dashboard/capsules/${c.id}/edit`}
+                        className="text-accent font-semibold hover:underline"
+                      >
+                        Editar
+                      </Link>
+                    ))}
                 </div>
               </div>
             );
