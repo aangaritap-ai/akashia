@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import CopyLinkButton from "@/components/CopyLinkButton";
+import ReactionBar from "@/components/ReactionBar";
 
 export default async function MemorialSettingsPage() {
   const session = await auth();
@@ -60,6 +61,17 @@ export default async function MemorialSettingsPage() {
                 <span className="rounded-full bg-black/5 px-2 py-0.5">
                   {m.isPublic ? "Público" : "Privado"}
                 </span>
+              </div>
+              <div className="mt-3">
+                <ReactionBar
+                  messageId={m.id}
+                  initialCounts={{
+                    heartCount: m.heartCount,
+                    condolencesCount: m.condolencesCount,
+                    congratsCount: m.congratsCount,
+                    sadCount: m.sadCount,
+                  }}
+                />
               </div>
             </div>
           ))

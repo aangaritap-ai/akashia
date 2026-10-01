@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import ReactionBar from "@/components/ReactionBar";
 
 export default async function MemorialFeedPage() {
   const messages = await prisma.memorialMessage.findMany({
@@ -54,6 +55,17 @@ export default async function MemorialFeedPage() {
                     {m.owner.name}
                   </Link>{" "}
                   · {new Date(m.createdAt).toLocaleDateString("es")}
+                </div>
+                <div className="mt-3">
+                  <ReactionBar
+                    messageId={m.id}
+                    initialCounts={{
+                      heartCount: m.heartCount,
+                      condolencesCount: m.condolencesCount,
+                      congratsCount: m.congratsCount,
+                      sadCount: m.sadCount,
+                    }}
+                  />
                 </div>
               </div>
             ))

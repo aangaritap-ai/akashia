@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "MemorialMessage" ADD COLUMN     "condolencesCount" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "congratsCount" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "heartCount" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "sadCount" INTEGER NOT NULL DEFAULT 0;

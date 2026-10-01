@@ -55,6 +55,11 @@ model MemorialMessage {
   imageUrl   String?
   isPublic   Boolean  @default(true)
   createdAt  DateTime @default(now())
+
+  heartCount       Int @default(0)
+  condolencesCount Int @default(0)
+  congratsCount    Int @default(0)
+  sadCount         Int @default(0)
 }
 
 model PasswordResetToken {

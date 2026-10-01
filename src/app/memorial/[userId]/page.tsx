@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import MemorialMessageForm from "@/components/MemorialMessageForm";
+import ReactionBar from "@/components/ReactionBar";
 
 export default async function MemorialPage({
   params,
@@ -65,6 +66,17 @@ export default async function MemorialPage({
                       Privado
                     </span>
                   )}
+                </div>
+                <div className="mt-3">
+                  <ReactionBar
+                    messageId={m.id}
+                    initialCounts={{
+                      heartCount: m.heartCount,
+                      condolencesCount: m.condolencesCount,
+                      congratsCount: m.congratsCount,
+                      sadCount: m.sadCount,
+                    }}
+                  />
                 </div>
               </div>
             ))
