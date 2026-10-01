@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import MemorialMessageForm from "@/components/MemorialMessageForm";
 
@@ -23,14 +22,12 @@ export default async function MemorialPage({
     <main className="flex-1 flex flex-col items-center px-6 py-20">
       <div className="w-full max-w-xl flex flex-col gap-10">
         <div className="text-center flex flex-col gap-3">
-          <Link href="/" className="font-display text-lg text-muted">
-            Akashia
-          </Link>
           <h1 className="font-display font-medium text-4xl text-foreground">
-            En memoria de {owner.name}
+            Para {owner.name}
           </h1>
           <p className="text-muted">
-            Un espacio para recordar, agradecer y dejar un mensaje.
+            Un espacio para recordar, celebrar una fecha especial, o
+            simplemente agradecer.
           </p>
         </div>
 

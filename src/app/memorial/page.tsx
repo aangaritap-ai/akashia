@@ -13,15 +13,12 @@ export default async function MemorialFeedPage() {
     <main className="flex-1 flex flex-col items-center px-6 py-20">
       <div className="w-full max-w-xl flex flex-col gap-10">
         <div className="text-center flex flex-col gap-3">
-          <Link href="/" className="font-display text-lg text-muted">
-            Akashia
-          </Link>
           <h1 className="font-display font-medium text-4xl text-foreground">
             Feed de recuerdos
           </h1>
           <p className="text-muted">
-            Mensajes públicos que la comunidad de Akashia ha dejado para sus
-            seres queridos.
+            Mensajes públicos que la comunidad de Akashia ha dejado — para
+            celebrar una fecha especial o para recordar a alguien.
           </p>
         </div>
 
