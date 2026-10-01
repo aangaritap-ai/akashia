@@ -23,6 +23,11 @@ model User {
   passwordResetTokens PasswordResetToken[]
   memorialMessages    MemorialMessage[]
   notifications       Notification[]
+
+  // Grace period between guardians reaching quorum and capsules actually
+  // being delivered, so a mistaken or malicious confirmation can be undone.
+  deceasedPendingAt    DateTime?
+  deceasedCancelToken  String?   @unique
 }
 
 enum NotificationType {

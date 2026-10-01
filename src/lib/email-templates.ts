@@ -44,6 +44,51 @@ export function guardianConfirmedNoticeEmail(opts: {
   );
 }
 
+export function deathPendingOwnerEmail(opts: {
+  name: string;
+  graceHours: number;
+  cancelUrl: string;
+}) {
+  return wrap(
+    "Tus guardianes confirmaron tu fallecimiento",
+    `<p>Hola ${opts.name},</p>
+     <p>Tus guardianes en Akashia acaban de confirmar tu fallecimiento. Si esto es correcto, no necesitas
+     hacer nada — en <strong>${opts.graceHours} horas</strong> tus cápsulas se entregarán a las personas que elegiste.</p>
+     <p><strong>Si esto es un error</strong> (sigues con nosotros), haz clic abajo para cancelarlo de inmediato:</p>
+     <p><a href="${opts.cancelUrl}" style="display:inline-block;background:#1B3A5C;color:#FAF6EF;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:600;">Cancelar — estoy bien</a></p>
+     <p style="color:#8A8172;font-size:13px;">Guarda este correo. El enlace funciona solo hasta que se complete la entrega.</p>`
+  );
+}
+
+export function deathPendingGuardianEmail(opts: {
+  ownerName: string;
+  graceHours: number;
+}) {
+  return wrap(
+    "Se confirmó el fallecimiento — periodo de espera activo",
+    `<p>Se completaron las confirmaciones necesarias para ${opts.ownerName}.</p>
+     <p>Por seguridad, Akashia espera <strong>${opts.graceHours} horas</strong> antes de entregar sus
+     cápsulas — tiempo suficiente para que ${opts.ownerName} pueda cancelarlo si fue un error. Te avisaremos
+     cuando la entrega se complete.</p>`
+  );
+}
+
+export function deathCancelledEmail(opts: { ownerName: string }) {
+  return wrap(
+    "Se canceló la confirmación de fallecimiento",
+    `<p><strong>${opts.ownerName}</strong> canceló la confirmación de fallecimiento — sigue con vida y
+     está al tanto de lo ocurrido. No se entregó ninguna cápsula.</p>`
+  );
+}
+
+export function deathFinalizedGuardianEmail(opts: { ownerName: string }) {
+  return wrap(
+    "Se completó la entrega",
+    `<p>Terminó el periodo de espera y las cápsulas de ${opts.ownerName} ya fueron entregadas a sus
+     destinatarios. Gracias por cuidar este momento.</p>`
+  );
+}
+
 export function capsuleDeliveredEmail(opts: {
   recipientName: string;
   senderName: string;

@@ -1,18 +1,25 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { requiredConfirmations } from "@/lib/delivery";
+import { requiredConfirmations, GRACE_PERIOD_HOURS } from "@/lib/delivery";
 import AddGuardianForm from "@/components/AddGuardianForm";
 import GuardianActions from "@/components/GuardianActions";
+import CancelDeathButton from "@/components/CancelDeathButton";
 
 export default async function GuardiansPage() {
   const session = await auth();
   const userId = session!.user.id;
 
-  const guardians = await prisma.guardian.findMany({
-    where: { ownerId: userId },
-    include: { confirmation: true },
-    orderBy: { invitedAt: "asc" },
-  });
+  const [guardians, me] = await Promise.all([
+    prisma.guardian.findMany({
+      where: { ownerId: userId },
+      include: { confirmation: true },
+      orderBy: { invitedAt: "asc" },
+    }),
+    prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { deceasedPendingAt: true },
+    }),
+  ]);
 
   const confirmed = guardians.filter((g) => g.confirmation).length;
   const needed = requiredConfirmations(guardians.length);
@@ -34,12 +41,24 @@ export default async function GuardiansPage() {
 
       <AddGuardianForm />
 
-      {confirmed > 0 && (
-        <div className="rounded-xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm text-amber-800">
-          {confirmed} de {needed} confirmaciones recibidas.
-          {confirmed >= needed &&
-            " Se activó la entrega de las cápsulas marcadas para el fallecimiento."}
+      {me.deceasedPendingAt ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-5 py-4 flex flex-col gap-3">
+          <p className="text-sm text-red-800">
+            Se completaron las confirmaciones. Las cápsulas se entregarán en{" "}
+            {GRACE_PERIOD_HOURS} horas desde el{" "}
+            {new Date(me.deceasedPendingAt).toLocaleString("es")} a menos
+            que canceles esto.
+          </p>
+          <div className="self-start">
+            <CancelDeathButton />
+          </div>
         </div>
+      ) : (
+        confirmed > 0 && (
+          <div className="rounded-xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm text-amber-800">
+            {confirmed} de {needed} confirmaciones recibidas.
+          </div>
+        )
       )}
 
       <div className="flex flex-col gap-3">

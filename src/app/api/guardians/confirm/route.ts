@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { sendEmail } from "@/lib/email";
 import { guardianConfirmedNoticeEmail } from "@/lib/email-templates";
-import { deliverAllDeathCapsules, requiredConfirmations } from "@/lib/delivery";
+import {
+  requiredConfirmations,
+  startDeathGracePeriod,
+  GRACE_PERIOD_HOURS,
+  notify,
+} from "@/lib/delivery";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -46,7 +50,7 @@ export async function POST(req: Request) {
 
   const otherGuardians = allGuardians.filter((g) => g.id !== guardian.id);
   for (const g of otherGuardians) {
-    await sendEmail({
+    await notify({
       to: g.email,
       subject: `Un guardián confirmó el fallecimiento de ${guardian.owner.name}`,
       html: guardianConfirmedNoticeEmail({
@@ -56,20 +60,17 @@ export async function POST(req: Request) {
     });
   }
 
-  let triggered = false;
+  let pending = false;
   if (confirmedCount >= needed) {
-    await prisma.user.update({
-      where: { id: guardian.ownerId },
-      data: { isDeceased: true },
-    });
-    await deliverAllDeathCapsules(guardian.ownerId);
-    triggered = true;
+    await startDeathGracePeriod(guardian.ownerId);
+    pending = true;
   }
 
   return NextResponse.json({
     ok: true,
     confirmedCount,
     needed,
-    triggered,
+    pending,
+    graceHours: GRACE_PERIOD_HOURS,
   });
 }

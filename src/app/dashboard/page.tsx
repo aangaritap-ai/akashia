@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { GRACE_PERIOD_HOURS } from "@/lib/delivery";
+import CancelDeathButton from "@/components/CancelDeathButton";
 
 const typeLabel: Record<string, string> = {
   TEXT: "Texto",
@@ -12,13 +14,17 @@ export default async function DashboardPage() {
   const session = await auth();
   const userId = session!.user.id;
 
-  const [capsules, guardianCount] = await Promise.all([
+  const [capsules, guardianCount, me] = await Promise.all([
     prisma.capsule.findMany({
       where: { ownerId: userId },
       include: { recipients: true },
       orderBy: { createdAt: "desc" },
     }),
     prisma.guardian.count({ where: { ownerId: userId } }),
+    prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { deceasedPendingAt: true },
+    }),
   ]);
 
   return (
@@ -32,6 +38,20 @@ export default async function DashboardPage() {
           + Nueva cápsula
         </Link>
       </div>
+
+      {me.deceasedPendingAt && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-5 py-4 flex flex-col gap-3">
+          <p className="text-sm text-red-800">
+            Tus guardianes confirmaron tu fallecimiento el{" "}
+            {new Date(me.deceasedPendingAt).toLocaleString("es")}. Tus
+            cápsulas se entregarán en {GRACE_PERIOD_HOURS} horas desde ese
+            momento a menos que canceles esto.
+          </p>
+          <div className="self-start">
+            <CancelDeathButton />
+          </div>
+        </div>
+      )}
 
       {guardianCount === 0 && (
         <div className="rounded-xl border border-accent/20 bg-accent/[0.06] px-5 py-4 text-sm text-accent flex items-center justify-between gap-4">

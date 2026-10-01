@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { deliverCapsule } from "@/lib/delivery";
+import { deliverCapsule, finalizePendingDeaths } from "@/lib/delivery";
 
 export async function GET(req: Request) {
   const authHeader = req.headers.get("authorization");
@@ -24,5 +24,11 @@ export async function GET(req: Request) {
     await deliverCapsule(capsule.id);
   }
 
-  return NextResponse.json({ ok: true, delivered: due.length });
+  const finalizedDeaths = await finalizePendingDeaths();
+
+  return NextResponse.json({
+    ok: true,
+    delivered: due.length,
+    finalizedDeaths,
+  });
 }
