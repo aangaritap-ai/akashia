@@ -16,11 +16,12 @@ export default async function MemorialSettingsPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="font-display text-2xl text-foreground">Tu memorial</h1>
+        <h1 className="font-display text-2xl text-foreground">Mi página</h1>
         <p className="text-sm text-muted mt-2 max-w-lg">
-          Un espacio público donde tu familia y amigos pueden dejarte
-          mensajes y recuerdos, hoy o después de que faltes. Comparte este
-          enlace con quien quieras.
+          Tu espacio donde familia y amigos pueden dejarte mensajes y
+          recuerdos, hoy o después de que faltes. Aquí ves todos los que te
+          han dejado (públicos y privados). Comparte tu enlace con quien
+          quieras.
         </p>
       </div>
 

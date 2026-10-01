@@ -12,7 +12,7 @@ import {
 const items = [
   { href: "/dashboard", label: "Cápsulas", icon: IconCapsule, exact: true },
   { href: "/dashboard/guardians", label: "Guardianes", icon: IconShield },
-  { href: "/dashboard/memorial", label: "Memorial", icon: IconMemorial },
+  { href: "/dashboard/memorial", label: "Mi página", icon: IconMemorial },
   { href: "/memorial", label: "Feed", icon: IconFeed },
 ];
 
