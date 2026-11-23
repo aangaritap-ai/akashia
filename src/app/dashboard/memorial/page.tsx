@@ -1,79 +1,54 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import CopyLinkButton from "@/components/CopyLinkButton";
-import ReactionBar from "@/components/ReactionBar";
+import MessageCard from "@/components/MessageCard";
+import ProfileHeader from "@/components/ProfileHeader";
 
 export default async function MemorialSettingsPage() {
   const session = await auth();
   const userId = session!.user.id;
 
-  const messages = await prisma.memorialMessage.findMany({
-    where: { ownerId: userId },
-    orderBy: { createdAt: "desc" },
-  });
+  const [me, messages] = await Promise.all([
+    prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { name: true, avatarUrl: true },
+    }),
+    prisma.memorialMessage.findMany({
+      where: { ownerId: userId },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
 
   const url = `${process.env.APP_URL || "http://localhost:3000"}/memorial/${userId}`;
 
   return (
-    <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="font-display text-2xl text-foreground">Mi página</h1>
-        <p className="text-sm text-muted mt-2 max-w-lg">
-          Tu espacio donde familia y amigos pueden dejarte mensajes y
-          recuerdos, hoy o después de que faltes. Aquí ves todos los que te
-          han dejado (públicos y privados). Comparte tu enlace con quien
-          quieras.
-        </p>
-      </div>
+    <div className="flex flex-col gap-6 max-w-xl w-full mx-auto">
+      <ProfileHeader
+        name={me.name}
+        avatarUrl={me.avatarUrl}
+        eyebrow="Mi página"
+        subtitle="Tu espacio donde familia y amigos pueden dejarte mensajes y recuerdos, hoy o después de que faltes. Aquí ves todos los que te han dejado, públicos y privados."
+        count={messages.length}
+      />
 
-      <div className="rounded-xl border border-border bg-surface px-5 py-4 flex items-center justify-between gap-4 shadow-sm">
-        <code className="text-sm text-muted truncate">{url}</code>
+      <div className="rounded-2xl border border-border bg-surface px-5 py-4 flex items-center justify-between gap-4 shadow-sm">
+        <div className="min-w-0">
+          <div className="text-xs font-semibold uppercase tracking-wider text-gold">
+            Tu enlace para compartir
+          </div>
+          <code className="block mt-1 text-sm text-muted truncate">{url}</code>
+        </div>
         <CopyLinkButton url={url} />
       </div>
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-4">
         {messages.length === 0 ? (
-          <div className="rounded-xl border border-border bg-surface px-6 py-16 text-center text-muted">
+          <div className="rounded-2xl border border-border bg-surface px-6 py-16 text-center text-muted">
             Todavía nadie ha dejado un mensaje. Comparte tu enlace.
           </div>
         ) : (
-          messages.map((m) => (
-            <div
-              key={m.id}
-              className="rounded-xl border border-border bg-surface px-5 py-4 shadow-sm"
-            >
-              {m.imageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={m.imageUrl}
-                  alt=""
-                  className="w-full max-h-96 object-cover rounded-lg mb-3"
-                />
-              )}
-              <div className="text-sm whitespace-pre-line text-foreground">
-                {m.message}
-              </div>
-              <div className="text-xs text-muted mt-3 flex items-center gap-2">
-                <span>
-                  — {m.authorName} ·{" "}
-                  {new Date(m.createdAt).toLocaleDateString("es")}
-                </span>
-                <span className="rounded-full bg-black/5 px-2 py-0.5">
-                  {m.isPublic ? "Público" : "Privado"}
-                </span>
-              </div>
-              <div className="mt-3">
-                <ReactionBar
-                  messageId={m.id}
-                  initialCounts={{
-                    heartCount: m.heartCount,
-                    condolencesCount: m.condolencesCount,
-                    congratsCount: m.congratsCount,
-                    sadCount: m.sadCount,
-                  }}
-                />
-              </div>
-            </div>
+          messages.map((m, i) => (
+            <MessageCard key={m.id} m={m} showPrivacy index={i} />
           ))
         )}
       </div>

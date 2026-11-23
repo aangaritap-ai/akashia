@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import DashboardNav from "@/components/DashboardNav";
 import NavHistoryButtons from "@/components/NavHistoryButtons";
 import { IconBell, IconLogout } from "@/components/icons";
+import { Logo } from "@/components/Logo";
 
 export default async function AppHeader() {
   const session = await auth();
@@ -12,11 +13,8 @@ export default async function AppHeader() {
     return (
       <header className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border px-3 sm:px-6 py-2.5 flex items-center gap-3">
         <NavHistoryButtons />
-        <Link
-          href="/"
-          className="font-display text-lg text-foreground shrink-0"
-        >
-          Akashia
+        <Link href="/" className="text-foreground shrink-0">
+          <Logo markClassName="w-7 h-7" />
         </Link>
         <div className="flex-1" />
         <div className="flex items-center gap-2 shrink-0 text-sm">
@@ -59,11 +57,8 @@ export default async function AppHeader() {
       <div className="px-3 sm:px-6 py-2.5 flex items-center gap-3">
         <NavHistoryButtons />
 
-        <Link
-          href="/dashboard"
-          className="font-display text-lg text-foreground shrink-0"
-        >
-          Akashia
+        <Link href="/dashboard" className="text-foreground shrink-0">
+          <Logo markClassName="w-7 h-7" />
         </Link>
 
         <div className="flex-1 min-w-0 hidden sm:flex justify-center">

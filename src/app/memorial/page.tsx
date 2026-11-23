@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import ReactionBar from "@/components/ReactionBar";
+import MessageCard from "@/components/MessageCard";
 
 export default async function MemorialFeedPage() {
   const messages = await prisma.memorialMessage.findMany({
@@ -11,13 +10,16 @@ export default async function MemorialFeedPage() {
   });
 
   return (
-    <main className="flex-1 flex flex-col items-center px-6 py-20">
-      <div className="w-full max-w-xl flex flex-col gap-10">
+    <main className="flex-1 flex flex-col items-center px-4 sm:px-6 py-12 sm:py-16">
+      <div className="w-full max-w-xl flex flex-col gap-8">
         <div className="text-center flex flex-col gap-3">
+          <div className="text-xs font-semibold tracking-[0.16em] uppercase text-gold">
+            Comunidad
+          </div>
           <h1 className="font-display font-medium text-4xl text-foreground">
             Feed de recuerdos
           </h1>
-          <p className="text-muted">
+          <p className="text-muted leading-relaxed">
             Mensajes públicos que la comunidad de Akashia ha dejado — para
             celebrar una fecha especial o para recordar a alguien.
           </p>
@@ -25,49 +27,13 @@ export default async function MemorialFeedPage() {
 
         <div className="flex flex-col gap-4">
           {messages.length === 0 ? (
-            <div className="rounded-xl border border-border bg-surface px-6 py-16 text-center text-muted">
+            <div className="rounded-2xl border border-border bg-surface px-6 py-16 text-center text-muted">
               Todavía no hay mensajes públicos. Sé el primero en dejar uno en
-              el memorial de alguien.
+              la página de alguien.
             </div>
           ) : (
-            messages.map((m) => (
-              <div
-                key={m.id}
-                className="rounded-xl border border-border bg-surface px-5 py-4 shadow-sm"
-              >
-                {m.imageUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={m.imageUrl}
-                    alt=""
-                    className="w-full max-h-96 object-cover rounded-lg mb-3"
-                  />
-                )}
-                <div className="text-sm whitespace-pre-line text-foreground">
-                  {m.message}
-                </div>
-                <div className="text-xs text-muted mt-3">
-                  — {m.authorName}, para{" "}
-                  <Link
-                    href={`/memorial/${m.owner.id}`}
-                    className="text-accent"
-                  >
-                    {m.owner.name}
-                  </Link>{" "}
-                  · {new Date(m.createdAt).toLocaleDateString("es")}
-                </div>
-                <div className="mt-3">
-                  <ReactionBar
-                    messageId={m.id}
-                    initialCounts={{
-                      heartCount: m.heartCount,
-                      condolencesCount: m.condolencesCount,
-                      congratsCount: m.congratsCount,
-                      sadCount: m.sadCount,
-                    }}
-                  />
-                </div>
-              </div>
+            messages.map((m, i) => (
+              <MessageCard key={m.id} m={m} forUser={m.owner} index={i} />
             ))
           )}
         </div>

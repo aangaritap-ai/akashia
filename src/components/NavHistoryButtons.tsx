@@ -20,7 +20,7 @@ export default function NavHistoryButtons() {
         type="button"
         onClick={() => router.forward()}
         aria-label="Adelante"
-        className="w-8 h-8 flex items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-black/[0.04]"
+        className="hidden sm:flex w-8 h-8 items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-black/[0.04]"
       >
         <IconChevronRight />
       </button>
