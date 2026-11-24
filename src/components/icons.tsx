@@ -202,6 +202,24 @@ export function IconPen({ className = base }: IconProps) {
   );
 }
 
+export function IconUsers({ className = base }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <circle cx="9" cy="8.5" r="3.5" />
+      <path d="M2.5 20c.6-3.4 3.3-5.5 6.5-5.5s5.9 2.1 6.5 5.5" />
+      <path d="M16 5.2a3.3 3.3 0 0 1 0 6.1M18 14.8c1.9.7 3.2 2.4 3.5 5.2" />
+    </svg>
+  );
+}
+
 export function IconLogout({ className = base }: IconProps) {
   return (
     <svg

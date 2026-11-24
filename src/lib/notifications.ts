@@ -22,3 +22,33 @@ export async function notifyGuardianInvite(opts: {
   });
   return true;
 }
+
+export async function notifyConnectionRequest(opts: {
+  toUserId: string;
+  fromName: string;
+}) {
+  await prisma.notification.create({
+    data: {
+      userId: opts.toUserId,
+      type: "CONNECTION_REQUEST",
+      title: "Nueva solicitud de conexión",
+      body: `${opts.fromName} quiere conectar contigo en Akashia.`,
+      linkUrl: "/dashboard/connections",
+    },
+  });
+}
+
+export async function notifyConnectionAccepted(opts: {
+  toUserId: string;
+  fromName: string;
+}) {
+  await prisma.notification.create({
+    data: {
+      userId: opts.toUserId,
+      type: "CONNECTION_ACCEPTED",
+      title: "Solicitud aceptada",
+      body: `${opts.fromName} aceptó tu solicitud. Ya están conectados.`,
+      linkUrl: "/dashboard/connections",
+    },
+  });
+}

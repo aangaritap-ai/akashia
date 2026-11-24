@@ -1,5 +1,8 @@
 import { notFound } from "next/navigation";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { relationBetween } from "@/lib/connections";
+import ConnectButton from "@/components/ConnectButton";
 import MemorialMessageForm from "@/components/MemorialMessageForm";
 import MessageCard from "@/components/MessageCard";
 import ProfileHeader from "@/components/ProfileHeader";
@@ -21,6 +24,14 @@ export default async function MemorialPage({
 
   if (!owner) notFound();
 
+  // Solo quien tiene sesión puede conectar (la página sigue siendo pública).
+  const session = await auth();
+  const viewerId = session?.user?.id ?? null;
+  const relation =
+    viewerId && viewerId !== owner.id
+      ? await relationBetween(viewerId, owner.id)
+      : null;
+
   return (
     <main className="flex-1 flex flex-col items-center px-4 sm:px-6 py-10 sm:py-14">
       <div className="w-full max-w-xl flex flex-col gap-8">
@@ -31,6 +42,16 @@ export default async function MemorialPage({
           subtitle="Un espacio para recordar, celebrar una fecha especial, o simplemente agradecer."
           count={owner.memorialMessages.length}
         />
+
+        {viewerId && viewerId !== owner.id && relation && (
+          <div className="flex justify-end -mt-4">
+            <ConnectButton
+              userId={owner.id}
+              initialState={relation.state}
+              initialConnectionId={relation.connectionId}
+            />
+          </div>
+        )}
 
         <MemorialMessageForm userId={owner.id} />
 
