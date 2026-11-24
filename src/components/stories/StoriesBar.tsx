@@ -92,7 +92,7 @@ export default function StoriesBar({
 
         {others.length === 0 && (
           <p className="self-center text-xs text-muted max-w-[220px] leading-relaxed">
-            Aquí aparecerán las historias de tus conexiones.
+            Aquí aparecerán las historias de las personas que sigues.
           </p>
         )}
       </div>

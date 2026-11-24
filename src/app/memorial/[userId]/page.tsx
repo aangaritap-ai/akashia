@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { relationBetween } from "@/lib/connections";
-import ConnectButton from "@/components/ConnectButton";
+import { followBetween } from "@/lib/connections";
+import FollowButton from "@/components/FollowButton";
 import MemorialMessageForm from "@/components/MemorialMessageForm";
 import MessageCard from "@/components/MessageCard";
 import ProfileHeader from "@/components/ProfileHeader";
@@ -24,12 +24,12 @@ export default async function MemorialPage({
 
   if (!owner) notFound();
 
-  // Solo quien tiene sesión puede conectar (la página sigue siendo pública).
+  // Solo quien tiene sesión puede seguir (la página sigue siendo pública).
   const session = await auth();
   const viewerId = session?.user?.id ?? null;
-  const relation =
+  const follow =
     viewerId && viewerId !== owner.id
-      ? await relationBetween(viewerId, owner.id)
+      ? await followBetween(viewerId, owner.id)
       : null;
 
   return (
@@ -43,12 +43,12 @@ export default async function MemorialPage({
           count={owner.memorialMessages.length}
         />
 
-        {viewerId && viewerId !== owner.id && relation && (
+        {follow && (
           <div className="flex justify-end -mt-4">
-            <ConnectButton
+            <FollowButton
               userId={owner.id}
-              initialState={relation.state}
-              initialConnectionId={relation.connectionId}
+              initialState={follow.state}
+              initialConnectionId={follow.connectionId}
             />
           </div>
         )}

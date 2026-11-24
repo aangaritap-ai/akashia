@@ -1,6 +1,6 @@
 import { del } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
-import { areConnected, getConnectionIds } from "@/lib/connections";
+import { getFollowingIds, isFollowing } from "@/lib/connections";
 
 export const STORY_HOURS = 24;
 export const MAX_CAPTION = 140;
@@ -31,14 +31,14 @@ export type StoryGroup = {
 };
 
 /** Historias activas (no vencidas) que `userId` puede ver: las suyas y las de
- * sus conexiones, agrupadas por autor. Mías primero; luego las que tienen
- * historias sin ver; luego por la más reciente. */
+ * las personas que sigue (con aprobación), agrupadas por autor. Mías primero;
+ * luego las que tienen historias sin ver; luego por la más reciente. */
 export async function getVisibleStories(userId: string): Promise<StoryGroup[]> {
-  const connectionIds = await getConnectionIds(userId);
+  const followingIds = await getFollowingIds(userId);
 
   const stories = await prisma.story.findMany({
     where: {
-      authorId: { in: [userId, ...connectionIds] },
+      authorId: { in: [userId, ...followingIds] },
       expiresAt: { gt: new Date() },
     },
     orderBy: { createdAt: "asc" },
@@ -84,13 +84,14 @@ export async function getVisibleStories(userId: string): Promise<StoryGroup[]> {
 }
 
 /** Única regla de visibilidad: la historia no venció y quien mira es el
- * autor o está conectado con él. */
+ * autor o lo sigue (con su aprobación). */
 export async function canViewStory(
   viewerId: string,
   story: { authorId: string; expiresAt: Date }
 ): Promise<boolean> {
   if (story.expiresAt.getTime() <= Date.now()) return false;
-  return areConnected(viewerId, story.authorId);
+  if (viewerId === story.authorId) return true;
+  return isFollowing(viewerId, story.authorId);
 }
 
 /** Borra las historias vencidas y sus fotos. Lo llama el cron diario; la

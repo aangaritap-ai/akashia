@@ -3,15 +3,15 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import Avatar from "@/components/Avatar";
-import ConnectButton from "@/components/ConnectButton";
+import FollowButton from "@/components/FollowButton";
 import { inputClass } from "@/components/ui";
-import type { RelationState } from "@/lib/connections";
+import type { FollowState } from "@/lib/connections";
 
 type Found = {
   id: string;
   name: string;
   avatarUrl: string | null;
-  state: RelationState;
+  state: FollowState;
   connectionId: string | null;
 };
 
@@ -89,7 +89,7 @@ export default function ConnectionSearch() {
                   {u.name}
                 </span>
               </Link>
-              <ConnectButton
+              <FollowButton
                 userId={u.id}
                 initialState={u.state}
                 initialConnectionId={u.connectionId}

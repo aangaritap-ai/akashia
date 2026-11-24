@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { relationFromRow } from "@/lib/connections";
+import { followFromRow } from "@/lib/connections";
 
 // Busca personas por nombre. A propósito NO busca ni devuelve correos, para
 // que nadie pueda recorrer la lista de correos de los usuarios.
@@ -27,21 +27,16 @@ export async function GET(req: Request) {
     take: 8,
   });
 
+  // Mi relación hacia cada resultado (a quién sigo o pedí seguir).
   const rows = await prisma.connection.findMany({
-    where: {
-      OR: [
-        { requesterId: me, addresseeId: { in: users.map((u) => u.id) } },
-        { addresseeId: me, requesterId: { in: users.map((u) => u.id) } },
-      ],
-    },
-    select: { id: true, status: true, requesterId: true, addresseeId: true },
+    where: { requesterId: me, addresseeId: { in: users.map((u) => u.id) } },
+    select: { id: true, status: true, addresseeId: true },
   });
 
   const result = users.map((u) => {
-    const row =
-      rows.find((r) => r.requesterId === u.id || r.addresseeId === u.id) ??
-      null;
-    const rel = relationFromRow(row, me);
+    const rel = followFromRow(
+      rows.find((r) => r.addresseeId === u.id) ?? null
+    );
     return { ...u, state: rel.state, connectionId: rel.connectionId };
   });
 

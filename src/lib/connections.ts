@@ -1,76 +1,68 @@
 import { prisma } from "@/lib/prisma";
 
+// "Seguir con aprobación", de un solo sentido. En la tabla Connection:
+//   requesterId = quien sigue (o pide seguir)
+//   addresseeId = a quien se sigue, que aprueba o rechaza
+// Que A siga a B no significa que B siga a A.
+
 /** Máximo de solicitudes enviadas pendientes por persona (evita spam). */
 export const MAX_PENDING_SENT = 50;
 
-/** IDs de las personas conectadas (aceptadas) con el usuario, sin importar
- * quién envió la solicitud. */
-export async function getConnectionIds(userId: string): Promise<string[]> {
+/** IDs de las personas a las que `userId` sigue (ya aprobado). */
+export async function getFollowingIds(userId: string): Promise<string[]> {
   const rows = await prisma.connection.findMany({
-    where: {
-      status: "ACCEPTED",
-      OR: [{ requesterId: userId }, { addresseeId: userId }],
-    },
-    select: { requesterId: true, addresseeId: true },
+    where: { requesterId: userId, status: "ACCEPTED" },
+    select: { addresseeId: true },
   });
-  return rows.map((r) =>
-    r.requesterId === userId ? r.addresseeId : r.requesterId
-  );
+  return rows.map((r) => r.addresseeId);
 }
 
-export async function areConnected(a: string, b: string): Promise<boolean> {
-  if (a === b) return true;
+/** ¿`followerId` sigue a `followedId`, con aprobación? */
+export async function isFollowing(
+  followerId: string,
+  followedId: string
+): Promise<boolean> {
   const row = await prisma.connection.findFirst({
     where: {
+      requesterId: followerId,
+      addresseeId: followedId,
       status: "ACCEPTED",
-      OR: [
-        { requesterId: a, addresseeId: b },
-        { requesterId: b, addresseeId: a },
-      ],
     },
     select: { id: true },
   });
   return row !== null;
 }
 
-/** Solicitudes recibidas que aún no se han respondido. */
+/** Solicitudes para seguirme que aún no he respondido. */
 export function pendingReceivedCount(userId: string) {
   return prisma.connection.count({
     where: { addresseeId: userId, status: "PENDING" },
   });
 }
 
-export type RelationState = "none" | "connected" | "sent" | "received";
+/** Mi relación hacia otra persona: no la sigo, pedí seguirla, o la sigo. */
+export type FollowState = "none" | "sent" | "following";
 
-export type Relation = { state: RelationState; connectionId: string | null };
+export type Follow = { state: FollowState; connectionId: string | null };
 
-/** Relación entre `me` y `other`, vista desde `me`. */
-export async function relationBetween(
-  me: string,
-  other: string
-): Promise<Relation> {
-  const row = await prisma.connection.findFirst({
-    where: {
-      OR: [
-        { requesterId: me, addresseeId: other },
-        { requesterId: other, addresseeId: me },
-      ],
-    },
-    select: { id: true, status: true, requesterId: true },
-  });
-  return relationFromRow(row, me);
-}
-
-export function relationFromRow(
-  row: { id: string; status: string; requesterId: string } | null,
-  me: string
-): Relation {
+export function followFromRow(
+  row: { id: string; status: string } | null
+): Follow {
   if (!row) return { state: "none", connectionId: null };
-  if (row.status === "ACCEPTED") {
-    return { state: "connected", connectionId: row.id };
-  }
   return {
-    state: row.requesterId === me ? "sent" : "received",
+    state: row.status === "ACCEPTED" ? "following" : "sent",
     connectionId: row.id,
   };
+}
+
+/** Mi relación hacia `other`, vista desde `me`. */
+export async function followBetween(
+  me: string,
+  other: string
+): Promise<Follow> {
+  const row = await prisma.connection.findFirst({
+    where: { requesterId: me, addresseeId: other },
+    select: { id: true, status: true },
+  });
+  return followFromRow(row);
 }

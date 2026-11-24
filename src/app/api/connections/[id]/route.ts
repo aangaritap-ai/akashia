@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { notifyConnectionAccepted } from "@/lib/notifications";
+import { notifyFollowAccepted } from "@/lib/notifications";
 
 const patchSchema = z.object({ action: z.enum(["accept", "decline"]) });
 
-// Responder una solicitud recibida (solo el destinatario).
+// Responder una solicitud para seguirme (solo la persona seguida).
 export async function PATCH(
   req: Request,
   { params }: RouteContext<"/api/connections/[id]">
@@ -45,14 +45,15 @@ export async function PATCH(
     where: { id: me },
     select: { name: true },
   });
-  await notifyConnectionAccepted({
+  await notifyFollowAccepted({
     toUserId: connection.requesterId,
     fromName: meUser.name,
   });
   return NextResponse.json({ ok: true });
 }
 
-// Cancelar una solicitud enviada, o quitar una conexión (cualquiera de las dos partes).
+// Cancelar mi solicitud o dejar de seguir (quien sigue), o quitar a un
+// seguidor (la persona seguida).
 export async function DELETE(
   _req: Request,
   { params }: RouteContext<"/api/connections/[id]">

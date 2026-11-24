@@ -48,9 +48,9 @@ enum ConnectionStatus {
   ACCEPTED
 }
 
-// Conexión entre dos personas. Empieza como solicitud (PENDING) del
-// solicitante al destinatario y pasa a ACCEPTED cuando este la acepta.
-// Una conexión aceptada es mutua: no importa quién la inició.
+// Seguimiento de un solo sentido, con aprobación: requester (quien sigue)
+// pide seguir a addressee (a quien se sigue), que acepta (ACCEPTED) o
+// rechaza. Ver src/lib/connections.ts.
 model Connection {
   id          String           @id @default(cuid())
   requesterId String
@@ -66,7 +66,7 @@ model Connection {
 }
 
 // Historia: foto con texto corto que dura 24 horas y solo ven el autor y sus
-// conexiones. La visibilidad se decide en src/lib/stories.ts.
+// seguidores aprobados. La visibilidad se decide en src/lib/stories.ts.
 model Story {
   id        String      @id @default(cuid())
   authorId  String

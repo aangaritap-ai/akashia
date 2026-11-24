@@ -23,7 +23,7 @@ export async function notifyGuardianInvite(opts: {
   return true;
 }
 
-export async function notifyConnectionRequest(opts: {
+export async function notifyFollowRequest(opts: {
   toUserId: string;
   fromName: string;
 }) {
@@ -31,14 +31,14 @@ export async function notifyConnectionRequest(opts: {
     data: {
       userId: opts.toUserId,
       type: "CONNECTION_REQUEST",
-      title: "Nueva solicitud de conexión",
-      body: `${opts.fromName} quiere conectar contigo en Akashia.`,
+      title: "Quieren seguirte",
+      body: `${opts.fromName} quiere seguirte en Akashia.`,
       linkUrl: "/dashboard/connections",
     },
   });
 }
 
-export async function notifyConnectionAccepted(opts: {
+export async function notifyFollowAccepted(opts: {
   toUserId: string;
   fromName: string;
 }) {
@@ -47,8 +47,8 @@ export async function notifyConnectionAccepted(opts: {
       userId: opts.toUserId,
       type: "CONNECTION_ACCEPTED",
       title: "Solicitud aceptada",
-      body: `${opts.fromName} aceptó tu solicitud. Ya están conectados.`,
-      linkUrl: "/dashboard/connections",
+      body: `${opts.fromName} aceptó tu solicitud. Ya puedes ver sus historias.`,
+      linkUrl: "/memorial",
     },
   });
 }

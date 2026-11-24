@@ -102,7 +102,7 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
             Nueva historia
           </h2>
           <p className="text-sm text-muted mt-1">
-            Dura 24 horas. La ven tú y tus conexiones.
+            Dura 24 horas. La ven tú y los seguidores que apruebes.
           </p>
         </div>
 
