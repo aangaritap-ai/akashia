@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { deliverCapsule, finalizePendingDeaths } from "@/lib/delivery";
+import { cleanupExpiredStories } from "@/lib/stories";
 
 export async function GET(req: Request) {
   const authHeader = req.headers.get("authorization");
@@ -26,9 +27,22 @@ export async function GET(req: Request) {
 
   const finalizedDeaths = await finalizePendingDeaths();
 
+  // Limpieza de historias vencidas. Aislada: un fallo aquí no debe impedir
+  // que las entregas de arriba se reporten como hechas.
+  let expiredStoriesDeleted = 0;
+  try {
+    expiredStoriesDeleted = await cleanupExpiredStories();
+  } catch (err) {
+    console.error(
+      "[Akashia] Falló la limpieza de historias:",
+      err instanceof Error ? err.message : err
+    );
+  }
+
   return NextResponse.json({
     ok: true,
     delivered: due.length,
     finalizedDeaths,
+    expiredStoriesDeleted,
   });
 }

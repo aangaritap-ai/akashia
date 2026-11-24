@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { GRACE_PERIOD_HOURS } from "@/lib/delivery";
 import CancelDeathButton from "@/components/CancelDeathButton";
 import { LogoMark } from "@/components/Logo";
+import StoriesBar from "@/components/stories/StoriesBar";
+import { getVisibleStories } from "@/lib/stories";
 import { IconCalendar, IconLock, IconMemorial } from "@/components/icons";
 import {
   Callout,
@@ -32,9 +34,15 @@ export default async function DashboardPage() {
     prisma.guardian.count({ where: { ownerId: userId } }),
     prisma.user.findUniqueOrThrow({
       where: { id: userId },
-      select: { deceasedPendingAt: true },
+      select: {
+        id: true,
+        name: true,
+        avatarUrl: true,
+        deceasedPendingAt: true,
+      },
     }),
   ]);
+  const storyGroups = await getVisibleStories(userId);
 
   return (
     <div className="flex flex-col gap-8">
@@ -49,6 +57,11 @@ export default async function DashboardPage() {
             + Nueva cápsula
           </Link>
         }
+      />
+
+      <StoriesBar
+        groups={storyGroups}
+        me={{ id: me.id, name: me.name, avatarUrl: me.avatarUrl }}
       />
 
       {me.deceasedPendingAt && (

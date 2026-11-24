@@ -27,6 +27,9 @@ model User {
   connectionsSent     Connection[]         @relation("ConnectionRequester")
   connectionsReceived Connection[]         @relation("ConnectionAddressee")
 
+  stories             Story[]              @relation("StoryAuthor")
+  storyViews          StoryView[]          @relation("StoryViewer")
+
   // Grace period between guardians reaching quorum and capsules actually
   // being delivered, so a mistaken or malicious confirmation can be undone.
   deceasedPendingAt    DateTime?
@@ -60,6 +63,34 @@ model Connection {
 
   @@unique([requesterId, addresseeId])
   @@index([addresseeId, status])
+}
+
+// Historia: foto con texto corto que dura 24 horas y solo ven el autor y sus
+// conexiones. La visibilidad se decide en src/lib/stories.ts.
+model Story {
+  id        String      @id @default(cuid())
+  authorId  String
+  author    User        @relation("StoryAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  imageUrl  String
+  caption   String?
+  createdAt DateTime    @default(now())
+  expiresAt DateTime
+  views     StoryView[]
+
+  @@index([authorId, expiresAt])
+  @@index([expiresAt])
+}
+
+model StoryView {
+  id       String   @id @default(cuid())
+  storyId  String
+  story    Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  viewerId String
+  viewer   User     @relation("StoryViewer", fields: [viewerId], references: [id], onDelete: Cascade)
+  viewedAt DateTime @default(now())
+
+  @@unique([storyId, viewerId])
+  @@index([viewerId])
 }
 
 model Notification {

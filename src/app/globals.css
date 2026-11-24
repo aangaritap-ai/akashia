@@ -104,8 +104,24 @@ button:not(:disabled):active {
   }
 }
 
+@keyframes story-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
 .reveal {
   animation: fade-up 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Barra de progreso de una historia: debe durar lo mismo que STORY_MS (5 s)
+   en StoryViewer. */
+.story-progress {
+  transform-origin: left;
+  animation: story-progress 5s linear forwards;
 }
 
 .float-soft {
@@ -124,6 +140,10 @@ button:not(:disabled):active {
   .float-soft,
   .glow-pulse {
     animation: none;
+  }
+  .story-progress {
+    animation: none;
+    transform: scaleX(1);
   }
   a,
   button {
