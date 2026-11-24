@@ -52,7 +52,7 @@ export default function Home() {
         />
         <div className="relative flex flex-col items-center text-center gap-6 px-6 pt-20 pb-16 sm:pt-28">
           <div className="reveal" style={{ animationDelay: "0ms" }}>
-            <LogoMark className="w-16 h-16" />
+            <LogoMark className="w-28 h-28" variant="detail" />
           </div>
           <div
             className="reveal text-xs font-semibold tracking-[0.16em] uppercase text-gold"

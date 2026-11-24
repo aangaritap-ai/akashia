@@ -1,44 +1,36 @@
-type MarkProps = { className?: string };
+import { useId } from "react";
+import { heartPrintSvg, type HeartPrintVariant } from "@/components/heartPrint";
 
-// Un arco (puerta / nicho de memoria) con una luz dorada que permanece dentro.
-export function LogoMark({ className = "w-8 h-8" }: MarkProps) {
-  return (
-    <svg
-      viewBox="0 0 48 48"
-      fill="none"
-      className={className}
-      aria-hidden="true"
-    >
-      <path
-        d="M10 41V22a14 14 0 0 1 28 0v19"
-        stroke="var(--accent)"
-        strokeWidth="3.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M17 41V23a7 7 0 0 1 14 0v18"
-        stroke="var(--gold)"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        opacity="0.55"
-      />
-      <circle cx="24" cy="26" r="3.4" fill="var(--gold)" />
-    </svg>
-  );
+type MarkProps = {
+  className?: string;
+  // "detail" para tamaños grandes (landing), "simple" para pequeños (encabezado).
+  variant?: HeartPrintVariant;
+};
+
+// Una huella dactilar con forma de corazón: cada persona deja una huella única.
+export function LogoMark({ className = "w-8 h-8", variant = "simple" }: MarkProps) {
+  const clipId = `hp${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
+  return heartPrintSvg({
+    clipId,
+    ridge: "var(--accent)",
+    core: "var(--gold)",
+    variant,
+    className,
+  });
 }
 
 export function Logo({
   className = "",
   markClassName = "w-8 h-8",
+  variant = "simple",
 }: {
   className?: string;
   markClassName?: string;
+  variant?: HeartPrintVariant;
 }) {
   return (
     <span className={`inline-flex items-center gap-2 ${className}`}>
-      <LogoMark className={markClassName} />
+      <LogoMark className={markClassName} variant={variant} />
       <span className="font-display text-xl tracking-tight">Akashia</span>
     </span>
   );

@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { heartPrintSvg } from "@/components/heartPrint";
 
 export const alt = "Akashia — Deja tu huella en quienes amas";
 export const size = { width: 1200, height: 630 };
@@ -31,24 +32,13 @@ export default function OpenGraphImage() {
             background: "rgba(184,147,90,0.18)",
           }}
         />
-        <svg width="150" height="150" viewBox="0 0 48 48" fill="none">
-          <path
-            d="M10 41V22a14 14 0 0 1 28 0v19"
-            stroke="#1b3a5c"
-            strokeWidth="3.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M17 41V23a7 7 0 0 1 14 0v18"
-            stroke="#b8935a"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            opacity="0.55"
-          />
-          <circle cx="24" cy="26" r="3.4" fill="#b8935a" />
-        </svg>
+        {heartPrintSvg({
+          clipId: "og",
+          ridge: "#1b3a5c",
+          core: "#b8935a",
+          variant: "detail",
+          size: 230,
+        })}
         <div
           style={{
             fontSize: 112,
