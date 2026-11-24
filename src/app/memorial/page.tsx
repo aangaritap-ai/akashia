@@ -1,17 +1,39 @@
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getVisibleStories } from "@/lib/stories";
 import MessageCard from "@/components/MessageCard";
+import StoriesBar from "@/components/stories/StoriesBar";
 
 export default async function MemorialFeedPage() {
-  const messages = await prisma.memorialMessage.findMany({
-    where: { isPublic: true },
-    include: { owner: { select: { id: true, name: true } } },
-    orderBy: { createdAt: "desc" },
-    take: 100,
-  });
+  // El feed es público; las historias solo aparecen con sesión iniciada.
+  const session = await auth();
+  const viewerId = session?.user?.id ?? null;
+
+  const [messages, viewer, storyGroups] = await Promise.all([
+    prisma.memorialMessage.findMany({
+      where: { isPublic: true },
+      include: { owner: { select: { id: true, name: true } } },
+      orderBy: { createdAt: "desc" },
+      take: 100,
+    }),
+    viewerId
+      ? prisma.user.findUnique({
+          where: { id: viewerId },
+          select: { id: true, name: true, avatarUrl: true },
+        })
+      : null,
+    viewerId ? getVisibleStories(viewerId) : [],
+  ]);
 
   return (
-    <main className="flex-1 flex flex-col items-center px-4 sm:px-6 py-12 sm:py-16">
+    <main className="flex-1 flex flex-col items-center px-4 sm:px-6 py-8 sm:py-10">
       <div className="w-full max-w-xl flex flex-col gap-8">
+        {viewer && (
+          <div className="rounded-2xl border border-border bg-surface px-4 py-4 shadow-sm">
+            <StoriesBar groups={storyGroups} me={viewer} />
+          </div>
+        )}
+
         <div className="text-center flex flex-col gap-3">
           <div className="text-xs font-semibold tracking-[0.16em] uppercase text-gold">
             Comunidad
