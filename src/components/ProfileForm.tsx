@@ -3,6 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { IconCamera } from "@/components/icons";
+import Avatar from "@/components/Avatar";
+import {
+  Callout,
+  inputClass,
+  labelClass,
+  primaryButtonClass,
+} from "@/components/ui";
 
 export default function ProfileForm({
   name: initialName,
@@ -68,86 +75,105 @@ export default function ProfileForm({
     router.refresh();
   }
 
-  const initial = name.trim().charAt(0).toUpperCase() || "?";
-
   return (
     <form
       onSubmit={onSubmit}
-      className="rounded-xl border border-border bg-surface p-6 flex flex-col gap-6 shadow-sm"
+      className="reveal rounded-2xl border border-border bg-surface overflow-hidden shadow-sm"
     >
-      {error && (
-        <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-          {error}
-        </div>
-      )}
-      {saved && (
-        <div className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3">
-          Perfil actualizado.
-        </div>
-      )}
+      <div className="relative h-24 sm:h-28 bg-accent overflow-hidden">
+        <div
+          aria-hidden="true"
+          className="absolute -top-16 right-10 w-56 h-56 rounded-full bg-gold/30 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, #faf6ef 1px, transparent 0)",
+            backgroundSize: "18px 18px",
+          }}
+        />
+      </div>
 
-      <div className="flex items-center gap-5">
-        <div className="relative w-20 h-20 shrink-0">
-          {avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+      <div className="px-5 sm:px-7 pb-7 flex flex-col gap-6">
+        <div className="flex items-end gap-4 -mt-10">
+          <div className="relative shrink-0">
+            <Avatar
+              name={name || "?"}
               src={avatarUrl}
-              alt={name}
-              className="w-20 h-20 rounded-full object-cover border border-border"
+              size="xl"
+              className="relative ring-4 ring-surface shadow-sm"
             />
-          ) : (
-            <div className="w-20 h-20 rounded-full bg-accent/15 text-accent flex items-center justify-center font-display text-2xl border border-border">
-              {initial}
-            </div>
-          )}
-          <label
-            className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-accent text-background flex items-center justify-center cursor-pointer hover:brightness-110"
-            aria-label="Cambiar foto"
-          >
-            <IconCamera className="w-4 h-4" />
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => onPhotoChange(e.target.files?.[0] ?? null)}
-            />
+            <label
+              className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-accent text-background ring-2 ring-surface flex items-center justify-center cursor-pointer hover:brightness-110"
+              aria-label="Cambiar foto"
+            >
+              <IconCamera className="w-4 h-4" />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => onPhotoChange(e.target.files?.[0] ?? null)}
+              />
+            </label>
+          </div>
+          <div className="pb-1 text-sm text-muted">
+            {uploading
+              ? "Subiendo foto..."
+              : "Toca la cámara para cambiar tu foto."}
+          </div>
+        </div>
+
+        {error && (
+          <Callout tone="danger" className="!py-3">
+            {error}
+          </Callout>
+        )}
+        {saved && (
+          <Callout tone="success" className="!py-3">
+            Perfil actualizado.
+          </Callout>
+        )}
+
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="profile-name" className={labelClass}>
+            Nombre
           </label>
+          <input
+            id="profile-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            className={inputClass}
+          />
         </div>
-        <div className="text-sm text-muted">
-          {uploading ? "Subiendo foto..." : "Haz clic en la cámara para cambiar tu foto."}
+
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="profile-email" className={labelClass}>
+            Correo
+          </label>
+          <input
+            id="profile-email"
+            value={email}
+            disabled
+            className={inputClass}
+          />
+        </div>
+
+        <div className="flex items-center justify-between gap-4">
+          <button
+            type="submit"
+            disabled={saving || uploading}
+            className={primaryButtonClass}
+          >
+            {saving ? "Guardando..." : "Guardar cambios"}
+          </button>
+          <div className="text-xs text-muted">
+            Miembro desde {new Date(memberSince).toLocaleDateString("es")}
+          </div>
         </div>
       </div>
-
-      <div className="flex flex-col gap-1.5">
-        <label className="text-sm text-muted">Nombre</label>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-accent"
-        />
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <label className="text-sm text-muted">Correo</label>
-        <input
-          value={email}
-          disabled
-          className="rounded-lg border border-border bg-black/[0.03] px-4 py-2.5 text-sm text-muted"
-        />
-      </div>
-
-      <div className="text-xs text-muted">
-        Miembro desde {new Date(memberSince).toLocaleDateString("es")}
-      </div>
-
-      <button
-        type="submit"
-        disabled={saving || uploading}
-        className="self-start rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-background hover:brightness-110 disabled:opacity-60"
-      >
-        {saving ? "Guardando..." : "Guardar cambios"}
-      </button>
     </form>
   );
 }

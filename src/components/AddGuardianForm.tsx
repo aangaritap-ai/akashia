@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { Callout, inputClass, primaryButtonClass } from "@/components/ui";
 
 type FoundUser = { id: string; name: string; email: string };
 
@@ -85,22 +86,14 @@ export default function AddGuardianForm() {
   return (
     <form
       onSubmit={onSubmit}
-      className="rounded-xl border border-border bg-surface p-5 flex flex-col gap-3 shadow-sm"
+      className="reveal rounded-2xl border border-border bg-surface p-5 flex flex-col gap-3 shadow-sm"
     >
-      <div className="text-sm font-semibold text-foreground">
+      <div className="font-display text-lg text-foreground">
         Añadir guardián
       </div>
-      {error && <div className="text-sm text-red-600">{error}</div>}
-      {warning && (
-        <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-          {warning}
-        </div>
-      )}
-      {notice && (
-        <div className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
-          {notice}
-        </div>
-      )}
+      {error && <Callout tone="danger" className="!py-3">{error}</Callout>}
+      {warning && <Callout tone="warning" className="!py-3">{warning}</Callout>}
+      {notice && <Callout tone="success" className="!py-3">{notice}</Callout>}
 
       <div className="relative">
         <label className="text-xs text-muted">
@@ -115,10 +108,10 @@ export default function AddGuardianForm() {
           onFocus={() => setShowResults(true)}
           onBlur={() => setTimeout(() => setShowResults(false), 150)}
           placeholder="Buscar por nombre o correo"
-          className="mt-1 w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-accent"
+          className={`mt-1 ${inputClass}`}
         />
         {showResults && (searching || results.length > 0) && (
-          <div className="absolute z-10 mt-1 w-full rounded-lg border border-border bg-surface shadow-lg overflow-hidden">
+          <div className="absolute z-10 mt-1 w-full rounded-xl border border-border bg-surface shadow-lg overflow-hidden">
             {searching ? (
               <div className="px-4 py-2.5 text-sm text-muted">
                 Buscando...
@@ -154,7 +147,7 @@ export default function AddGuardianForm() {
           onChange={(e) => setName(e.target.value)}
           placeholder="Nombre"
           required
-          className="flex-1 rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-accent"
+          className={`flex-1 ${inputClass}`}
         />
         <input
           value={email}
@@ -162,12 +155,12 @@ export default function AddGuardianForm() {
           type="email"
           placeholder="Correo"
           required
-          className="flex-1 rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-accent"
+          className={`flex-1 ${inputClass}`}
         />
         <button
           type="submit"
           disabled={loading}
-          className="rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-background hover:brightness-110 disabled:opacity-60 whitespace-nowrap"
+          className={`${primaryButtonClass} whitespace-nowrap`}
         >
           {loading ? "Enviando..." : "Invitar"}
         </button>

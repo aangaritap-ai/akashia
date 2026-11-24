@@ -5,6 +5,8 @@ import { requiredConfirmations, GRACE_PERIOD_HOURS } from "@/lib/delivery";
 import AddGuardianForm from "@/components/AddGuardianForm";
 import GuardianActions from "@/components/GuardianActions";
 import CancelDeathButton from "@/components/CancelDeathButton";
+import Avatar from "@/components/Avatar";
+import { Callout, ListCard, PageHeader, StatusPill } from "@/components/ui";
 
 export default async function GuardiansPage() {
   const session = await auth();
@@ -32,24 +34,24 @@ export default async function GuardiansPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="font-display text-2xl text-foreground">
-          Tus guardianes
-        </h1>
-        <p className="text-sm text-muted mt-2 max-w-lg">
-          Personas de tu confianza que, si llegas a faltar, confirman tu
-          fallecimiento para que tus cápsulas &quot;al fallecer&quot; se
-          entreguen.{" "}
-          {guardians.length > 0 &&
-            `Se necesitan ${needed} de ${guardians.length} confirmaciones.`}
-        </p>
-      </div>
+      <PageHeader
+        title="Tus guardianes"
+        subtitle={
+          <>
+            Personas de tu confianza que, si llegas a faltar, confirman tu
+            fallecimiento para que tus cápsulas &quot;al fallecer&quot; se
+            entreguen.{" "}
+            {guardians.length > 0 &&
+              `Se necesitan ${needed} de ${guardians.length} confirmaciones.`}
+          </>
+        }
+      />
 
       <AddGuardianForm />
 
       {me.deceasedPendingAt ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-5 py-4 flex flex-col gap-3">
-          <p className="text-sm text-red-800">
+        <Callout tone="danger" className="flex flex-col gap-3">
+          <p>
             Se completaron las confirmaciones. Las cápsulas se entregarán en{" "}
             {GRACE_PERIOD_HOURS} horas desde el{" "}
             {new Date(me.deceasedPendingAt).toLocaleString("es")} a menos
@@ -58,49 +60,47 @@ export default async function GuardiansPage() {
           <div className="self-start">
             <CancelDeathButton />
           </div>
-        </div>
+        </Callout>
       ) : (
         confirmed > 0 && (
-          <div className="rounded-xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm text-amber-800">
+          <Callout tone="warning">
             {confirmed} de {needed} confirmaciones recibidas.
-          </div>
+          </Callout>
         )
       )}
 
       <div className="flex flex-col gap-3">
-        {guardians.map((g) => (
-          <div
-            key={g.id}
-            className="rounded-xl border border-border bg-surface px-5 py-4 flex items-center justify-between gap-4 shadow-sm"
-          >
-            <div>
-              <div className="font-semibold text-foreground">{g.name}</div>
-              <div className="text-sm text-muted">{g.email}</div>
+        {guardians.map((g, i) => (
+          <ListCard key={g.id} index={i}>
+            <div className="flex items-center gap-4 min-w-0">
+              <Avatar name={g.name} size="lg" />
+              <div className="min-w-0">
+                <div className="font-semibold text-foreground truncate">
+                  {g.name}
+                </div>
+                <div className="text-sm text-muted truncate">{g.email}</div>
+              </div>
             </div>
-            <div className="flex flex-col items-end gap-2">
-              <span
-                className={`text-xs rounded-full px-3 py-1 whitespace-nowrap ${
-                  g.confirmation
-                    ? "bg-red-50 text-red-700"
-                    : g.userId
-                      ? "bg-emerald-50 text-emerald-700"
-                      : "bg-black/5 text-muted"
-                }`}
+            <div className="flex flex-col items-end gap-2 shrink-0">
+              <StatusPill
+                tone={
+                  g.confirmation ? "danger" : g.userId ? "success" : "neutral"
+                }
               >
                 {g.confirmation
                   ? "Confirmó fallecimiento"
                   : g.userId
                     ? "Registrado"
                     : "Invitado (pendiente)"}
-              </span>
+              </StatusPill>
               <GuardianActions id={g.id} canResend={!g.userId} />
             </div>
-          </div>
+          </ListCard>
         ))}
       </div>
 
       <div className="border-t border-border pt-8">
-        <h2 className="font-display text-xl text-foreground">
+        <h2 className="font-display font-medium text-2xl text-foreground">
           Donde eres guardián
         </h2>
         <p className="text-sm text-muted mt-2 max-w-lg">
@@ -108,37 +108,37 @@ export default async function GuardiansPage() {
         </p>
 
         {guardingFor.length === 0 ? (
-          <div className="rounded-xl border border-border bg-surface px-6 py-10 mt-4 text-center text-muted">
+          <div className="rounded-2xl border border-border bg-surface px-6 py-10 mt-4 text-center text-sm text-muted">
             Todavía nadie te ha designado como guardián.
           </div>
         ) : (
           <div className="flex flex-col gap-3 mt-4">
-            {guardingFor.map((g) => (
-              <div
-                key={g.id}
-                className="rounded-xl border border-border bg-surface px-5 py-4 flex items-center justify-between gap-4 shadow-sm"
-              >
-                <div>
-                  <div className="font-semibold text-foreground">
-                    {g.owner.name}
-                  </div>
-                  <div className="text-sm text-muted">{g.owner.email}</div>
-                  {g.owner.deceasedPendingAt && (
-                    <div className="text-xs text-red-700 mt-1">
-                      Periodo de espera activo — se entrega en breve.
+            {guardingFor.map((g, i) => (
+              <ListCard key={g.id} index={i}>
+                <div className="flex items-center gap-4 min-w-0">
+                  <Avatar
+                    name={g.owner.name}
+                    src={g.owner.avatarUrl}
+                    size="lg"
+                  />
+                  <div className="min-w-0">
+                    <div className="font-semibold text-foreground truncate">
+                      {g.owner.name}
                     </div>
-                  )}
+                    <div className="text-sm text-muted truncate">
+                      {g.owner.email}
+                    </div>
+                    {g.owner.deceasedPendingAt && (
+                      <div className="text-xs text-red-700 mt-1">
+                        Periodo de espera activo — se entrega en breve.
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="flex flex-col items-end gap-2">
-                  <span
-                    className={`text-xs rounded-full px-3 py-1 whitespace-nowrap ${
-                      g.confirmation
-                        ? "bg-red-50 text-red-700"
-                        : "bg-emerald-50 text-emerald-700"
-                    }`}
-                  >
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                  <StatusPill tone={g.confirmation ? "danger" : "success"}>
                     {g.confirmation ? "Confirmaste fallecimiento" : "Activo"}
-                  </span>
+                  </StatusPill>
                   <Link
                     href={`/guardian/${g.token}`}
                     className="text-xs text-accent font-semibold hover:underline"
@@ -146,7 +146,7 @@ export default async function GuardiansPage() {
                     Ver detalles →
                   </Link>
                 </div>
-              </div>
+              </ListCard>
             ))}
           </div>
         )}

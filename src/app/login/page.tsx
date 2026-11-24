@@ -2,6 +2,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import { signIn } from "@/lib/auth";
+import AuthShell from "@/components/AuthShell";
+import {
+  Callout,
+  inputClass,
+  labelClass,
+  primaryButtonClass,
+} from "@/components/ui";
 
 function safeCallback(url: string | undefined) {
   return url && url.startsWith("/") && !url.startsWith("//") ? url : "/dashboard";
@@ -36,72 +43,66 @@ export default async function LoginPage({
   }
 
   return (
-    <main className="flex-1 flex items-center justify-center px-6 py-20">
-      <div className="w-full max-w-sm flex flex-col gap-6">
-        <div className="text-center">
-          <Link href="/" className="font-display text-2xl text-foreground">
-            Akashia
-          </Link>
-          <p className="text-muted text-sm mt-2">Entra a tu cuenta</p>
-        </div>
-
-        {error && (
-          <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-            Correo o contraseña incorrectos.
-          </div>
-        )}
-
-        <form action={login} className="flex flex-col gap-4">
-          <input type="hidden" name="callbackUrl" value={callbackUrl} />
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="email" className="text-sm text-muted">
-              Correo
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              defaultValue={prefillEmail}
-              required
-              className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="password" className="text-sm text-muted">
-              Contraseña
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
-            />
-          </div>
-          <button
-            type="submit"
-            className="mt-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-background hover:brightness-110"
-          >
-            Entrar
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-muted">
-          <Link href="/forgot-password" className="text-accent">
-            ¿Olvidaste tu contraseña?
-          </Link>
-        </p>
-
-        <p className="text-center text-sm text-muted">
+    <AuthShell
+      title="Bienvenido de nuevo"
+      subtitle="Entra a tu cuenta"
+      footer={
+        <p>
           ¿No tienes cuenta?{" "}
           <Link
             href={`/signup?callbackUrl=${encodeURIComponent(callbackUrl)}&email=${encodeURIComponent(prefillEmail)}`}
-            className="text-accent"
+            className="text-accent font-semibold hover:underline"
           >
             Crea una
           </Link>
         </p>
-      </div>
-    </main>
+      }
+    >
+      {error && (
+        <Callout tone="danger" className="!py-3">
+          Correo o contraseña incorrectos.
+        </Callout>
+      )}
+
+      <form action={login} className="flex flex-col gap-4">
+        <input type="hidden" name="callbackUrl" value={callbackUrl} />
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="email" className={labelClass}>
+            Correo
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            defaultValue={prefillEmail}
+            required
+            className={inputClass}
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-baseline justify-between">
+            <label htmlFor="password" className={labelClass}>
+              Contraseña
+            </label>
+            <Link
+              href="/forgot-password"
+              className="text-xs text-accent hover:underline"
+            >
+              ¿La olvidaste?
+            </Link>
+          </div>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            required
+            className={inputClass}
+          />
+        </div>
+        <button type="submit" className={`mt-1 ${primaryButtonClass}`}>
+          Entrar
+        </button>
+      </form>
+    </AuthShell>
   );
 }

@@ -4,6 +4,13 @@ import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { signIn } from "@/lib/auth";
+import AuthShell from "@/components/AuthShell";
+import {
+  Callout,
+  inputClass,
+  labelClass,
+  primaryButtonClass,
+} from "@/components/ui";
 
 function safeCallback(url: string | undefined) {
   return url && url.startsWith("/") && !url.startsWith("//") ? url : "/dashboard";
@@ -60,91 +67,84 @@ export default async function SignupPage({
   }
 
   return (
-    <main className="flex-1 flex items-center justify-center px-6 py-20">
-      <div className="w-full max-w-sm flex flex-col gap-6">
-        <div className="text-center">
-          <Link href="/" className="font-display text-2xl text-foreground">
-            Akashia
-          </Link>
-          <p className="text-muted text-sm mt-2">Crea tu cuenta</p>
-        </div>
-
-        {error === "exists" && (
-          <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-            Ya existe una cuenta con ese correo.{" "}
-            <Link
-              href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}&email=${encodeURIComponent(prefillEmail)}`}
-              className="underline"
-            >
-              Entra en su lugar
-            </Link>
-            .
-          </div>
-        )}
-        {error === "invalid" && (
-          <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-            Revisa tus datos — la contraseña necesita al menos 6 caracteres.
-          </div>
-        )}
-
-        <form action={signup} className="flex flex-col gap-4">
-          <input type="hidden" name="callbackUrl" value={callbackUrl} />
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="name" className="text-sm text-muted">
-              Nombre
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              required
-              className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="email" className="text-sm text-muted">
-              Correo
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              defaultValue={prefillEmail}
-              required
-              className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="password" className="text-sm text-muted">
-              Contraseña
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              minLength={6}
-              required
-              className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
-            />
-          </div>
-          <button
-            type="submit"
-            className="mt-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-background hover:brightness-110"
-          >
-            Crear cuenta
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-muted">
+    <AuthShell
+      title="Crea tu cuenta"
+      subtitle="Deja tu huella en quienes amas"
+      footer={
+        <p>
           ¿Ya tienes cuenta?{" "}
           <Link
             href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}&email=${encodeURIComponent(prefillEmail)}`}
-            className="text-accent"
+            className="text-accent font-semibold hover:underline"
           >
             Entra
           </Link>
         </p>
-      </div>
-    </main>
+      }
+    >
+      {error === "exists" && (
+        <Callout tone="danger" className="!py-3">
+          Ya existe una cuenta con ese correo.{" "}
+          <Link
+            href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}&email=${encodeURIComponent(prefillEmail)}`}
+            className="underline"
+          >
+            Entra en su lugar
+          </Link>
+          .
+        </Callout>
+      )}
+      {error === "invalid" && (
+        <Callout tone="danger" className="!py-3">
+          Revisa tus datos — la contraseña necesita al menos 6 caracteres.
+        </Callout>
+      )}
+
+      <form action={signup} className="flex flex-col gap-4">
+        <input type="hidden" name="callbackUrl" value={callbackUrl} />
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="name" className={labelClass}>
+            Nombre
+          </label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            required
+            className={inputClass}
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="email" className={labelClass}>
+            Correo
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            defaultValue={prefillEmail}
+            required
+            className={inputClass}
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="password" className={labelClass}>
+            Contraseña
+          </label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            minLength={6}
+            required
+            className={inputClass}
+          />
+          <p className="text-xs text-muted">Al menos 6 caracteres.</p>
+        </div>
+        <button type="submit" className={`mt-1 ${primaryButtonClass}`}>
+          Crear cuenta
+        </button>
+      </form>
+    </AuthShell>
   );
 }
