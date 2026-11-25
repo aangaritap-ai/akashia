@@ -9,10 +9,15 @@ import { MAX_UPLOAD_BYTES, TOO_BIG_MESSAGE } from "@/lib/uploads";
 export default function MemorialMessageForm({
   userId,
   canAttachPhoto,
+  ownerName,
+  isOwner,
 }: {
   userId: string;
   canAttachPhoto: boolean;
+  ownerName: string;
+  isOwner: boolean;
 }) {
+  const firstName = ownerName.split(" ")[0];
   const router = useRouter();
   const [authorName, setAuthorName] = useState("");
   const [message, setMessage] = useState("");
@@ -21,7 +26,7 @@ export default function MemorialMessageForm({
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sent, setSent] = useState(false);
+  const [sent, setSent] = useState<"public" | "private" | null>(null);
 
   function onFileChange(f: File | null) {
     setFile(f);
@@ -65,7 +70,7 @@ export default function MemorialMessageForm({
       setAuthorName("");
       setMessage("");
       onFileChange(null);
-      setSent(true);
+      setSent(isPublic ? "public" : "private");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Algo salió mal");
@@ -84,8 +89,10 @@ export default function MemorialMessageForm({
       </div>
       {error && <div className="text-sm text-red-600">{error}</div>}
       {sent && (
-        <div className="text-sm text-emerald-700">
-          Gracias por dejar tu mensaje.
+        <div role="status" className="text-sm text-emerald-700">
+          {sent === "private" && !isOwner
+            ? `Gracias. Tu mensaje privado solo lo verá ${firstName}.`
+            : "Gracias por dejar tu mensaje."}
         </div>
       )}
       <input
@@ -145,7 +152,7 @@ export default function MemorialMessageForm({
         />
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={() => setIsPublic(true)}
@@ -166,7 +173,7 @@ export default function MemorialMessageForm({
               : "border-border text-muted"
           }`}
         >
-          Privado — solo aquí
+          {isOwner ? "Privado — solo tú" : `Privado — solo ${firstName}`}
         </button>
       </div>
       <button

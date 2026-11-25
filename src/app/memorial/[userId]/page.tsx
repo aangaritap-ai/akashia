@@ -12,23 +12,29 @@ export default async function MemorialPage({
 }: PageProps<"/memorial/[userId]">) {
   const { userId } = await params;
 
+  // La página es pública, pero los mensajes privados solo los ve su dueño.
+  const session = await auth();
+  const viewerId = session?.user?.id ?? null;
+  const isOwner = viewerId === userId;
+
   const owner = await prisma.user.findUnique({
     where: { id: userId },
     select: {
       id: true,
       name: true,
       avatarUrl: true,
-      memorialMessages: { orderBy: { createdAt: "desc" } },
+      memorialMessages: {
+        where: isOwner ? {} : { isPublic: true },
+        orderBy: { createdAt: "desc" },
+      },
     },
   });
 
   if (!owner) notFound();
 
-  // Solo quien tiene sesión puede seguir (la página sigue siendo pública).
-  const session = await auth();
-  const viewerId = session?.user?.id ?? null;
+  // Solo quien tiene sesión puede seguir.
   const follow =
-    viewerId && viewerId !== owner.id
+    viewerId && !isOwner
       ? await followBetween(viewerId, owner.id)
       : null;
 
@@ -56,6 +62,8 @@ export default async function MemorialPage({
         <MemorialMessageForm
           userId={owner.id}
           canAttachPhoto={Boolean(viewerId)}
+          ownerName={owner.name}
+          isOwner={isOwner}
         />
 
         <div className="flex flex-col gap-4">
