@@ -129,12 +129,13 @@ export default function StoriesBar({
           />
         ))}
 
-        {others.length === 0 && (
-          <p className="self-center text-xs text-muted min-w-[140px] max-w-[220px] leading-relaxed">
-            Aquí aparecerán las historias de las personas que sigues.
-          </p>
-        )}
       </div>
+
+      {others.length === 0 && (
+        <p className="mt-1 text-xs text-muted leading-relaxed">
+          Aquí aparecerán las historias de las personas que sigues.
+        </p>
+      )}
 
       {viewing !== null && groups[viewing] && (
         <StoryViewer

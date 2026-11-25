@@ -57,15 +57,15 @@ export default async function AppHeader() {
       <div className="px-3 sm:px-6 py-2.5 flex items-center gap-3">
         <NavHistoryButtons />
 
-        <Link href="/dashboard" className="text-foreground shrink-0">
+        <Link href="/inicio" className="text-foreground shrink-0">
           <Logo markClassName="w-7 h-7" />
         </Link>
 
-        <div className="flex-1 min-w-0 hidden sm:flex justify-center">
+        <div className="flex-1 min-w-0 hidden lg:flex justify-center">
           <DashboardNav />
         </div>
 
-        <div className="flex items-center gap-2 shrink-0 ml-auto sm:ml-0">
+        <div className="flex items-center gap-2 shrink-0 ml-auto lg:ml-0">
           <Link
             href="/dashboard/notifications"
             aria-label="Notificaciones"
@@ -110,7 +110,7 @@ export default async function AppHeader() {
         </div>
       </div>
 
-      <div className="sm:hidden border-t border-border px-2 py-1 flex justify-around">
+      <div className="lg:hidden border-t border-border px-2 py-1 flex justify-around">
         <DashboardNav />
       </div>
     </header>

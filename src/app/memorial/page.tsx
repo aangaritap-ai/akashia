@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getVisibleStories } from "@/lib/stories";
+import { publicMessages } from "@/lib/feed";
 import MessageCard from "@/components/MessageCard";
 import StoriesBar from "@/components/stories/StoriesBar";
 
@@ -10,12 +11,7 @@ export default async function MemorialFeedPage() {
   const viewerId = session?.user?.id ?? null;
 
   const [messages, viewer, storyGroups] = await Promise.all([
-    prisma.memorialMessage.findMany({
-      where: { isPublic: true },
-      include: { owner: { select: { id: true, name: true } } },
-      orderBy: { createdAt: "desc" },
-      take: 100,
-    }),
+    publicMessages(100),
     viewerId
       ? prisma.user.findUnique({
           where: { id: viewerId },

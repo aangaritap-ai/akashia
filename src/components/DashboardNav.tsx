@@ -9,9 +9,11 @@ import {
   IconFeed,
   IconUsers,
   IconCalendar,
+  IconHome,
 } from "@/components/icons";
 
 const items = [
+  { href: "/inicio", label: "Inicio", icon: IconHome },
   { href: "/dashboard", label: "Cápsulas", icon: IconCapsule, exact: true },
   { href: "/dashboard/guardians", label: "Guardianes", icon: IconShield },
   { href: "/dashboard/connections", label: "Seguidores", icon: IconUsers },
@@ -24,7 +26,7 @@ export default function DashboardNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex items-center justify-around sm:justify-center gap-1 w-full overflow-x-auto">
+    <nav className="flex items-center justify-around md:justify-center sm:gap-1 w-full overflow-x-auto">
       {items.map((item) => {
         const active = item.exact
           ? pathname === item.href
@@ -35,7 +37,7 @@ export default function DashboardNav() {
             key={item.href}
             href={item.href}
             title={item.label}
-            className={`flex flex-col items-center gap-0.5 px-1.5 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-[11px] whitespace-nowrap ${
+            className={`flex flex-col items-center gap-0.5 px-1 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-[11px] whitespace-nowrap ${
               active
                 ? "bg-accent/10 text-accent"
                 : "text-muted hover:text-foreground hover:bg-black/[0.03]"

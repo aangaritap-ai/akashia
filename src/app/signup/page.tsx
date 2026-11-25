@@ -13,7 +13,7 @@ import {
 } from "@/components/ui";
 
 function safeCallback(url: string | undefined) {
-  return url && url.startsWith("/") && !url.startsWith("//") ? url : "/dashboard";
+  return url && url.startsWith("/") && !url.startsWith("//") ? url : "/inicio";
 }
 
 export default async function SignupPage({
