@@ -8,23 +8,61 @@ import type { StoryGroup } from "@/lib/stories";
 
 type Me = { id: string; name: string; avatarUrl: string | null };
 
-function Ring({
-  active,
-  children,
+const cardClass =
+  "group relative w-[108px] h-[176px] shrink-0 overflow-hidden rounded-2xl border border-border text-left";
+
+// Tarjeta de un autor: su foto de portada, su avatar y su nombre.
+function StoryCard({
+  group,
+  label,
+  onOpen,
 }: {
-  active: boolean;
-  children: React.ReactNode;
+  group: StoryGroup;
+  label: string;
+  onOpen: () => void;
 }) {
+  // La portada es la primera sin ver; si ya vio todas, la más reciente.
+  const cover =
+    group.stories.find((s) => !s.seen) ??
+    group.stories[group.stories.length - 1];
+
   return (
-    <span
-      className={`rounded-full p-[3px] transition ${
-        active ? "bg-gold" : "bg-border"
-      }`}
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-label={
+        group.isMine
+          ? "Ver tu historia"
+          : `Ver historias de ${group.authorName}${
+              group.hasUnseen ? " (sin ver)" : ""
+            }`
+      }
+      className={`${cardClass} bg-black`}
     >
-      <span className="block rounded-full bg-background p-[2px]">
-        {children}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={cover.imageUrl}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover transition duration-300 group-hover:scale-105"
+      />
+      <span className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/20" />
+      <span
+        className={`absolute top-2 left-2 rounded-full p-[3px] ${
+          group.hasUnseen || group.isMine ? "bg-gold" : "bg-white/70"
+        }`}
+      >
+        <span className="block rounded-full bg-background p-[1px]">
+          <Avatar
+            name={group.authorName}
+            src={group.authorAvatarUrl}
+            size="sm"
+          />
+        </span>
       </span>
-    </span>
+      <span className="absolute bottom-2 inset-x-2 text-xs font-semibold text-white truncate">
+        {label}
+      </span>
+    </button>
   );
 }
 
@@ -43,61 +81,62 @@ export default function StoriesBar({
 
   return (
     <section aria-label="Historias" className="reveal">
-      <div className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1">
-        {/* Tu historia */}
-        <div className="relative w-[76px] shrink-0 flex flex-col items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() =>
-              mine ? setViewing(groups.indexOf(mine)) : setComposing(true)
-            }
-            aria-label={mine ? "Ver tu historia" : "Crear tu historia"}
-            className="flex flex-col items-center gap-1.5"
-          >
-            <Ring active={false}>
-              <Avatar name={me.name} src={me.avatarUrl} size="lg" />
-            </Ring>
-            <span className="text-xs text-foreground truncate max-w-full">
-              Tu historia
+      <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
+        <button
+          type="button"
+          onClick={() => setComposing(true)}
+          aria-label="Agregar una historia"
+          className={`${cardClass} bg-surface flex flex-col`}
+        >
+          <span className="relative block h-[118px] w-full overflow-hidden bg-accent/10">
+            {me.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={me.avatarUrl}
+                alt=""
+                className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
+              />
+            ) : (
+              <span className="flex h-full items-center justify-center font-display text-4xl text-accent">
+                {me.name.trim().charAt(0).toUpperCase()}
+              </span>
+            )}
+          </span>
+          <span className="relative flex flex-1 items-end justify-center pb-2.5">
+            <span className="absolute -top-4 w-8 h-8 rounded-full bg-accent text-accent-foreground ring-4 ring-surface flex items-center justify-center text-lg leading-none font-semibold">
+              +
             </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setComposing(true)}
-            aria-label="Agregar una historia"
-            className="absolute top-[40px] right-[4px] w-6 h-6 rounded-full bg-accent text-accent-foreground ring-2 ring-background flex items-center justify-center text-base leading-none font-semibold hover:brightness-110"
-          >
-            +
-          </button>
-        </div>
+            <span className="text-xs font-semibold text-foreground">
+              Crear historia
+            </span>
+          </span>
+        </button>
+
+        {mine && (
+          <StoryCard
+            group={mine}
+            label="Tu historia"
+            onOpen={() => setViewing(groups.indexOf(mine))}
+          />
+        )}
 
         {others.map((g) => (
-          <button
+          <StoryCard
             key={g.authorId}
-            type="button"
-            onClick={() => setViewing(groups.indexOf(g))}
-            aria-label={`Ver historias de ${g.authorName}${
-              g.hasUnseen ? " (sin ver)" : ""
-            }`}
-            className="w-[76px] shrink-0 flex flex-col items-center gap-1.5"
-          >
-            <Ring active={g.hasUnseen}>
-              <Avatar name={g.authorName} src={g.authorAvatarUrl} size="lg" />
-            </Ring>
-            <span className="text-xs text-foreground truncate max-w-full">
-              {g.authorName.split(" ")[0]}
-            </span>
-          </button>
+            group={g}
+            label={g.authorName.split(" ")[0]}
+            onOpen={() => setViewing(groups.indexOf(g))}
+          />
         ))}
 
         {others.length === 0 && (
-          <p className="self-center text-xs text-muted max-w-[220px] leading-relaxed">
+          <p className="self-center text-xs text-muted min-w-[140px] max-w-[220px] leading-relaxed">
             Aquí aparecerán las historias de las personas que sigues.
           </p>
         )}
       </div>
 
-      {viewing !== null && (
+      {viewing !== null && groups[viewing] && (
         <StoryViewer
           groups={groups}
           startGroup={viewing}

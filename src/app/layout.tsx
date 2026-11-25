@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Public_Sans } from "next/font/google";
+import { Outfit, Public_Sans } from "next/font/google";
 import "./globals.css";
 import AppHeader from "@/components/AppHeader";
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+// Fuente del logo, los títulos y los nombres (clase font-display).
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
 });
@@ -38,7 +39,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="es"
-      className={`${fraunces.variable} ${publicSans.variable} h-full antialiased`}
+      className={`${outfit.variable} ${publicSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <AppHeader />
