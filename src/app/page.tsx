@@ -238,7 +238,7 @@ export default function Home() {
       <footer className="px-6 py-10 border-t border-border">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted">
           <Logo markClassName="w-6 h-6" className="text-foreground" />
-          <nav className="flex items-center gap-5">
+          <nav className="flex flex-wrap justify-center items-center gap-x-5 gap-y-2">
             <Link href="/memorial" className="hover:text-foreground">
               Feed
             </Link>
@@ -247,6 +247,12 @@ export default function Home() {
             </Link>
             <Link href="/signup" className="hover:text-foreground">
               Crear cuenta
+            </Link>
+            <Link href="/privacidad" className="hover:text-foreground">
+              Privacidad
+            </Link>
+            <Link href="/terminos" className="hover:text-foreground">
+              Términos
             </Link>
           </nav>
           <span className="text-xs text-muted/70">

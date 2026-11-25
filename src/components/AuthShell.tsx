@@ -46,6 +46,16 @@ export default function AuthShell({
             {footer}
           </div>
         )}
+
+        <p className="text-center text-xs text-muted">
+          <Link href="/privacidad" className="hover:underline">
+            Privacidad
+          </Link>{" "}
+          ·{" "}
+          <Link href="/terminos" className="hover:underline">
+            Términos
+          </Link>
+        </p>
       </div>
     </main>
   );
