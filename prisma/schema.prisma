@@ -30,6 +30,8 @@ model User {
   stories             Story[]              @relation("StoryAuthor")
   storyViews          StoryView[]          @relation("StoryViewer")
 
+  specialDates        SpecialDate[]
+
   // Grace period between guardians reaching quorum and capsules actually
   // being delivered, so a mistaken or malicious confirmation can be undone.
   deceasedPendingAt    DateTime?
@@ -198,4 +200,30 @@ model CapsuleRecipient {
   email      String
   delivered  Boolean  @default(false)
   deliveredAt DateTime?
+}
+
+enum SpecialDateKind {
+  BIRTHDAY
+  ANNIVERSARY
+  MEMORIAL
+  OTHER
+}
+
+// Fecha que se repite cada año. Privada: solo la ve quien la creó.
+model SpecialDate {
+  id      String          @id @default(cuid())
+  ownerId String
+  owner   User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  title   String
+  kind    SpecialDateKind @default(OTHER)
+  month   Int
+  day     Int
+  // Opcional, para mostrar cuántos años se cumplen.
+  year    Int?
+  // Año del último recordatorio enviado, para no repetirlo.
+  lastRemindedYear Int?
+  createdAt        DateTime @default(now())
+
+  @@index([ownerId])
+  @@index([month, day])
 }

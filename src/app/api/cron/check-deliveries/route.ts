@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { deliverCapsule, finalizePendingDeaths } from "@/lib/delivery";
 import { cleanupExpiredStories } from "@/lib/stories";
+import { createEventReminders } from "@/lib/special-dates-db";
 
 export async function GET(req: Request) {
   const authHeader = req.headers.get("authorization");
@@ -39,10 +40,22 @@ export async function GET(req: Request) {
     );
   }
 
+  // Recordatorios de las fechas especiales de hoy, también aislados.
+  let eventReminders = 0;
+  try {
+    eventReminders = await createEventReminders();
+  } catch (err) {
+    console.error(
+      "[Akashia] Fallaron los recordatorios de fechas:",
+      err instanceof Error ? err.message : err
+    );
+  }
+
   return NextResponse.json({
     ok: true,
     delivered: due.length,
     finalizedDeaths,
     expiredStoriesDeleted,
+    eventReminders,
   });
 }
