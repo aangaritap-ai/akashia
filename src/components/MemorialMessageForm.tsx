@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
+import { shrinkImage } from "@/lib/shrink-image";
 import { MAX_UPLOAD_BYTES, TOO_BIG_MESSAGE } from "@/lib/uploads";
 
 export default function MemorialMessageForm({
@@ -36,9 +37,10 @@ export default function MemorialMessageForm({
       let imageUrl: string | null = null;
 
       if (file) {
-        if (file.size > MAX_UPLOAD_BYTES) throw new Error(TOO_BIG_MESSAGE);
+        const photo = await shrinkImage(file);
+        if (photo.size > MAX_UPLOAD_BYTES) throw new Error(TOO_BIG_MESSAGE);
         const form = new FormData();
-        form.append("file", file);
+        form.append("file", photo);
         const uploadRes = await fetch("/api/memorial/upload", {
           method: "POST",
           body: form,

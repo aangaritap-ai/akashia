@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { IconCamera } from "@/components/icons";
 import { inputClass, primaryButtonClass } from "@/components/ui";
+import { shrinkImage } from "@/lib/shrink-image";
 import { MAX_UPLOAD_BYTES, TOO_BIG_MESSAGE } from "@/lib/uploads";
 
 // Mismos límites que el servidor (src/lib/stories.ts). Se repiten aquí para
@@ -20,6 +21,9 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const previewRef = useRef<string | null>(null);
+  const [preparing, setPreparing] = useState(false);
+  // Número de la última foto elegida, para descartar una anterior que tarde más.
+  const pickRef = useRef(0);
 
   const onKey = useEffectEvent((e: KeyboardEvent) => {
     if (e.key === "Escape" && !busy) onClose();
@@ -37,21 +41,26 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
     };
   }, []);
 
-  function onPick(picked: File | null) {
+  async function onPick(picked: File | null) {
     setError(null);
     if (!picked) return;
     if (!ALLOWED.includes(picked.type)) {
       setError("Usa una foto JPG, PNG, WebP o GIF.");
       return;
     }
-    if (picked.size > MAX_UPLOAD_BYTES) {
+    const turn = ++pickRef.current;
+    setPreparing(true);
+    const ready = await shrinkImage(picked).catch(() => picked);
+    if (turn !== pickRef.current) return;
+    setPreparing(false);
+    if (ready.size > MAX_UPLOAD_BYTES) {
       setError(TOO_BIG_MESSAGE);
       return;
     }
     if (previewRef.current) URL.revokeObjectURL(previewRef.current);
-    const url = URL.createObjectURL(picked);
+    const url = URL.createObjectURL(ready);
     previewRef.current = url;
-    setFile(picked);
+    setFile(ready);
     setPreviewUrl(url);
   }
 
@@ -117,7 +126,9 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
           ) : (
             <>
               <IconCamera className="w-8 h-8 text-muted" />
-              <span className="text-sm text-muted">Elegir una foto</span>
+              <span className="text-sm text-muted">
+                {preparing ? "Preparando la foto..." : "Elegir una foto"}
+              </span>
             </>
           )}
           <input
@@ -172,10 +183,10 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
           </button>
           <button
             type="submit"
-            disabled={busy || !file}
+            disabled={busy || preparing || !file}
             className={primaryButtonClass}
           >
-            {busy ? "Publicando..." : "Publicar"}
+            {busy ? "Publicando..." : preparing ? "Preparando..." : "Publicar"}
           </button>
         </div>
       </form>

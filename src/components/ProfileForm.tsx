@@ -10,6 +10,7 @@ import {
   labelClass,
   primaryButtonClass,
 } from "@/components/ui";
+import { shrinkImage } from "@/lib/shrink-image";
 import { MAX_UPLOAD_BYTES, TOO_BIG_MESSAGE } from "@/lib/uploads";
 
 export default function ProfileForm({
@@ -36,9 +37,10 @@ export default function ProfileForm({
     setUploading(true);
     setError(null);
     try {
-      if (file.size > MAX_UPLOAD_BYTES) throw new Error(TOO_BIG_MESSAGE);
+      const photo = await shrinkImage(file, 800);
+      if (photo.size > MAX_UPLOAD_BYTES) throw new Error(TOO_BIG_MESSAGE);
       const form = new FormData();
-      form.append("file", file);
+      form.append("file", photo);
       const res = await fetch("/api/profile/avatar", {
         method: "POST",
         body: form,
