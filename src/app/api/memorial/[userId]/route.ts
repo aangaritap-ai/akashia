@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 const schema = z.object({
@@ -19,6 +20,14 @@ export async function POST(
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
+  }
+
+  // Sin sesión no se aceptan fotos, tampoco enlaces a imágenes externas.
+  if (parsed.data.imageUrl && !(await auth())?.user?.id) {
+    return NextResponse.json(
+      { error: "Inicia sesión para adjuntar una foto" },
+      { status: 401 }
+    );
   }
 
   const owner = await prisma.user.findUnique({ where: { id: userId } });

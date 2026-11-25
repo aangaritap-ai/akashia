@@ -53,7 +53,10 @@ export default async function MemorialPage({
           </div>
         )}
 
-        <MemorialMessageForm userId={owner.id} />
+        <MemorialMessageForm
+          userId={owner.id}
+          canAttachPhoto={Boolean(viewerId)}
+        />
 
         <div className="flex flex-col gap-4">
           {owner.memorialMessages.length === 0 ? (

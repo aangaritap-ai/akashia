@@ -5,11 +5,11 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { IconCamera } from "@/components/icons";
 import { inputClass, primaryButtonClass } from "@/components/ui";
+import { MAX_UPLOAD_BYTES, TOO_BIG_MESSAGE } from "@/lib/uploads";
 
 // Mismos límites que el servidor (src/lib/stories.ts). Se repiten aquí para
 // avisar antes de subir; el servidor vuelve a validar.
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-const MAX_BYTES = 5 * 1024 * 1024;
 const MAX_CAPTION = 140;
 
 export default function StoryComposer({ onClose }: { onClose: () => void }) {
@@ -44,8 +44,8 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
       setError("Usa una foto JPG, PNG, WebP o GIF.");
       return;
     }
-    if (picked.size > MAX_BYTES) {
-      setError("La foto no puede pesar más de 5 MB.");
+    if (picked.size > MAX_UPLOAD_BYTES) {
+      setError(TOO_BIG_MESSAGE);
       return;
     }
     if (previewRef.current) URL.revokeObjectURL(previewRef.current);

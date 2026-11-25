@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { auth } from "@/lib/auth";
-
-const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+import { MAX_UPLOAD_BYTES, TOO_BIG_MESSAGE, storageConfigured } from "@/lib/uploads";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -10,7 +9,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   }
 
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+  if (!storageConfigured()) {
     return NextResponse.json(
       { error: "El almacenamiento de imágenes no está configurado todavía." },
       { status: 503 }
@@ -28,11 +27,8 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-  if (file.size > MAX_SIZE) {
-    return NextResponse.json(
-      { error: "La imagen no puede pesar más de 5MB" },
-      { status: 400 }
-    );
+  if (file.size > MAX_UPLOAD_BYTES) {
+    return NextResponse.json({ error: TOO_BIG_MESSAGE }, { status: 400 });
   }
 
   const blob = await put(

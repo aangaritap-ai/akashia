@@ -2,8 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Link from "next/link";
+import { MAX_UPLOAD_BYTES, TOO_BIG_MESSAGE } from "@/lib/uploads";
 
-export default function MemorialMessageForm({ userId }: { userId: string }) {
+export default function MemorialMessageForm({
+  userId,
+  canAttachPhoto,
+}: {
+  userId: string;
+  canAttachPhoto: boolean;
+}) {
   const router = useRouter();
   const [authorName, setAuthorName] = useState("");
   const [message, setMessage] = useState("");
@@ -28,6 +36,7 @@ export default function MemorialMessageForm({ userId }: { userId: string }) {
       let imageUrl: string | null = null;
 
       if (file) {
+        if (file.size > MAX_UPLOAD_BYTES) throw new Error(TOO_BIG_MESSAGE);
         const form = new FormData();
         form.append("file", file);
         const uploadRes = await fetch("/api/memorial/upload", {
@@ -93,7 +102,20 @@ export default function MemorialMessageForm({ userId }: { userId: string }) {
         className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-accent resize-none"
       />
 
-      <div className="flex flex-col gap-2">
+      {!canAttachPhoto && (
+        <p className="text-xs text-muted">
+          ¿Quieres adjuntar una foto?{" "}
+          <Link
+            href={`/login?callbackUrl=${encodeURIComponent(`/memorial/${userId}`)}`}
+            className="font-semibold text-accent hover:underline"
+          >
+            Inicia sesión
+          </Link>
+          .
+        </p>
+      )}
+
+      <div className={canAttachPhoto ? "flex flex-col gap-2" : "hidden"}>
         <label className="text-xs text-muted">Foto (opcional)</label>
         {preview && (
           <div className="relative w-fit">

@@ -1,10 +1,19 @@
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
+import { auth } from "@/lib/auth";
+import { MAX_UPLOAD_BYTES, TOO_BIG_MESSAGE, storageConfigured } from "@/lib/uploads";
 
-const MAX_SIZE = 8 * 1024 * 1024; // 8MB
-
+// Adjuntar fotos exige sesión: sin cuenta solo se dejan mensajes de texto.
 export async function POST(req: Request) {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json(
+      { error: "Inicia sesión para adjuntar una foto" },
+      { status: 401 }
+    );
+  }
+
+  if (!storageConfigured()) {
     return NextResponse.json(
       { error: "El almacenamiento de imágenes no está configurado todavía." },
       { status: 503 }
@@ -22,14 +31,11 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-  if (file.size > MAX_SIZE) {
-    return NextResponse.json(
-      { error: "La imagen no puede pesar más de 8MB" },
-      { status: 400 }
-    );
+  if (file.size > MAX_UPLOAD_BYTES) {
+    return NextResponse.json({ error: TOO_BIG_MESSAGE }, { status: 400 });
   }
 
-  const blob = await put(`memorial/${Date.now()}-${file.name}`, file, {
+  const blob = await put(`memorial/${session.user.id}/${Date.now()}-${file.name}`, file, {
     access: "public",
   });
 

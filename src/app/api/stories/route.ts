@@ -9,6 +9,7 @@ import {
   STORY_HOURS,
   STORY_IMAGE_TYPES,
 } from "@/lib/stories";
+import { TOO_BIG_MESSAGE, storageConfigured } from "@/lib/uploads";
 
 // Publicar una historia: foto + texto corto. Exige sesión.
 export async function POST(req: Request) {
@@ -18,7 +19,7 @@ export async function POST(req: Request) {
   }
   const me = session.user.id;
 
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+  if (!storageConfigured()) {
     return NextResponse.json(
       { error: "El almacenamiento de imágenes no está configurado todavía." },
       { status: 503 }
@@ -39,10 +40,7 @@ export async function POST(req: Request) {
     );
   }
   if (file.size > MAX_STORY_IMAGE_BYTES) {
-    return NextResponse.json(
-      { error: "La foto no puede pesar más de 5 MB" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: TOO_BIG_MESSAGE }, { status: 400 });
   }
 
   const rawCaption = form?.get("caption");

@@ -10,6 +10,7 @@ import {
   labelClass,
   primaryButtonClass,
 } from "@/components/ui";
+import { MAX_UPLOAD_BYTES, TOO_BIG_MESSAGE } from "@/lib/uploads";
 
 export default function ProfileForm({
   name: initialName,
@@ -35,6 +36,7 @@ export default function ProfileForm({
     setUploading(true);
     setError(null);
     try {
+      if (file.size > MAX_UPLOAD_BYTES) throw new Error(TOO_BIG_MESSAGE);
       const form = new FormData();
       form.append("file", file);
       const res = await fetch("/api/profile/avatar", {

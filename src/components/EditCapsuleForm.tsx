@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { MAX_UPLOAD_BYTES, TOO_BIG_MESSAGE } from "@/lib/uploads";
 
 type CapsuleType = "TEXT" | "AUDIO" | "VIDEO";
 type TriggerType = "DATE" | "DEATH";
@@ -54,6 +55,7 @@ export default function EditCapsuleForm({
       let mediaUrl: string | null = existingMediaUrl;
 
       if ((type === "AUDIO" || type === "VIDEO") && file) {
+        if (file.size > MAX_UPLOAD_BYTES) throw new Error(TOO_BIG_MESSAGE);
         const form = new FormData();
         form.append("file", file);
         const uploadRes = await fetch("/api/upload", {

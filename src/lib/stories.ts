@@ -1,10 +1,11 @@
 import { del } from "@vercel/blob";
+import { MAX_UPLOAD_BYTES } from "@/lib/uploads";
 import { prisma } from "@/lib/prisma";
 import { getFollowingIds, isFollowing } from "@/lib/connections";
 
 export const STORY_HOURS = 24;
 export const MAX_CAPTION = 140;
-export const MAX_STORY_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
+export const MAX_STORY_IMAGE_BYTES = MAX_UPLOAD_BYTES;
 export const MAX_ACTIVE_STORIES = 20; // por persona
 export const STORY_IMAGE_TYPES: Record<string, string> = {
   "image/jpeg": "jpg",
