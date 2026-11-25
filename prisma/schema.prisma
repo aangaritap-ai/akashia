@@ -33,6 +33,7 @@ model User {
   storyViews          StoryView[]          @relation("StoryViewer")
 
   specialDates        SpecialDate[]
+  pets                Pet[]
 
   // Grace period between guardians reaching quorum and capsules actually
   // being delivered, so a mistaken or malicious confirmation can be undone.
@@ -123,6 +124,12 @@ model MemorialMessage {
   condolencesCount Int @default(0)
   congratsCount    Int @default(0)
   sadCount         Int @default(0)
+
+  // Si el mensaje es para una mascota; ownerId sigue siendo su familia.
+  petId String?
+  pet   Pet?    @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@index([petId])
 }
 
 model PasswordResetToken {
@@ -226,6 +233,41 @@ model SpecialDate {
   lastRemindedYear Int?
   createdAt        DateTime @default(now())
 
+  // Fechas creadas a partir de una mascota.
+  petId String?
+  pet   Pet?    @relation(fields: [petId], references: [id], onDelete: Cascade)
+
   @@index([ownerId])
+  @@index([petId])
   @@index([month, day])
+}
+
+enum PetSpecies {
+  DOG
+  CAT
+  BIRD
+  RABBIT
+  FISH
+  HORSE
+  OTHER
+}
+
+// Huellitas: la página de una mascota, en vida o como memorial.
+model Pet {
+  id           String     @id @default(cuid())
+  ownerId      String
+  owner        User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name         String
+  species      PetSpecies @default(OTHER)
+  photoUrl     String?
+  story        String?
+  birthDate    DateTime?  @db.Date
+  adoptionDate DateTime?  @db.Date
+  passedDate   DateTime?  @db.Date
+  createdAt    DateTime   @default(now())
+
+  messages     MemorialMessage[]
+  specialDates SpecialDate[]
+
+  @@index([ownerId])
 }

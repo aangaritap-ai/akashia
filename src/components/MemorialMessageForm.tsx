@@ -11,8 +11,10 @@ export default function MemorialMessageForm({
   canAttachPhoto,
   ownerName,
   isOwner,
+  petId,
 }: {
   userId: string;
+  petId?: string;
   canAttachPhoto: boolean;
   ownerName: string;
   isOwner: boolean;
@@ -60,7 +62,13 @@ export default function MemorialMessageForm({
       const res = await fetch(`/api/memorial/${userId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ authorName, message, imageUrl, isPublic }),
+        body: JSON.stringify({
+          authorName,
+          message,
+          imageUrl,
+          isPublic,
+          petId,
+        }),
       });
 
       if (!res.ok) {
@@ -115,7 +123,9 @@ export default function MemorialMessageForm({
         <p className="text-xs text-muted">
           ¿Quieres adjuntar una foto?{" "}
           <Link
-            href={`/login?callbackUrl=${encodeURIComponent(`/memorial/${userId}`)}`}
+            href={`/login?callbackUrl=${encodeURIComponent(
+              petId ? `/huellitas/${petId}` : `/memorial/${userId}`
+            )}`}
             className="font-semibold text-accent hover:underline"
           >
             Inicia sesión

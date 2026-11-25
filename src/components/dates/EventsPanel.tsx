@@ -1,3 +1,4 @@
+import Link from "next/link";
 import DeleteDateButton from "@/components/dates/DeleteDateButton";
 import { IconCalendar } from "@/components/icons";
 import { ListCard, StatusPill } from "@/components/ui";
@@ -63,7 +64,16 @@ export default function EventsPanel({ events }: { events: UpcomingDate[] }) {
                   </div>
                 </div>
               </div>
-              <DeleteDateButton id={event.id} label={label} />
+              {event.petId ? (
+                <Link
+                  href={`/dashboard/pets/${event.petId}`}
+                  className="text-xs text-muted hover:underline shrink-0"
+                >
+                  Ver mascota
+                </Link>
+              ) : (
+                <DeleteDateButton id={event.id} label={label} />
+              )}
             </ListCard>
           </li>
         );

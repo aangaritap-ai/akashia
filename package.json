@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "respaldo": "node scripts/backup.mjs",
     "dev": "next dev",
     "build": "prisma generate && node scripts/migrate-with-retry.mjs && next build",
     "start": "next start",

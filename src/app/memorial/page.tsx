@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getVisibleStories } from "@/lib/stories";
-import { publicMessages } from "@/lib/feed";
+import { messageTarget, publicMessages } from "@/lib/feed";
 import MessageCard from "@/components/MessageCard";
 import StoriesBar from "@/components/stories/StoriesBar";
 
@@ -51,7 +51,7 @@ export default async function MemorialFeedPage() {
             </div>
           ) : (
             messages.map((m, i) => (
-              <MessageCard key={m.id} m={m} forUser={m.owner} index={i} />
+              <MessageCard key={m.id} m={m} target={messageTarget(m)} index={i} />
             ))
           )}
         </div>

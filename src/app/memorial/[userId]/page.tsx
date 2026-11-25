@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import Avatar from "@/components/Avatar";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { followBetween } from "@/lib/connections";
@@ -24,8 +26,12 @@ export default async function MemorialPage({
       name: true,
       avatarUrl: true,
       memorialMessages: {
-        where: isOwner ? {} : { isPublic: true },
+        where: { petId: null, ...(isOwner ? {} : { isPublic: true }) },
         orderBy: { createdAt: "desc" },
+      },
+      pets: {
+        select: { id: true, name: true, photoUrl: true },
+        orderBy: { createdAt: "asc" },
       },
     },
   });
@@ -57,6 +63,32 @@ export default async function MemorialPage({
               initialConnectionId={follow.connectionId}
             />
           </div>
+        )}
+
+        {owner.pets.length > 0 && (
+          <section
+            aria-label="Huellitas"
+            className="rounded-2xl border border-border bg-surface px-5 py-4 shadow-sm"
+          >
+            <h2 className="font-display font-medium text-lg text-foreground">
+              Sus huellitas
+            </h2>
+            <ul className="mt-3 flex flex-wrap gap-4">
+              {owner.pets.map((pet) => (
+                <li key={pet.id}>
+                  <Link
+                    href={`/huellitas/${pet.id}`}
+                    className="flex w-20 flex-col items-center gap-1.5 text-center"
+                  >
+                    <Avatar name={pet.name} src={pet.photoUrl} size="lg" />
+                    <span className="w-full truncate text-xs text-foreground">
+                      {pet.name}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
 
         <MemorialMessageForm

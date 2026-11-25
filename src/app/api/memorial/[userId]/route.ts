@@ -8,6 +8,7 @@ const schema = z.object({
   message: z.string().min(1).max(2000),
   imageUrl: z.string().url().optional().nullable(),
   isPublic: z.boolean().optional(),
+  petId: z.string().optional().nullable(),
 });
 
 export async function POST(
@@ -35,9 +36,19 @@ export async function POST(
     return NextResponse.json({ error: "No encontrado" }, { status: 404 });
   }
 
+  // Un mensaje para una mascota debe ser de una mascota de esa familia.
+  const petId = parsed.data.petId ?? null;
+  if (
+    petId &&
+    !(await prisma.pet.findFirst({ where: { id: petId, ownerId: userId } }))
+  ) {
+    return NextResponse.json({ error: "No encontrado" }, { status: 404 });
+  }
+
   const created = await prisma.memorialMessage.create({
     data: {
       ownerId: userId,
+      petId,
       authorName: parsed.data.authorName,
       message: parsed.data.message,
       imageUrl: parsed.data.imageUrl ?? null,

@@ -7,6 +7,7 @@ import {
   IconFeed,
   IconHome,
   IconMemorial,
+  IconPaw,
   IconShield,
   IconUsers,
 } from "@/components/icons";
@@ -51,6 +52,7 @@ export default function ShortcutsSidebar({
       badge: { count: pendingRequests, label: "solicitudes pendientes" },
     },
     { href: "/dashboard/dates", label: "Fechas", icon: IconCalendar },
+    { href: "/dashboard/pets", label: "Huellitas", icon: IconPaw },
     { href: "/dashboard/memorial", label: "Mi página", icon: IconMemorial },
     { href: "/memorial", label: "Feed", icon: IconFeed },
     {

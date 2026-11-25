@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getFollowingIds, pendingReceivedCount } from "@/lib/connections";
-import { publicMessages } from "@/lib/feed";
+import { messageTarget, publicMessages } from "@/lib/feed";
 import { upcomingDates } from "@/lib/special-dates-db";
 import { getVisibleStories } from "@/lib/stories";
 import ShortcutsSidebar from "@/components/inicio/ShortcutsSidebar";
@@ -78,7 +78,7 @@ export default async function HomePage() {
           ) : (
             <>
               {messages.map((m, i) => (
-                <MessageCard key={m.id} m={m} forUser={m.owner} index={i} />
+                <MessageCard key={m.id} m={m} target={messageTarget(m)} index={i} />
               ))}
               <Link
                 href="/memorial"

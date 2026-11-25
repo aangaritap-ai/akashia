@@ -17,6 +17,7 @@ export type UpcomingDate = {
   day: number;
   daysUntil: number;
   years: string | null;
+  petId: string | null;
 };
 
 /** Las fechas de una persona, de la más próxima a la más lejana. */
@@ -38,6 +39,7 @@ export async function upcomingDates(userId: string): Promise<UpcomingDate[]> {
         day: r.day,
         daysUntil: daysBetween(today, next),
         years: yearsLabel(r.kind, r.year, next.year),
+        petId: r.petId,
       };
     })
     .sort((a, b) => a.daysUntil - b.daysUntil);

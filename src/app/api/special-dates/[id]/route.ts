@@ -14,7 +14,8 @@ export async function DELETE(
   const { id } = await params;
   // Solo borra si es de quien pide; si no, responde igual que si no existiera.
   const result = await prisma.specialDate.deleteMany({
-    where: { id, ownerId: session.user.id },
+    // Las de mascotas se quitan desde la mascota.
+    where: { id, ownerId: session.user.id, petId: null },
   });
   if (result.count === 0) {
     return NextResponse.json({ error: "No encontrado" }, { status: 404 });

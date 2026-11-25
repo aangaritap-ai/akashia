@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Avatar from "@/components/Avatar";
 import ReactionBar from "@/components/ReactionBar";
-import { IconLock } from "@/components/icons";
+import { IconLock, IconPaw } from "@/components/icons";
 import { timeAgo } from "@/lib/format";
 
 type Message = {
@@ -19,12 +19,12 @@ type Message = {
 
 export default function MessageCard({
   m,
-  forUser,
+  target,
   showPrivacy = false,
   index = 0,
 }: {
   m: Message;
-  forUser?: { id: string; name: string };
+  target?: { href: string; name: string; isPet: boolean };
   // En "Mi página" el dueño ve qué mensajes son públicos y cuáles privados.
   showPrivacy?: boolean;
   index?: number;
@@ -41,14 +41,14 @@ export default function MessageCard({
             {m.authorName}
           </div>
           <div className="text-xs text-muted truncate">
-            {forUser && (
+            {target && (
               <>
                 para{" "}
-                <Link
-                  href={`/memorial/${forUser.id}`}
-                  className="text-accent hover:underline"
-                >
-                  {forUser.name}
+                <Link href={target.href} className="text-accent hover:underline">
+                  {target.isPet && (
+                    <IconPaw className="inline w-3.5 h-3.5 mr-0.5 -mt-0.5" />
+                  )}
+                  {target.name}
                 </Link>{" "}
                 ·{" "}
               </>

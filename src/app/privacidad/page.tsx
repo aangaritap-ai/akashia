@@ -96,6 +96,10 @@ export default function PrivacyPage() {
           página.
         </li>
         <li>
+          <strong>Huellitas (páginas de mascotas):</strong> son públicas, con
+          las mismas reglas de las páginas memoriales.
+        </li>
+        <li>
           <strong>Fechas especiales:</strong> solo tú.
         </li>
         <li>
@@ -123,7 +127,8 @@ export default function PrivacyPage() {
         Mientras tu cuenta exista o sea necesario para cumplir las entregas que
         programaste y las obligaciones legales. Puedes pedir la eliminación de
         tu cuenta y sus contenidos. Las copias técnicas de los proveedores se
-        eliminan según sus propios plazos.
+        eliminan según sus propios plazos. Hacemos además copias de seguridad
+        propias que conservamos alrededor de tres meses.
       </p>
 
       <h2>8. Cookies</h2>

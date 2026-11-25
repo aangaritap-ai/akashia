@@ -253,3 +253,23 @@ export function IconHome({ className = base }: IconProps) {
     </svg>
   );
 }
+
+export function IconPaw({ className = base }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <ellipse cx="5.2" cy="10.5" rx="1.8" ry="2.3" />
+      <ellipse cx="9.2" cy="6" rx="1.8" ry="2.4" />
+      <ellipse cx="14.8" cy="6" rx="1.8" ry="2.4" />
+      <ellipse cx="18.8" cy="10.5" rx="1.8" ry="2.3" />
+      <path d="M12 12c-2.8 0-5.5 3.6-5.5 6 0 1.4 1.1 2.2 2.4 2.2 1.2 0 2-.7 3.1-.7s1.9.7 3.1.7c1.3 0 2.4-.8 2.4-2.2 0-2.4-2.7-6-5.5-6z" />
+    </svg>
+  );
+}

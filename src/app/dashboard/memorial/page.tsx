@@ -14,7 +14,7 @@ export default async function MemorialSettingsPage() {
       select: { name: true, avatarUrl: true },
     }),
     prisma.memorialMessage.findMany({
-      where: { ownerId: userId },
+      where: { ownerId: userId, petId: null },
       orderBy: { createdAt: "desc" },
     }),
   ]);
