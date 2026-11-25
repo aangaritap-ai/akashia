@@ -4,11 +4,15 @@ import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Avatar from "@/components/Avatar";
+import { IconChevronLeft, IconChevronRight } from "@/components/icons";
 import { timeAgo } from "@/lib/format";
 import type { StoryGroup } from "@/lib/stories";
 
 // Debe coincidir con la duración de .story-progress en globals.css.
 const STORY_MS = 5000;
+
+const arrowClass =
+  "absolute top-1/2 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center rounded-full bg-black/45 text-white hover:bg-black/70";
 
 export default function StoryViewer({
   groups,
@@ -27,11 +31,14 @@ export default function StoryViewer({
   });
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  // Cambia para volver a empezar la historia que ya está en pantalla.
+  const [restart, setRestart] = useState(0);
   const closeRef = useRef<HTMLButtonElement>(null);
 
   const group = groups[gi];
   const story = group.stories[si];
   const paused = confirmingDelete || deleting;
+  const isFirst = gi === 0 && si === 0;
 
   function close() {
     onClose();
@@ -55,6 +62,8 @@ export default function StoryViewer({
     } else if (gi > 0) {
       setGi(gi - 1);
       setSi(groups[gi - 1].stories.length - 1);
+    } else {
+      setRestart((n) => n + 1);
     }
   }
 
@@ -78,7 +87,7 @@ export default function StoryViewer({
     if (paused) return;
     const t = setTimeout(() => onTimeout(), STORY_MS);
     return () => clearTimeout(t);
-  }, [gi, si, paused]);
+  }, [gi, si, restart, paused]);
 
   // Marca como vista la historia que se está mostrando.
   useEffect(() => {
@@ -117,19 +126,41 @@ export default function StoryViewer({
           className="absolute inset-0 w-full h-full object-contain"
         />
 
-        {/* Zonas de toque: izquierda = anterior, derecha = siguiente */}
+        {/* Zonas de toque: izquierda = anterior, derecha = siguiente. Para
+            teclado y lectores de pantalla están las flechas. */}
         <button
           type="button"
           onClick={prev}
-          aria-label="Historia anterior"
+          tabIndex={-1}
+          aria-hidden="true"
           className="absolute inset-y-0 left-0 w-1/3 z-0 cursor-w-resize"
         />
         <button
           type="button"
           onClick={next}
-          aria-label="Siguiente historia"
+          tabIndex={-1}
+          aria-hidden="true"
           className="absolute inset-y-0 right-0 w-2/3 z-0 cursor-e-resize"
         />
+
+        {!isFirst && (
+          <button
+            type="button"
+            onClick={prev}
+            aria-label="Historia anterior"
+            className={`${arrowClass} left-2`}
+          >
+            <IconChevronLeft className="w-6 h-6" />
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={next}
+          aria-label="Siguiente historia"
+          className={`${arrowClass} right-2`}
+        >
+          <IconChevronRight className="w-6 h-6" />
+        </button>
 
         <div className="absolute top-0 inset-x-0 z-10 p-3 pt-4 bg-gradient-to-b from-black/70 to-transparent pointer-events-none">
           <div className="flex gap-1.5">
@@ -142,7 +173,7 @@ export default function StoryViewer({
                   <div className="h-full w-full bg-white" />
                 ) : i === si ? (
                   <div
-                    key={`${s.id}-${paused}`}
+                    key={`${s.id}-${restart}-${paused}`}
                     className="story-progress h-full w-full bg-white"
                     style={{
                       animationPlayState: paused ? "paused" : "running",
