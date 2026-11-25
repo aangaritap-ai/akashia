@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import { signIn } from "@/lib/auth";
 import AuthShell from "@/components/AuthShell";
+import GoogleSignIn from "@/components/GoogleSignIn";
 import {
   Callout,
   inputClass,
@@ -60,9 +61,13 @@ export default async function LoginPage({
     >
       {error && (
         <Callout tone="danger" className="!py-3">
-          Correo o contraseña incorrectos.
+          {error === "1"
+            ? "Correo o contraseña incorrectos."
+            : "No pudimos entrar con Google. Inténtalo de nuevo o usa tu correo."}
         </Callout>
       )}
+
+      <GoogleSignIn callbackUrl={callbackUrl} />
 
       <form action={login} className="flex flex-col gap-4">
         <input type="hidden" name="callbackUrl" value={callbackUrl} />

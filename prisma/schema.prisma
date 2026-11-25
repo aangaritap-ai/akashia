@@ -12,6 +12,8 @@ model User {
   name         String
   email        String   @unique
   passwordHash String
+  // Identificador de la cuenta de Google vinculada, si entró con Google.
+  googleId     String?  @unique
   avatarUrl    String?
   createdAt    DateTime @default(now())
   lastActiveAt DateTime @default(now())

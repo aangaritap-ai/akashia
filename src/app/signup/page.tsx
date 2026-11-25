@@ -5,6 +5,7 @@ import { AuthError } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { signIn } from "@/lib/auth";
 import AuthShell from "@/components/AuthShell";
+import GoogleSignIn from "@/components/GoogleSignIn";
 import {
   Callout,
   inputClass,
@@ -99,6 +100,8 @@ export default async function SignupPage({
           Revisa tus datos — la contraseña necesita al menos 6 caracteres.
         </Callout>
       )}
+
+      <GoogleSignIn callbackUrl={callbackUrl} />
 
       <form action={signup} className="flex flex-col gap-4">
         <input type="hidden" name="callbackUrl" value={callbackUrl} />
