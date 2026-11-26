@@ -2,6 +2,7 @@ type IconProps = { className?: string };
 
 const base = "w-5 h-5";
 
+// Cápsula del tiempo con un corazón.
 export function IconCapsule({ className = base }: IconProps) {
   return (
     <svg
@@ -13,8 +14,14 @@ export function IconCapsule({ className = base }: IconProps) {
       strokeLinejoin="round"
       className={className}
     >
-      <rect x="3" y="5" width="18" height="14" rx="2.5" />
-      <path d="M3 7.5l9 6 9-6" />
+      <rect x="5.5" y="2.5" width="13" height="19" rx="6.5" />
+      <path d="M5.5 9.5h13" />
+      {/* Relleno para que se distinga en tamaño pequeño. */}
+      <path
+        d="M12 18.3l-3.2-3.08a2.02 2.02 0 0 1 2.84-2.86l.36.36.36-.36a2.02 2.02 0 0 1 2.84 2.86z"
+        fill="currentColor"
+        stroke="none"
+      />
     </svg>
   );
 }
