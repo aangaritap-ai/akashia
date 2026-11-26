@@ -6,7 +6,6 @@ import {
   IconCapsule,
   IconShield,
   IconMemorial,
-  IconFeed,
   IconUsers,
   IconCalendar,
   IconHome,
@@ -21,7 +20,6 @@ const items = [
   { href: "/dashboard/dates", label: "Fechas", icon: IconCalendar },
   { href: "/dashboard/pets", label: "Huellitas", icon: IconPaw },
   { href: "/dashboard/memorial", label: "Mi página", icon: IconMemorial },
-  { href: "/memorial", label: "Feed", icon: IconFeed },
 ];
 
 export default function DashboardNav() {

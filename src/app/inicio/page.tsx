@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -14,7 +13,7 @@ import StoriesBar from "@/components/stories/StoriesBar";
 
 export const metadata: Metadata = { title: "Inicio — Akashia" };
 
-const FEED_SIZE = 20;
+const FEED_SIZE = 100;
 const MAX_SHORTCUTS = 8;
 const personSelect = { id: true, name: true, avatarUrl: true } as const;
 
@@ -76,17 +75,14 @@ export default async function HomePage() {
               página de alguien.
             </div>
           ) : (
-            <>
-              {messages.map((m, i) => (
-                <MessageCard key={m.id} m={m} target={messageTarget(m)} index={i} />
-              ))}
-              <Link
-                href="/memorial"
-                className="self-center rounded-xl border border-border bg-surface px-5 py-2.5 text-sm font-semibold text-accent hover:bg-black/[0.03]"
-              >
-                Ver todo el feed
-              </Link>
-            </>
+            messages.map((m, i) => (
+              <MessageCard
+                key={m.id}
+                m={m}
+                target={messageTarget(m)}
+                index={i}
+              />
+            ))
           )}
         </section>
       </div>

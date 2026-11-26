@@ -48,7 +48,7 @@ export async function notifyFollowAccepted(opts: {
       type: "CONNECTION_ACCEPTED",
       title: "Solicitud aceptada",
       body: `${opts.fromName} aceptó tu solicitud. Ya puedes ver sus historias.`,
-      linkUrl: "/memorial",
+      linkUrl: "/inicio",
     },
   });
 }

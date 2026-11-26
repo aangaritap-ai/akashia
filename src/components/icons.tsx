@@ -58,24 +58,6 @@ export function IconMemorial({ className = base }: IconProps) {
   );
 }
 
-export function IconFeed({ className = base }: IconProps) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <rect x="3" y="4" width="18" height="4" rx="1" />
-      <rect x="3" y="10" width="18" height="4" rx="1" />
-      <rect x="3" y="16" width="11" height="4" rx="1" />
-    </svg>
-  );
-}
-
 export function IconBell({ className = base }: IconProps) {
   return (
     <svg

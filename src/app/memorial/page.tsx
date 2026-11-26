@@ -1,35 +1,18 @@
+import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { getVisibleStories } from "@/lib/stories";
 import { messageTarget, publicMessages } from "@/lib/feed";
 import MessageCard from "@/components/MessageCard";
-import StoriesBar from "@/components/stories/StoriesBar";
 
+// El feed para visitantes. Quien tiene cuenta lo ve dentro de Inicio.
 export default async function MemorialFeedPage() {
-  // El feed es público; las historias solo aparecen con sesión iniciada.
   const session = await auth();
-  const viewerId = session?.user?.id ?? null;
+  if (session?.user?.id) redirect("/inicio");
 
-  const [messages, viewer, storyGroups] = await Promise.all([
-    publicMessages(100),
-    viewerId
-      ? prisma.user.findUnique({
-          where: { id: viewerId },
-          select: { id: true, name: true, avatarUrl: true },
-        })
-      : null,
-    viewerId ? getVisibleStories(viewerId) : [],
-  ]);
+  const messages = await publicMessages(100);
 
   return (
     <main className="flex-1 flex flex-col items-center px-4 sm:px-6 py-8 sm:py-10">
       <div className="w-full max-w-xl flex flex-col gap-8">
-        {viewer && (
-          <div className="rounded-2xl border border-border bg-surface px-4 py-4 shadow-sm">
-            <StoriesBar groups={storyGroups} me={viewer} />
-          </div>
-        )}
-
         <div className="text-center flex flex-col gap-3">
           <div className="text-xs font-semibold tracking-[0.16em] uppercase text-gold">
             Comunidad
@@ -51,7 +34,12 @@ export default async function MemorialFeedPage() {
             </div>
           ) : (
             messages.map((m, i) => (
-              <MessageCard key={m.id} m={m} target={messageTarget(m)} index={i} />
+              <MessageCard
+                key={m.id}
+                m={m}
+                target={messageTarget(m)}
+                index={i}
+              />
             ))
           )}
         </div>

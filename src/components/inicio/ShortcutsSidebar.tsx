@@ -4,7 +4,6 @@ import {
   IconBell,
   IconCalendar,
   IconCapsule,
-  IconFeed,
   IconHome,
   IconMemorial,
   IconPaw,
@@ -54,7 +53,6 @@ export default function ShortcutsSidebar({
     { href: "/dashboard/dates", label: "Fechas", icon: IconCalendar },
     { href: "/dashboard/pets", label: "Huellitas", icon: IconPaw },
     { href: "/dashboard/memorial", label: "Mi página", icon: IconMemorial },
-    { href: "/memorial", label: "Feed", icon: IconFeed },
     {
       href: "/dashboard/notifications",
       label: "Notificaciones",
