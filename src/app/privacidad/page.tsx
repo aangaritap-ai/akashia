@@ -38,7 +38,7 @@ export default function PrivacyPage() {
         </li>
         <li>
           <strong>Relaciones y avisos:</strong> a quién sigues, quién te sigue,
-          qué historias has visto y tus notificaciones.
+          qué historias has visto, cuáles marcas con “me gusta” y tus notificaciones.
         </li>
         <li>
           <strong>Datos técnicos:</strong> nuestros proveedores registran datos

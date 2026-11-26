@@ -1,4 +1,5 @@
 import { del } from "@vercel/blob";
+import type { Prisma } from "@prisma/client";
 import { MAX_UPLOAD_BYTES } from "@/lib/uploads";
 import { prisma } from "@/lib/prisma";
 import { getFollowingIds, isFollowing } from "@/lib/connections";
@@ -20,6 +21,10 @@ export type StoryDTO = {
   caption: string | null;
   createdAt: string;
   seen: boolean;
+  /** Si quien mira le dio "me gusta". */
+  liked: boolean;
+  /** A quiénes les gustó; solo se llena en las historias propias. */
+  likes: { name: string; avatarUrl: string | null }[];
 };
 
 export type StoryGroup = {
@@ -45,7 +50,22 @@ export async function getVisibleStories(userId: string): Promise<StoryGroup[]> {
     orderBy: { createdAt: "asc" },
     include: {
       author: { select: { id: true, name: true, avatarUrl: true } },
-      views: { where: { viewerId: userId }, select: { id: true } },
+      views: { where: { viewerId: userId }, select: { likedAt: true } },
+    },
+  });
+
+  // Quién dio "me gusta" se consulta aparte y solo para mis historias.
+  const myLikes = await prisma.storyView.findMany({
+    where: {
+      likedAt: { not: null },
+      storyId: {
+        in: stories.filter((s) => s.authorId === userId).map((s) => s.id),
+      },
+    },
+    orderBy: { likedAt: "desc" },
+    select: {
+      storyId: true,
+      viewer: { select: { name: true, avatarUrl: true } },
     },
   });
 
@@ -73,6 +93,8 @@ export async function getVisibleStories(userId: string): Promise<StoryGroup[]> {
       caption: s.caption,
       createdAt: s.createdAt.toISOString(),
       seen,
+      liked: Boolean(s.views[0]?.likedAt),
+      likes: myLikes.filter((l) => l.storyId === s.id).map((l) => l.viewer),
     });
   }
 
@@ -93,6 +115,47 @@ export async function canViewStory(
   if (story.expiresAt.getTime() <= Date.now()) return false;
   if (viewerId === story.authorId) return true;
   return isFollowing(viewerId, story.authorId);
+}
+
+/**
+ * Pone o quita el "me gusta" de una persona. La primera vez avisa al autor.
+ * Quien llama ya comprobó que puede ver la historia y que no es la suya.
+ */
+export async function setStoryLike(
+  like: {
+    storyId: string;
+    authorId: string;
+    viewerId: string;
+    viewerName: string;
+    liked: boolean;
+  },
+  db: Prisma.TransactionClient = prisma
+) {
+  const { storyId, viewerId, liked } = like;
+  const likedAt = liked ? new Date() : null;
+  await db.storyView.upsert({
+    where: { storyId_viewerId: { storyId, viewerId } },
+    create: { storyId, viewerId, likedAt },
+    update: { likedAt },
+  });
+  if (!liked) return;
+
+  // Solo avisa quien logra marcar "ya avisado": dos toques seguidos no
+  // duplican la notificación.
+  const claimed = await db.storyView.updateMany({
+    where: { storyId, viewerId, likeNotified: false },
+    data: { likeNotified: true },
+  });
+  if (claimed.count === 0) return;
+  await db.notification.create({
+    data: {
+      userId: like.authorId,
+      type: "STORY_LIKE",
+      title: "Nuevo me gusta",
+      body: `A ${like.viewerName} le gustó tu historia.`,
+      linkUrl: "/inicio",
+    },
+  });
 }
 
 /** Borra las historias vencidas y sus fotos. Lo llama el cron diario; la

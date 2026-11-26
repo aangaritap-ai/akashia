@@ -46,6 +46,7 @@ enum NotificationType {
   CONNECTION_REQUEST
   CONNECTION_ACCEPTED
   EVENT_REMINDER
+  STORY_LIKE
 }
 
 enum ConnectionStatus {
@@ -93,6 +94,10 @@ model StoryView {
   viewerId String
   viewer   User     @relation("StoryViewer", fields: [viewerId], references: [id], onDelete: Cascade)
   viewedAt DateTime @default(now())
+  // "Me gusta": con fecha mientras esté puesto.
+  likedAt      DateTime?
+  // El autor ya fue avisado; quitarlo y ponerlo no repite el aviso.
+  likeNotified Boolean   @default(false)
 
   @@unique([storyId, viewerId])
   @@index([viewerId])

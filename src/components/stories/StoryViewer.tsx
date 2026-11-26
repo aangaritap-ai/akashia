@@ -8,6 +8,22 @@ import { IconChevronLeft, IconChevronRight } from "@/components/icons";
 import { timeAgo } from "@/lib/format";
 import type { StoryGroup } from "@/lib/stories";
 
+function Heart({ filled }: { filled: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="w-6 h-6"
+      fill={filled ? "currentColor" : "none"}
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 20.5C7 17 3 13.6 3 9.3A4.8 4.8 0 0 1 12 6.8a4.8 4.8 0 0 1 9 2.5c0 4.3-4 7.7-9 11.2z" />
+    </svg>
+  );
+}
+
 // Debe coincidir con la duración de .story-progress en globals.css.
 const STORY_MS = 5000;
 
@@ -34,10 +50,16 @@ export default function StoryViewer({
   // Cambia para volver a empezar la historia que ya está en pantalla.
   const [restart, setRestart] = useState(0);
   const closeRef = useRef<HTMLButtonElement>(null);
+  // "Me gusta" que se ha cambiado mientras el visor está abierto.
+  const [likedNow, setLikedNow] = useState<Record<string, boolean>>({});
+  // Historia propia cuya lista de "me gusta" está abierta.
+  const [likesFor, setLikesFor] = useState<string | null>(null);
 
   const group = groups[gi];
   const story = group.stories[si];
-  const paused = confirmingDelete || deleting;
+  const showingLikes = likesFor === story.id;
+  const paused = confirmingDelete || deleting || showingLikes;
+  const liked = likedNow[story.id] ?? story.liked;
   const isFirst = gi === 0 && si === 0;
 
   function close() {
@@ -73,6 +95,19 @@ export default function StoryViewer({
       () => {}
     );
     close();
+  }
+
+  async function toggleLike() {
+    const id = story.id;
+    const value = !liked;
+    // Se pinta enseguida y se deshace si el servidor no lo acepta.
+    setLikedNow((m) => ({ ...m, [id]: value }));
+    const res = await fetch(`/api/stories/${id}/like`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ liked: value }),
+    }).catch(() => null);
+    if (!res?.ok) setLikedNow((m) => ({ ...m, [id]: !value }));
   }
 
   const onTimeout = useEffectEvent(() => next());
@@ -251,10 +286,59 @@ export default function StoryViewer({
         </div>
 
         {story.caption && (
-          <div className="absolute bottom-0 inset-x-0 z-10 px-5 pb-6 pt-12 bg-gradient-to-t from-black/80 to-transparent text-white text-center pointer-events-none">
+          <div
+            // En mis historias deja sitio al contador de "me gusta".
+            className={`absolute bottom-0 inset-x-0 z-10 px-16 pt-12 ${
+              group.isMine && story.likes.length > 0 ? "pb-20" : "pb-6"
+            } bg-gradient-to-t from-black/80 to-transparent text-white text-center pointer-events-none`}
+          >
             <p className="text-base leading-relaxed [overflow-wrap:anywhere]">
               {story.caption}
             </p>
+          </div>
+        )}
+
+        {!group.isMine && (
+          <button
+            type="button"
+            onClick={toggleLike}
+            aria-pressed={liked}
+            aria-label="Me gusta"
+            className={`absolute bottom-4 right-3 z-20 w-12 h-12 flex items-center justify-center rounded-full bg-black/45 hover:bg-black/70 ${
+              liked ? "text-red-500" : "text-white"
+            }`}
+          >
+            <Heart filled={liked} />
+          </button>
+        )}
+
+        {group.isMine && story.likes.length > 0 && (
+          <div className="absolute bottom-4 left-3 z-20 flex flex-col items-start gap-2">
+            {showingLikes && (
+              <ul className="max-h-56 w-60 overflow-y-auto rounded-xl bg-neutral-900 p-3 shadow-xl flex flex-col gap-2 text-white">
+                {story.likes.map((person, i) => (
+                  <li key={i} className="flex items-center gap-2 text-sm">
+                    <Avatar
+                      name={person.name}
+                      src={person.avatarUrl}
+                      size="sm"
+                    />
+                    <span className="truncate">{person.name}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <button
+              type="button"
+              onClick={() => setLikesFor(showingLikes ? null : story.id)}
+              aria-expanded={showingLikes}
+              className="flex items-center gap-2 rounded-full bg-black/60 px-4 h-11 text-sm font-semibold text-white hover:bg-black/80"
+            >
+              <span className="text-red-500">
+                <Heart filled />
+              </span>
+              {story.likes.length} me gusta
+            </button>
           </div>
         )}
       </div>
