@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-const MAX_EDITS = 3;
+import { capsuleLockReason, deleteUnusedCapsuleMedia } from "@/lib/capsules";
 
 const schema = z.object({
   title: z.string().min(1),
@@ -29,16 +28,14 @@ export async function PATCH(
   const { id } = await params;
   const existing = await prisma.capsule.findUnique({
     where: { id },
-    include: { recipients: true },
+    include: { recipients: true, owner: true },
   });
   if (!existing || existing.ownerId !== session.user.id) {
     return NextResponse.json({ error: "No encontrado" }, { status: 404 });
   }
-  if (existing.sealed) {
-    return NextResponse.json(
-      { error: "Esta cápsula ya está sellada y no se puede editar" },
-      { status: 409 }
-    );
+  const locked = capsuleLockReason(existing.owner);
+  if (locked) {
+    return NextResponse.json({ error: locked }, { status: 409 });
   }
   if (existing.recipients.some((r) => r.delivered)) {
     return NextResponse.json(
@@ -76,10 +73,15 @@ export async function PATCH(
     );
   }
 
-  const newEditCount = existing.editCount + 1;
-
   const capsule = await prisma.$transaction(async (tx) => {
-    await tx.capsuleRecipient.deleteMany({ where: { capsuleId: id } });
+    // Se quitan solo los pendientes: si alguien recibió la cápsula mientras
+    // se editaba, quedan filas y el cambio se cancela.
+    await tx.capsuleRecipient.deleteMany({
+      where: { capsuleId: id, delivered: false },
+    });
+    if (await tx.capsuleRecipient.count({ where: { capsuleId: id } })) {
+      throw new Error("La cápsula se entregó mientras se editaba");
+    }
     return tx.capsule.update({
       where: { id },
       data: {
@@ -91,8 +93,8 @@ export async function PATCH(
         triggerDate: data.triggerDate
           ? new Date(`${data.triggerDate}T12:00:00`)
           : null,
-        editCount: newEditCount,
-        sealed: newEditCount >= MAX_EDITS,
+        editCount: { increment: 1 },
+        sealed: false,
         recipients: {
           create: data.recipients.map((r) => ({ name: r.name, email: r.email })),
         },
@@ -101,5 +103,47 @@ export async function PATCH(
     });
   });
 
+  // Si cambió el archivo, el anterior ya no le sirve a nadie.
+  if (existing.mediaUrl !== capsule.mediaUrl) {
+    await deleteUnusedCapsuleMedia(existing.mediaUrl, existing.ownerId);
+  }
+
   return NextResponse.json({ ok: true, capsule });
+}
+
+// Borrar una cápsula que todavía nadie ha recibido.
+export async function DELETE(
+  _req: Request,
+  { params }: RouteContext<"/api/capsules/[id]">
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  const existing = await prisma.capsule.findUnique({
+    where: { id },
+    include: { owner: true },
+  });
+  if (!existing || existing.ownerId !== session.user.id) {
+    return NextResponse.json({ error: "No encontrado" }, { status: 404 });
+  }
+  const locked = capsuleLockReason(existing.owner);
+  if (locked) {
+    return NextResponse.json({ error: locked }, { status: 409 });
+  }
+
+  // La condición va en el mismo borrado, por si se entrega en este instante.
+  const result = await prisma.capsule.deleteMany({
+    where: { id, recipients: { none: { delivered: true } } },
+  });
+  if (result.count === 0) {
+    return NextResponse.json(
+      { error: "Ya se entregó a alguien: se conserva como registro" },
+      { status: 409 }
+    );
+  }
+  await deleteUnusedCapsuleMedia(existing.mediaUrl, existing.ownerId);
+  return NextResponse.json({ ok: true });
 }

@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import EditCapsuleForm from "@/components/EditCapsuleForm";
+import { capsuleLockReason } from "@/lib/capsules";
 
 export default async function EditCapsulePage({
   params,
@@ -12,12 +13,15 @@ export default async function EditCapsulePage({
 
   const capsule = await prisma.capsule.findUnique({
     where: { id },
-    include: { recipients: true },
+    include: { recipients: true, owner: true },
   });
 
   if (!capsule || capsule.ownerId !== userId) notFound();
 
-  if (capsule.sealed || capsule.recipients.some((r) => r.delivered)) {
+  if (
+    capsuleLockReason(capsule.owner) ||
+    capsule.recipients.some((r) => r.delivered)
+  ) {
     redirect("/dashboard");
   }
 
@@ -33,7 +37,6 @@ export default async function EditCapsulePage({
         triggerDate: capsule.triggerDate
           ? capsule.triggerDate.toISOString().slice(0, 10)
           : "",
-        editCount: capsule.editCount,
         recipients: capsule.recipients.map((r) => ({
           name: r.name,
           email: r.email,

@@ -7,8 +7,6 @@ import { MAX_UPLOAD_BYTES, TOO_BIG_MESSAGE } from "@/lib/uploads";
 type CapsuleType = "TEXT" | "AUDIO" | "VIDEO";
 type TriggerType = "DATE" | "DEATH";
 
-const MAX_EDITS = 3;
-
 export default function EditCapsuleForm({
   capsule,
 }: {
@@ -20,7 +18,6 @@ export default function EditCapsuleForm({
     mediaUrl: string | null;
     triggerType: TriggerType;
     triggerDate: string;
-    editCount: number;
     recipients: { name: string; email: string }[];
   };
 }) {
@@ -43,8 +40,6 @@ export default function EditCapsuleForm({
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const remainingEdits = MAX_EDITS - capsule.editCount;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -101,8 +96,8 @@ export default function EditCapsuleForm({
           Editar cápsula
         </h1>
         <p className="text-sm text-muted mt-2">
-          Te quedan {remainingEdits} {remainingEdits === 1 ? "edición" : "ediciones"}{" "}
-          antes de que se selle automáticamente.
+          Puedes cambiarla las veces que quieras mientras no se haya
+          entregado.
         </p>
       </div>
 
