@@ -8,6 +8,7 @@ import FollowButton from "@/components/FollowButton";
 import MemorialMessageForm from "@/components/MemorialMessageForm";
 import MessageCard from "@/components/MessageCard";
 import ProfileHeader from "@/components/ProfileHeader";
+import { profileDetails, profileSelect } from "@/lib/profile";
 
 export default async function MemorialPage({
   params,
@@ -25,6 +26,7 @@ export default async function MemorialPage({
       id: true,
       name: true,
       avatarUrl: true,
+      ...profileSelect,
       memorialMessages: {
         where: { petId: null, ...(isOwner ? {} : { isPublic: true }) },
         orderBy: { createdAt: "desc" },
@@ -50,6 +52,11 @@ export default async function MemorialPage({
         <ProfileHeader
           name={owner.name}
           avatarUrl={owner.avatarUrl}
+          // El cumpleaños lo ven la persona y sus seguidores aprobados.
+          {...profileDetails(
+            owner,
+            isOwner || follow?.state === "following"
+          )}
           eyebrow="Para"
           subtitle="Un espacio para recordar, celebrar una fecha especial, o simplemente agradecer."
           count={owner.memorialMessages.length}

@@ -2,15 +2,7 @@ import { z } from "zod";
 import type { Pet, Prisma } from "@prisma/client";
 import { MAX_PET_NAME, MAX_PET_STORY, PET_SPECIES } from "@/lib/pets";
 import { todayIn } from "@/lib/special-dates";
-
-// Solo se aceptan fotos subidas a nuestro almacenamiento.
-function isStorageUrl(value: string) {
-  const url = new URL(value);
-  return (
-    url.protocol === "https:" &&
-    url.hostname.endsWith(".public.blob.vercel-storage.com")
-  );
-}
+import { isStorageUrl } from "@/lib/uploads";
 
 const day = z
   .string()

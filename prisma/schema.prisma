@@ -14,6 +14,19 @@ model User {
   passwordHash String
   // Identificador de la cuenta de Google vinculada, si entró con Google.
   googleId     String?  @unique
+
+  // Datos opcionales del perfil.
+  coverUrl String?
+  bio      String?
+  motto    String?
+  city     String?
+  showCity Boolean @default(false)
+  // Solo día y mes: el año de nacimiento no se guarda.
+  birthMonth           Int?
+  birthDay             Int?
+  shareBirthday        Boolean @default(false)
+  birthdayRemindedYear Int?
+
   avatarUrl    String?
   createdAt    DateTime @default(now())
   lastActiveAt DateTime @default(now())

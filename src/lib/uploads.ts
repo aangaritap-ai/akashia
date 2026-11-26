@@ -6,6 +6,19 @@
 export const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 export const TOO_BIG_MESSAGE = "El archivo no puede pesar más de 4 MB.";
 
+/** ¿La dirección es de un archivo de nuestro almacenamiento? */
+export function isStorageUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return (
+      url.protocol === "https:" &&
+      url.hostname.endsWith(".public.blob.vercel-storage.com")
+    );
+  } catch {
+    return false;
+  }
+}
+
 // Solo en el servidor. Hay almacenamiento con la llave fija (en local) o con el
 // id del store más los permisos temporales de Vercel (en producción); la
 // librería @vercel/blob elige sola cuál usar.

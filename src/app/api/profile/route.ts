@@ -2,11 +2,35 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { MAX_BIO, MAX_CITY, MAX_MOTTO } from "@/lib/profile";
+import { isValidDay } from "@/lib/special-dates";
+import { isStorageUrl } from "@/lib/uploads";
+
+// Texto opcional: vacío se guarda como "sin dato".
+const text = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .nullable()
+    .optional()
+    .transform((v) => (v === "" ? null : v));
 
 const schema = z.object({
-  name: z.string().min(1).max(100),
-  avatarUrl: z.string().url().optional().nullable(),
+  name: z.string().trim().min(1).max(100),
+  avatarUrl: z.string().url().nullable().optional(),
+  coverUrl: z.string().url().refine(isStorageUrl).nullable().optional(),
+  bio: text(MAX_BIO),
+  motto: text(MAX_MOTTO),
+  city: text(MAX_CITY),
+  showCity: z.boolean().optional(),
+  birthMonth: z.number().int().min(1).max(12).nullable().optional(),
+  birthDay: z.number().int().min(1).max(31).nullable().optional(),
+  shareBirthday: z.boolean().optional(),
 });
+
+const fail = (error: string) =>
+  NextResponse.json({ error }, { status: 400 });
 
 export async function PATCH(req: Request) {
   const session = await auth();
@@ -14,17 +38,60 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   }
 
-  const body = await req.json();
-  const parsed = schema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
+  const parsed = schema.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) return fail("Datos inválidos");
+  const data = parsed.data;
+
+  const current = await prisma.user.findUniqueOrThrow({
+    where: { id: session.user.id },
+    select: { avatarUrl: true, birthMonth: true, birthDay: true },
+  });
+  // La foto nueva debe estar en nuestro almacenamiento.
+  if (
+    data.avatarUrl &&
+    data.avatarUrl !== current.avatarUrl &&
+    !isStorageUrl(data.avatarUrl)
+  ) {
+    return fail("Datos inválidos");
+  }
+
+  // El cumpleaños son dos datos que van juntos: ambos, ninguno o sin cambios.
+  let birthday = {};
+  if (data.birthMonth !== undefined || data.birthDay !== undefined) {
+    const month = data.birthMonth ?? null;
+    const day = data.birthDay ?? null;
+    if (month === null && day === null) {
+      birthday = {
+        birthMonth: null,
+        birthDay: null,
+        shareBirthday: false,
+        birthdayRemindedYear: null,
+      };
+    } else if (month === null || day === null || !isValidDay(month, day)) {
+      return fail("Revisa el día y el mes de tu cumpleaños");
+    } else {
+      const moved =
+        month !== current.birthMonth || day !== current.birthDay;
+      birthday = {
+        birthMonth: month,
+        birthDay: day,
+        shareBirthday: data.shareBirthday,
+        ...(moved ? { birthdayRemindedYear: null } : {}),
+      };
+    }
   }
 
   const user = await prisma.user.update({
     where: { id: session.user.id },
     data: {
-      name: parsed.data.name,
-      avatarUrl: parsed.data.avatarUrl,
+      name: data.name,
+      avatarUrl: data.avatarUrl,
+      coverUrl: data.coverUrl,
+      bio: data.bio,
+      motto: data.motto,
+      city: data.city,
+      showCity: data.showCity,
+      ...birthday,
     },
     select: { id: true, name: true, avatarUrl: true },
   });

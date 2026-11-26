@@ -262,3 +262,20 @@ export function IconPaw({ className = base }: IconProps) {
     </svg>
   );
 }
+
+export function IconPin({ className = base }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M12 21s-7-5.7-7-11.2a7 7 0 0 1 14 0C19 15.3 12 21 12 21z" />
+      <circle cx="12" cy="9.8" r="2.4" />
+    </svg>
+  );
+}

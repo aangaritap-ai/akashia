@@ -15,7 +15,7 @@ export default async function SpecialDatesPage() {
     <div className="flex flex-col gap-8">
       <PageHeader
         title="Fechas especiales"
-        subtitle="Solo tú las ves. El día de cada una te llega un aviso en la campana."
+        subtitle="Solo tú ves esta lista. Incluye los cumpleaños que comparten las personas que sigues. El día de cada fecha te llega un aviso en la campana."
       />
       <AddSpecialDateForm />
       <EventsPanel events={events} />

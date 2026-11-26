@@ -1,0 +1,10 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN "coverUrl" TEXT,
+ADD COLUMN "bio" TEXT,
+ADD COLUMN "motto" TEXT,
+ADD COLUMN "city" TEXT,
+ADD COLUMN "showCity" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "birthMonth" INTEGER,
+ADD COLUMN "birthDay" INTEGER,
+ADD COLUMN "shareBirthday" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "birthdayRemindedYear" INTEGER;

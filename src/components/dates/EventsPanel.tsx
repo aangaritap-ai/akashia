@@ -64,7 +64,14 @@ export default function EventsPanel({ events }: { events: UpcomingDate[] }) {
                   </div>
                 </div>
               </div>
-              {event.petId ? (
+              {event.personId ? (
+                <Link
+                  href={`/memorial/${event.personId}`}
+                  className="text-xs text-muted hover:underline shrink-0"
+                >
+                  Ver página
+                </Link>
+              ) : event.petId ? (
                 <Link
                   href={`/dashboard/pets/${event.petId}`}
                   className="text-xs text-muted hover:underline shrink-0"
