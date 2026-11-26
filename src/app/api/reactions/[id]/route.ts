@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { allow, clientKey } from "@/lib/rate-limit";
 
 const REACTION_FIELDS = {
   HEART: "heartCount",
@@ -24,6 +25,13 @@ export async function POST(
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
+  }
+
+  if (!(await allow(`react:${clientKey(req)}`, 60, 60))) {
+    return NextResponse.json(
+      { error: "Demasiadas reacciones seguidas" },
+      { status: 429 }
+    );
   }
 
   const field = REACTION_FIELDS[parsed.data.type];

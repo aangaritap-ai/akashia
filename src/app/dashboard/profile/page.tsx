@@ -3,9 +3,13 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { profileSelect } from "@/lib/profile";
 import ProfileForm from "@/components/ProfileForm";
+import DeleteAccountSection from "@/components/DeleteAccountSection";
 import { PageHeader } from "@/components/ui";
 
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  searchParams,
+}: PageProps<"/dashboard/profile">) {
+  const { eliminar } = await searchParams;
   const session = await auth();
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: session!.user.id },
@@ -48,6 +52,9 @@ export default async function ProfilePage() {
         }}
         email={user.email}
         memberSince={user.createdAt.toISOString()}
+      />
+      <DeleteAccountSection
+        error={typeof eliminar === "string" ? eliminar : undefined}
       />
     </div>
   );

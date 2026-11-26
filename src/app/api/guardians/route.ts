@@ -40,6 +40,7 @@ export async function POST(req: Request) {
   const notified = await notifyGuardianInvite({
     guardianEmail: guardian.email,
     guardianToken: guardian.token,
+    ownerId: owner.id,
     ownerName: owner.name,
   });
 

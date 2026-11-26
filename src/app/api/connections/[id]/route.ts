@@ -32,8 +32,17 @@ export async function PATCH(
     return NextResponse.json({ error: "No encontrado" }, { status: 404 });
   }
 
+  // El aviso de esa solicitud: se borra si se rechaza y queda leído si se
+  // acepta.
+  const requestNotice = {
+    userId: me,
+    actorId: connection.requesterId,
+    type: "CONNECTION_REQUEST",
+  } as const;
+
   if (parsed.data.action === "decline") {
     await prisma.connection.delete({ where: { id } });
+    await prisma.notification.deleteMany({ where: requestNotice });
     return NextResponse.json({ ok: true });
   }
 
@@ -41,12 +50,17 @@ export async function PATCH(
     where: { id },
     data: { status: "ACCEPTED", respondedAt: new Date() },
   });
+  await prisma.notification.updateMany({
+    where: requestNotice,
+    data: { read: true },
+  });
   const meUser = await prisma.user.findUniqueOrThrow({
     where: { id: me },
     select: { name: true },
   });
   await notifyFollowAccepted({
     toUserId: connection.requesterId,
+    fromId: me,
     fromName: meUser.name,
   });
   return NextResponse.json({ ok: true });
@@ -74,5 +88,13 @@ export async function DELETE(
   }
 
   await prisma.connection.delete({ where: { id } });
+  // Sin relación, el aviso de la solicitud ya no tiene sentido.
+  await prisma.notification.deleteMany({
+    where: {
+      userId: connection.addresseeId,
+      actorId: connection.requesterId,
+      type: "CONNECTION_REQUEST",
+    },
+  });
   return NextResponse.json({ ok: true });
 }

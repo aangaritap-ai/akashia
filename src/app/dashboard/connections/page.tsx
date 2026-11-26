@@ -1,40 +1,14 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import Avatar from "@/components/Avatar";
 import ConnectionSearch from "@/components/ConnectionSearch";
 import FollowButton from "@/components/FollowButton";
-import FollowerActions from "@/components/FollowerActions";
-import { ListCard, PageHeader } from "@/components/ui";
-import { followFromRow } from "@/lib/connections";
-
-type Person = { id: string; name: string; avatarUrl: string | null };
-
-function PersonRow({
-  person,
-  index,
-  children,
-}: {
-  person: Person;
-  index: number;
-  children: ReactNode;
-}) {
-  return (
-    <ListCard index={index}>
-      <Link
-        href={`/memorial/${person.id}`}
-        className="flex items-center gap-4 min-w-0 hover:underline"
-      >
-        <Avatar name={person.name} src={person.avatarUrl} size="lg" />
-        <span className="font-semibold text-foreground truncate">
-          {person.name}
-        </span>
-      </Link>
-      <div className="shrink-0 flex flex-col items-end gap-2">{children}</div>
-    </ListCard>
-  );
-}
+import PersonCard, { personGridClass } from "@/components/connections/PersonCard";
+import RemoveFollowerButton from "@/components/connections/RemoveFollowerButton";
+import RequestButtons from "@/components/connections/RequestButtons";
+import Suggestions from "@/components/connections/Suggestions";
+import { PageHeader } from "@/components/ui";
+import { followFromRow, followRequests, suggestions } from "@/lib/connections";
 
 function Section({
   title,
@@ -61,7 +35,7 @@ function Section({
           {empty}
         </div>
       ) : (
-        children
+        <div className={personGridClass}>{children}</div>
       )}
     </section>
   );
@@ -73,11 +47,11 @@ export default async function FollowersPage() {
 
   const select = { id: true, name: true, avatarUrl: true } as const;
 
-  // incoming: quienes me siguen o piden seguirme.
-  // outgoing: a quienes sigo o pedí seguir.
-  const [incoming, outgoing] = await Promise.all([
+  // incoming: quienes me siguen. outgoing: a quienes sigo o pedí seguir.
+  const [requests, incoming, outgoing, suggested] = await Promise.all([
+    followRequests(me),
     prisma.connection.findMany({
-      where: { addresseeId: me },
+      where: { addresseeId: me, status: "ACCEPTED" },
       include: { requester: { select } },
       orderBy: { createdAt: "desc" },
     }),
@@ -86,10 +60,9 @@ export default async function FollowersPage() {
       include: { addressee: { select } },
       orderBy: { createdAt: "desc" },
     }),
+    suggestions(me),
   ]);
 
-  const requests = incoming.filter((c) => c.status === "PENDING");
-  const followers = incoming.filter((c) => c.status === "ACCEPTED");
   const following = outgoing.filter((c) => c.status === "ACCEPTED");
   const sent = outgoing.filter((c) => c.status === "PENDING");
 
@@ -105,31 +78,41 @@ export default async function FollowersPage() {
 
       <ConnectionSearch />
 
-      <Section title="Quieren seguirte" count={requests.length}>
-        {requests.map((c, i) => (
-          <PersonRow key={c.id} person={c.requester} index={i}>
-            <FollowerActions connectionId={c.id} kind="request" />
-          </PersonRow>
+      <Section title="Solicitudes de seguimiento" count={requests.length}>
+        {requests.map((r) => (
+          <PersonCard key={r.connectionId} person={r.person} mutuals={r.mutuals}>
+            <RequestButtons
+              connectionId={r.connectionId}
+              personId={r.person.id}
+              layout="stack"
+            />
+          </PersonCard>
         ))}
       </Section>
 
+      <Suggestions people={suggested} />
+
       <Section
         title="Te siguen"
-        count={followers.length}
+        count={incoming.length}
         empty="Todavía nadie te sigue."
       >
-        {followers.map((c, i) => {
+        {incoming.map((c) => {
           const mine = myFollowOf(c.requesterId);
           return (
-            <PersonRow key={c.id} person={c.requester} index={i}>
+            <PersonCard key={c.id} person={c.requester}>
               <FollowButton
                 key={`${mine.state}-${mine.connectionId}`}
+                variant="card"
                 userId={c.requesterId}
                 initialState={mine.state}
                 initialConnectionId={mine.connectionId}
               />
-              <FollowerActions connectionId={c.id} kind="follower" />
-            </PersonRow>
+              <RemoveFollowerButton
+                connectionId={c.id}
+                personId={c.requesterId}
+              />
+            </PersonCard>
           );
         })}
       </Section>
@@ -139,26 +122,28 @@ export default async function FollowersPage() {
         count={following.length}
         empty="Todavía no sigues a nadie. Busca a alguien por su nombre para empezar."
       >
-        {following.map((c, i) => (
-          <PersonRow key={c.id} person={c.addressee} index={i}>
+        {following.map((c) => (
+          <PersonCard key={c.id} person={c.addressee}>
             <FollowButton
+              variant="card"
               userId={c.addresseeId}
               initialState="following"
               initialConnectionId={c.id}
             />
-          </PersonRow>
+          </PersonCard>
         ))}
       </Section>
 
       <Section title="Solicitudes enviadas" count={sent.length}>
-        {sent.map((c, i) => (
-          <PersonRow key={c.id} person={c.addressee} index={i}>
+        {sent.map((c) => (
+          <PersonCard key={c.id} person={c.addressee}>
             <FollowButton
+              variant="card"
               userId={c.addresseeId}
               initialState="sent"
               initialConnectionId={c.id}
             />
-          </PersonRow>
+          </PersonCard>
         ))}
       </Section>
     </div>

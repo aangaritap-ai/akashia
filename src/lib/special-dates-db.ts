@@ -160,6 +160,7 @@ async function remindBirthdays(
       const sent = await tx.notification.createMany({
         data: followers.map((f) => ({
           userId: f.requesterId,
+          actorId: person.id,
           type: "EVENT_REMINDER" as const,
           title: "Cumpleaños hoy",
           body: `Hoy es el cumpleaños de ${person.name}.`,

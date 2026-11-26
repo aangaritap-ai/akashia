@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Avatar from "@/components/Avatar";
@@ -9,6 +10,40 @@ import MemorialMessageForm from "@/components/MemorialMessageForm";
 import MessageCard from "@/components/MessageCard";
 import ProfileHeader from "@/components/ProfileHeader";
 import { profileDetails, profileSelect } from "@/lib/profile";
+
+// Al compartir el enlace sale la foto y el nombre de la persona. Las páginas
+// personales no se ofrecen a los buscadores.
+export async function generateMetadata({
+  params,
+}: PageProps<"/memorial/[userId]">): Promise<Metadata> {
+  const { userId } = await params;
+  const person = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      name: true,
+      motto: true,
+      bio: true,
+      avatarUrl: true,
+      coverUrl: true,
+    },
+  });
+  if (!person) return { robots: { index: false, follow: false } };
+  const title = `${person.name} — Akashia`;
+  const description =
+    person.motto ||
+    person.bio?.slice(0, 160) ||
+    `Deja un mensaje o un recuerdo para ${person.name}.`;
+  return {
+    title,
+    description,
+    robots: { index: false, follow: false },
+    openGraph: {
+      title,
+      description,
+      images: [person.avatarUrl || person.coverUrl || "/opengraph-image"],
+    },
+  };
+}
 
 export default async function MemorialPage({
   params,
@@ -112,7 +147,12 @@ export default async function MemorialPage({
             </div>
           ) : (
             owner.memorialMessages.map((m, i) => (
-              <MessageCard key={m.id} m={m} index={i} />
+              <MessageCard
+                key={m.id}
+                m={m}
+                index={i}
+                canDelete={isOwner}
+              />
             ))
           )}
         </div>

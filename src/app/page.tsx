@@ -2,6 +2,9 @@ import Link from "next/link";
 import { Logo, LogoMark } from "@/components/Logo";
 import {
   IconCalendar,
+  IconCamera,
+  IconMemorial,
+  IconPaw,
   IconCheck,
   IconLock,
   IconPen,
@@ -12,7 +15,7 @@ const steps = [
   {
     icon: IconPen,
     title: "Escribe tu mensaje",
-    body: "Texto, voz o video, a tu ritmo y con tus palabras.",
+    body: "Texto, audio o un video corto, a tu ritmo y con tus palabras.",
   },
   {
     icon: IconCalendar,
@@ -23,6 +26,29 @@ const steps = [
     icon: IconShield,
     title: "Tus guardianes lo cuidan",
     body: "Personas de confianza confirman cuándo debe entregarse.",
+  },
+];
+
+const features = [
+  {
+    icon: IconMemorial,
+    title: "Tu página",
+    body: "Portada, tu frase y un lugar donde tu familia y amigos te dejan mensajes.",
+  },
+  {
+    icon: IconCamera,
+    title: "Historias",
+    body: "Fotos del día que duran 24 horas y solo ven los seguidores que apruebas.",
+  },
+  {
+    icon: IconPaw,
+    title: "Huellitas",
+    body: "Una página para cada mascota: su álbum en vida y su memorial cuando parta.",
+  },
+  {
+    icon: IconCalendar,
+    title: "Fechas especiales",
+    body: "Cumpleaños y aniversarios con un aviso el día que corresponde.",
   },
 ];
 
@@ -183,6 +209,34 @@ export default function Home() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-6 pb-20 flex justify-center">
+        <div className="max-w-4xl w-full flex flex-col gap-8">
+          <h2 className="text-center font-display font-medium text-3xl sm:text-4xl text-foreground">
+            Y mientras tanto, compartan la vida
+          </h2>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {features.map(({ icon: Icon, title, body }) => (
+              <div
+                key={title}
+                className="rounded-2xl border border-border bg-surface p-6 flex gap-4 shadow-sm"
+              >
+                <div className="w-11 h-11 shrink-0 rounded-xl bg-accent/10 text-accent flex items-center justify-center">
+                  <Icon className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="font-display text-xl text-foreground">
+                    {title}
+                  </div>
+                  <div className="text-sm text-muted leading-relaxed mt-1">
+                    {body}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

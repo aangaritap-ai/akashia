@@ -58,7 +58,7 @@ export default async function MemorialSettingsPage() {
           </div>
         ) : (
           messages.map((m, i) => (
-            <MessageCard key={m.id} m={m} showPrivacy index={i} />
+            <MessageCard key={m.id} m={m} showPrivacy index={i} canDelete />
           ))
         )}
       </div>

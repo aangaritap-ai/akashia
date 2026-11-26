@@ -10,6 +10,13 @@ export const labelClass = "text-sm font-medium text-foreground";
 export const primaryButtonClass =
   "rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground shadow-sm hover:brightness-110 disabled:opacity-60";
 
+// Botones a lo ancho de una tarjeta o repartidos en una fila.
+export const blockPrimaryClass =
+  "w-full rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-accent-foreground hover:brightness-110 disabled:opacity-60";
+
+export const blockSecondaryClass =
+  "w-full rounded-lg bg-black/[0.06] px-3 py-2 text-sm font-semibold text-foreground hover:bg-black/[0.1] disabled:opacity-60";
+
 export function PageHeader({
   title,
   subtitle,

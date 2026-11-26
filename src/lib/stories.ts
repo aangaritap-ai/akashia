@@ -150,6 +150,7 @@ export async function setStoryLike(
   await db.notification.create({
     data: {
       userId: like.authorId,
+      actorId: viewerId,
       type: "STORY_LIKE",
       title: "Nuevo me gusta",
       body: `A ${like.viewerName} le gustó tu historia.`,

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { MAX_UPLOAD_BYTES, TOO_BIG_MESSAGE } from "@/lib/uploads";
+import { uploadCapsuleMedia } from "@/lib/upload-media";
 
 type CapsuleType = "TEXT" | "AUDIO" | "VIDEO";
 type TriggerType = "DATE" | "DEATH";
@@ -39,6 +39,8 @@ export default function EditCapsuleForm({
   const [triggerDate, setTriggerDate] = useState(capsule.triggerDate);
 
   const [loading, setLoading] = useState(false);
+  // Avance de la subida del audio o video.
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
@@ -50,18 +52,7 @@ export default function EditCapsuleForm({
       let mediaUrl: string | null = existingMediaUrl;
 
       if ((type === "AUDIO" || type === "VIDEO") && file) {
-        if (file.size > MAX_UPLOAD_BYTES) throw new Error(TOO_BIG_MESSAGE);
-        const form = new FormData();
-        form.append("file", file);
-        const uploadRes = await fetch("/api/upload", {
-          method: "POST",
-          body: form,
-        });
-        const uploadData = await uploadRes.json();
-        if (!uploadRes.ok) {
-          throw new Error(uploadData.error || "No se pudo subir el archivo");
-        }
-        mediaUrl = uploadData.url;
+        mediaUrl = await uploadCapsuleMedia(file, setProgress);
       }
 
       const res = await fetch(`/api/capsules/${capsule.id}`, {
@@ -152,7 +143,7 @@ export default function EditCapsuleForm({
         ) : (
           <div className="flex flex-col gap-1.5">
             <label className="text-sm text-muted">
-              Archivo de {type === "AUDIO" ? "audio" : "video"}
+              Archivo de {type === "AUDIO" ? "audio" : "video"} (máximo 50 MB)
             </label>
             {existingMediaUrl && !file && (
               <p className="text-xs text-muted">
@@ -178,7 +169,7 @@ export default function EditCapsuleForm({
             ¿Para quién es? (puedes agregar varias personas)
           </label>
           {recipients.map((r, i) => (
-            <div key={i} className="grid grid-cols-2 gap-3 items-start">
+            <div key={i} className="grid sm:grid-cols-2 gap-2 sm:gap-3 items-start">
               <input
                 value={r.name}
                 onChange={(e) =>
@@ -205,7 +196,7 @@ export default function EditCapsuleForm({
                   }
                   required
                   placeholder="Correo"
-                  className="flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
+                  className="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
                 />
                 {recipients.length > 1 && (
                   <button
@@ -280,7 +271,11 @@ export default function EditCapsuleForm({
           disabled={loading}
           className="mt-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-background hover:brightness-110 disabled:opacity-60"
         >
-          {loading ? "Guardando..." : "Guardar cambios"}
+          {!loading
+            ? "Guardar cambios"
+            : progress > 0 && progress < 100
+              ? `Subiendo archivo ${progress}%`
+              : "Guardando..."}
         </button>
       </form>
     </div>

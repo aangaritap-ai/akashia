@@ -14,16 +14,23 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    await fetch("/api/password-reset/request", {
+    setError(null);
+    const res = await fetch("/api/password-reset/request", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
-    });
+    }).catch(() => null);
     setLoading(false);
+    if (!res?.ok) {
+      const data = await res?.json().catch(() => ({}));
+      setError(data?.error || "No se pudo enviar. Inténtalo de nuevo.");
+      return;
+    }
     setSent(true);
   }
 
@@ -49,6 +56,11 @@ export default function ForgotPasswordPage() {
         </Callout>
       ) : (
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
+          {error && (
+            <Callout tone="danger" className="!py-3">
+              {error}
+            </Callout>
+          )}
           <div className="flex flex-col gap-1.5">
             <label htmlFor="email" className={labelClass}>
               Correo

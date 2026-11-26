@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { deliverCapsule, finalizePendingDeaths } from "@/lib/delivery";
 import { cleanupExpiredStories } from "@/lib/stories";
 import { createEventReminders } from "@/lib/special-dates-db";
+import { cleanupRateLimits } from "@/lib/rate-limit";
 
 export async function GET(req: Request) {
   const authHeader = req.headers.get("authorization");
@@ -50,6 +51,10 @@ export async function GET(req: Request) {
       err instanceof Error ? err.message : err
     );
   }
+
+  await cleanupRateLimits().catch((err) =>
+    console.error("[Akashia] Falló la limpieza de contadores:", err?.message)
+  );
 
   return NextResponse.json({
     ok: true,

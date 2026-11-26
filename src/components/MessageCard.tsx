@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Avatar from "@/components/Avatar";
+import DeleteMessageButton from "@/components/DeleteMessageButton";
 import ReactionBar from "@/components/ReactionBar";
 import { IconLock, IconPaw } from "@/components/icons";
 import { timeAgo } from "@/lib/format";
@@ -22,12 +23,15 @@ export default function MessageCard({
   target,
   showPrivacy = false,
   index = 0,
+  canDelete = false,
 }: {
   m: Message;
   target?: { href: string; name: string; isPet: boolean };
   // En "Mi página" el dueño ve qué mensajes son públicos y cuáles privados.
   showPrivacy?: boolean;
   index?: number;
+  // Solo para el dueño de la página.
+  canDelete?: boolean;
 }) {
   return (
     <article
@@ -91,7 +95,7 @@ export default function MessageCard({
         </div>
       )}
 
-      <div className="px-5 py-4 mt-4 border-t border-border">
+      <div className="px-5 py-4 mt-4 border-t border-border flex flex-wrap items-center justify-between gap-3">
         <ReactionBar
           messageId={m.id}
           initialCounts={{
@@ -101,6 +105,7 @@ export default function MessageCard({
             sadCount: m.sadCount,
           }}
         />
+        {canDelete && <DeleteMessageButton id={m.id} author={m.authorName} />}
       </div>
     </article>
   );

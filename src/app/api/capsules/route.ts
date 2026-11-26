@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isOwnMedia } from "@/lib/media";
 
 const schema = z.object({
   title: z.string().min(1),
@@ -42,6 +43,10 @@ export async function POST(req: Request) {
       { error: "Falta el archivo de audio/video" },
       { status: 400 }
     );
+  }
+  // El enlace viaja en el correo de entrega: solo archivos propios.
+  if (data.mediaUrl && !isOwnMedia(data.mediaUrl, session.user.id)) {
+    return NextResponse.json({ error: "Archivo no válido" }, { status: 400 });
   }
   if (data.type === "TEXT" && !data.textContent) {
     return NextResponse.json(

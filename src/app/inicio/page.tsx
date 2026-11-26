@@ -2,10 +2,15 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getFollowingIds, pendingReceivedCount } from "@/lib/connections";
+import {
+  followRequests,
+  getFollowingIds,
+  pendingReceivedCount,
+} from "@/lib/connections";
 import { messageTarget, publicMessages } from "@/lib/feed";
 import { upcomingDates } from "@/lib/special-dates-db";
 import { getVisibleStories } from "@/lib/stories";
+import FollowRequests from "@/components/inicio/FollowRequests";
 import ShortcutsSidebar from "@/components/inicio/ShortcutsSidebar";
 import UpcomingEvents from "@/components/inicio/UpcomingEvents";
 import MessageCard from "@/components/MessageCard";
@@ -15,6 +20,7 @@ export const metadata: Metadata = { title: "Inicio — Akashia" };
 
 const FEED_SIZE = 100;
 const MAX_SHORTCUTS = 8;
+const MAX_REQUESTS = 2;
 const personSelect = { id: true, name: true, avatarUrl: true } as const;
 
 export default async function HomePage() {
@@ -22,8 +28,16 @@ export default async function HomePage() {
   if (!session?.user?.id) redirect("/login");
   const userId = session.user.id;
 
-  const [me, following, pending, unread, storyGroups, events, messages] =
-    await Promise.all([
+  const [
+    me,
+    following,
+    pending,
+    unread,
+    storyGroups,
+    events,
+    messages,
+    requests,
+  ] = await Promise.all([
       prisma.user.findUnique({ where: { id: userId }, select: personSelect }),
       getFollowingIds(userId).then((ids) =>
         prisma.user.findMany({
@@ -38,12 +52,14 @@ export default async function HomePage() {
       getVisibleStories(userId),
       upcomingDates(userId),
       publicMessages(FEED_SIZE),
+      followRequests(userId, MAX_REQUESTS),
     ]);
 
   if (!me) redirect("/login");
 
   // En el celular las piezas van en una columna en este orden: historias,
-  // fechas y feed. En pantallas anchas se reparten en tres columnas.
+  // fechas y feed. En pantallas anchas se reparten en tres columnas, y a la
+  // derecha aparecen además las solicitudes de seguimiento.
   return (
     <main className="flex-1 px-4 sm:px-6 py-6 sm:py-8">
       <h1 className="sr-only">Inicio</h1>
@@ -61,7 +77,12 @@ export default async function HomePage() {
           <StoriesBar groups={storyGroups} me={me} />
         </div>
 
-        <aside className="min-w-0 lg:col-start-3 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-20">
+        <aside className="min-w-0 flex flex-col gap-6 lg:col-start-3 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+          {requests.length > 0 && (
+            <div className="hidden lg:block">
+              <FollowRequests requests={requests} />
+            </div>
+          )}
           <UpcomingEvents events={events} />
         </aside>
 

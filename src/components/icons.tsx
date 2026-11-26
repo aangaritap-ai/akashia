@@ -263,6 +263,24 @@ export function IconPaw({ className = base }: IconProps) {
   );
 }
 
+export function IconHeart({ className = base }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <path d="M12 20.5l-7.3-7.1a4.8 4.8 0 0 1 6.8-6.8l.5.5.5-.5a4.8 4.8 0 0 1 6.8 6.8z" />
+    </svg>
+  );
+}
+
+export function IconDots({ className = base }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <circle cx="5" cy="12" r="1.8" />
+      <circle cx="12" cy="12" r="1.8" />
+      <circle cx="19" cy="12" r="1.8" />
+    </svg>
+  );
+}
+
 export function IconPin({ className = base }: IconProps) {
   return (
     <svg

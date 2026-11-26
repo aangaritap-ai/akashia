@@ -1,7 +1,11 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { messageTarget, publicMessages } from "@/lib/feed";
 import MessageCard from "@/components/MessageCard";
+
+// Muestra nombres y mensajes de personas: fuera de los buscadores.
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 // El feed para visitantes. Quien tiene cuenta lo ve dentro de Inicio.
 export default async function MemorialFeedPage() {

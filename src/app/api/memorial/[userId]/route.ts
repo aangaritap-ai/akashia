@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { allow, clientKey } from "@/lib/rate-limit";
 
 const schema = z.object({
   authorName: z.string().min(1).max(80),
@@ -21,6 +22,18 @@ export async function POST(
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
+  }
+
+  // Margen amplio: varias personas pueden compartir la misma conexión.
+  const who = clientKey(req);
+  if (
+    !(await allow(`msg:${who}`, 15, 10 * 60)) ||
+    !(await allow(`msg-day:${who}`, 100, 24 * 3600))
+  ) {
+    return NextResponse.json(
+      { error: "Se han enviado muchos mensajes seguidos. Espera unos minutos." },
+      { status: 429 }
+    );
   }
 
   // Sin sesión no se aceptan fotos, tampoco enlaces a imágenes externas.

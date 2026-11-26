@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isOwnMedia } from "@/lib/media";
 import { capsuleLockReason, deleteUnusedCapsuleMedia } from "@/lib/capsules";
 
 const schema = z.object({
@@ -65,6 +66,14 @@ export async function PATCH(
       { error: "Falta el archivo de audio/video" },
       { status: 400 }
     );
+  }
+  // Un archivo nuevo debe ser propio; el que ya tenía se conserva.
+  if (
+    data.mediaUrl &&
+    data.mediaUrl !== existing.mediaUrl &&
+    !isOwnMedia(data.mediaUrl, existing.ownerId)
+  ) {
+    return NextResponse.json({ error: "Archivo no válido" }, { status: 400 });
   }
   if (data.type === "TEXT" && !data.textContent) {
     return NextResponse.json(

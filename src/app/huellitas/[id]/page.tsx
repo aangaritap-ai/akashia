@@ -25,10 +25,11 @@ export async function generateMetadata({
   return {
     title,
     description,
+    robots: { index: false, follow: false },
     openGraph: {
       title,
       description,
-      ...(pet.photoUrl ? { images: [pet.photoUrl] } : {}),
+      images: [pet.photoUrl || "/opengraph-image"],
     },
   };
 }
@@ -104,7 +105,14 @@ export default async function PetPage({
               Sé el primero en dejar un mensaje para {pet.name}.
             </div>
           ) : (
-            messages.map((m, i) => <MessageCard key={m.id} m={m} index={i} />)
+            messages.map((m, i) => (
+              <MessageCard
+                key={m.id}
+                m={m}
+                index={i}
+                canDelete={isOwner}
+              />
+            ))
           )}
         </div>
       </div>

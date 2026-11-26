@@ -3,13 +3,28 @@ import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import DashboardNav from "@/components/DashboardNav";
 import NavHistoryButtons from "@/components/NavHistoryButtons";
-import { IconBell, IconLogout } from "@/components/icons";
+import NotificationBell from "@/components/notifications/NotificationBell";
+import { IconLogout } from "@/components/icons";
 import { Logo } from "@/components/Logo";
 
 export default async function AppHeader() {
   const session = await auth();
+  // Si la base está despertando, el encabezado no debe tumbar la página. Y una
+  // cuenta eliminada en otro equipo se muestra como sin sesión.
+  const data = session?.user
+    ? await Promise.all([
+        prisma.notification.count({
+          where: { userId: session.user.id, read: false },
+        }),
+        prisma.user.findUnique({
+          where: { id: session.user.id },
+          select: { name: true, avatarUrl: true },
+        }),
+      ]).catch(() => null)
+    : null;
+  const me = data?.[1];
 
-  if (!session?.user) {
+  if (!data || !me) {
     return (
       <header className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border px-3 sm:px-6 py-2.5 flex items-center gap-3">
         <NavHistoryButtons />
@@ -35,15 +50,7 @@ export default async function AppHeader() {
     );
   }
 
-  const [unreadCount, me] = await Promise.all([
-    prisma.notification.count({
-      where: { userId: session.user.id, read: false },
-    }),
-    prisma.user.findUniqueOrThrow({
-      where: { id: session.user.id },
-      select: { name: true, avatarUrl: true },
-    }),
-  ]);
+  const unreadCount = data[0];
 
   async function logout() {
     "use server";
@@ -66,18 +73,7 @@ export default async function AppHeader() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0 ml-auto lg:ml-0">
-          <Link
-            href="/dashboard/notifications"
-            aria-label="Notificaciones"
-            className="relative w-9 h-9 flex items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-black/[0.04]"
-          >
-            <IconBell />
-            {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 min-w-[16px] h-[16px] rounded-full bg-red-600 text-white text-[9px] font-semibold flex items-center justify-center px-0.5 ring-2 ring-background">
-                {unreadCount > 99 ? "99+" : unreadCount}
-              </span>
-            )}
-          </Link>
+          <NotificationBell unread={unreadCount} />
 
           <Link
             href="/dashboard/profile"

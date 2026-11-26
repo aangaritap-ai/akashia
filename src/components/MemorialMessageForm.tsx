@@ -72,7 +72,10 @@ export default function MemorialMessageForm({
       });
 
       if (!res.ok) {
-        throw new Error("No se pudo enviar el mensaje. Intenta de nuevo.");
+        const data = await res.json().catch(() => ({}));
+        throw new Error(
+          data.error || "No se pudo enviar el mensaje. Intenta de nuevo."
+        );
       }
 
       setAuthorName("");

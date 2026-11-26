@@ -78,8 +78,8 @@ export default function TermsPage() {
 
       <h2>7. Cierre</h2>
       <p>
-        Puedes dejar de usar Akashia y pedir la eliminación de tu cuenta cuando
-        quieras. Si el servicio fuera a cerrar, avisaremos con antelación
+        Puedes dejar de usar Akashia y eliminar tu cuenta desde tu perfil
+        cuando quieras. Si el servicio fuera a cerrar, avisaremos con antelación
         razonable para que puedas recuperar tu contenido.
       </p>
 

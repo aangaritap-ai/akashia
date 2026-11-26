@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { del } from "@vercel/blob";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { deleteFiles, filesOwnedBy } from "@/lib/own-files";
 import { parsePet, syncPetDates } from "@/lib/pets-db";
 
 // La mascota, solo si es de quien pide. Si no, responde como si no existiera.
@@ -58,10 +58,6 @@ export async function DELETE(
   if (!pet) return fail;
 
   await prisma.pet.delete({ where: { id: pet.id } });
-  if (pet.photoUrl) {
-    await del(pet.photoUrl).catch((err) =>
-      console.error("[Akashia] No se pudo borrar la foto:", err?.message)
-    );
-  }
+  await deleteFiles(filesOwnedBy(pet.ownerId, [pet.photoUrl]));
   return NextResponse.json({ ok: true });
 }

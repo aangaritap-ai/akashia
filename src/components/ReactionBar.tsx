@@ -62,11 +62,24 @@ export default function ReactionBar({
     }
 
     try {
-      await fetch(`/api/reactions/${messageId}`, {
+      const res = await fetch(`/api/reactions/${messageId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type, action }),
       });
+      // Si el servidor no la acepta, se vuelve a como estaba.
+      if (!res.ok) {
+        setMine(mine);
+        setCounts((prev) => ({
+          ...prev,
+          [type]: Math.max(0, prev[type] + (alreadyMine ? 1 : -1)),
+        }));
+        try {
+          localStorage.setItem(storageKey, JSON.stringify([...mine]));
+        } catch {
+          // ignore
+        }
+      }
     } catch {
       // best-effort; the optimistic local count stands even if this
       // particular request drops (e.g. a flaky connection)

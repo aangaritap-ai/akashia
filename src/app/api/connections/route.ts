@@ -71,7 +71,11 @@ export async function POST(req: Request) {
   const connection = await prisma.connection.create({
     data: { requesterId: me, addresseeId: targetId },
   });
-  await notifyFollowRequest({ toUserId: targetId, fromName: meUser.name });
+  await notifyFollowRequest({
+    toUserId: targetId,
+    fromId: me,
+    fromName: meUser.name,
+  });
 
   return NextResponse.json({ ok: true, connection });
 }

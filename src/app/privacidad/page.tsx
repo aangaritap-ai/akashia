@@ -45,7 +45,8 @@ export default function PrivacyPage() {
         <li>
           <strong>Datos técnicos:</strong> nuestros proveedores registran datos
           como la dirección IP y el navegador para operar y proteger el
-          servicio.
+          servicio. Para frenar abusos guardamos por poco tiempo un código
+          derivado de la IP.
         </li>
       </ul>
 
@@ -98,6 +99,11 @@ export default function PrivacyPage() {
           diaria.
         </li>
         <li>
+          <strong>Personas en común:</strong> en las solicitudes y sugerencias
+          para seguir, otras personas con cuenta pueden ver cuántos conocidos
+          comparten contigo, y la foto de algunos de ellos.
+        </li>
+        <li>
           <strong>Páginas memoriales y feed:</strong> son públicos, salvo los
           mensajes marcados como privados, que solo ve la persona dueña de la
           página.
@@ -132,8 +138,9 @@ export default function PrivacyPage() {
       <h2>7. Cuánto tiempo los conservamos</h2>
       <p>
         Mientras tu cuenta exista o sea necesario para cumplir las entregas que
-        programaste y las obligaciones legales. Puedes pedir la eliminación de
-        tu cuenta y sus contenidos. Las copias técnicas de los proveedores se
+        programaste y las obligaciones legales. Puedes eliminar tu cuenta y
+        sus contenidos desde tu perfil; las cápsulas ya entregadas siguen en
+        poder de quien las recibió. Las copias técnicas de los proveedores se
         eliminan según sus propios plazos. Hacemos además copias de seguridad
         propias que conservamos alrededor de tres meses.
       </p>
