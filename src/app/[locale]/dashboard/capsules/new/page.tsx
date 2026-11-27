@@ -1,8 +1,9 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
+import MailLanguageSelect from "@/components/MailLanguageSelect";
 import { uploadCapsuleMedia } from "@/lib/upload-media";
 
 type CapsuleType = "TEXT" | "AUDIO" | "VIDEO";
@@ -10,6 +11,8 @@ type TriggerType = "DATE" | "DEATH";
 
 export default function NewCapsulePage() {
   const router = useRouter();
+  const pageLocale = useLocale();
+  const [mailLocale, setMailLocale] = useState(pageLocale);
   const t = useTranslations("capsules");
   const common = useTranslations("common");
   const profile = useTranslations("profile");
@@ -49,6 +52,7 @@ export default function NewCapsulePage() {
           textContent: type === "TEXT" ? textContent : null,
           mediaUrl,
           recipients,
+          locale: mailLocale,
           triggerType,
           triggerDate: triggerType === "DATE" ? triggerDate : null,
         }),
@@ -191,6 +195,7 @@ export default function NewCapsulePage() {
           >
             {t("addRecipient")}
           </button>
+          <MailLanguageSelect value={mailLocale} onChange={setMailLocale} />
         </div>
 
         <div className="flex flex-col gap-1.5">

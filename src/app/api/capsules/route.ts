@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isOwnMedia } from "@/lib/media";
 import { apiText } from "@/lib/api-locale";
+import { routing } from "@/i18n/routing";
 
 const schema = z.object({
   title: z.string().min(1),
@@ -15,6 +16,8 @@ const schema = z.object({
     .min(1),
   triggerType: z.enum(["DATE", "DEATH"]),
   triggerDate: z.string().optional().nullable(),
+  // Idioma del correo de entrega.
+  locale: z.enum(routing.locales).optional(),
 });
 
 export async function POST(req: Request) {
@@ -68,7 +71,11 @@ export async function POST(req: Request) {
         ? new Date(`${data.triggerDate}T12:00:00`)
         : null,
       recipients: {
-        create: data.recipients.map((r) => ({ name: r.name, email: r.email })),
+        create: data.recipients.map((r) => ({
+          name: r.name,
+          email: r.email,
+          locale: data.locale,
+        })),
       },
     },
   });

@@ -581,11 +581,67 @@
   },
   "language": {
     "label": "Language",
-    "hint": "It's remembered on this browser."
+    "hint": "It's also used for the emails we send you."
   },
   "share": {
     "imageAlt": "Akashia — Leave your mark on those you love",
     "imageText": "Leave messages for the people you love, delivered at the moment you choose.",
     "appDescription": "Leave your mark on those you love."
+  },
+  "email": {
+    "hello": "Hello {name},",
+    "inviteSubject": "{owner} chose you as a guardian on Akashia",
+    "inviteTitle": "You've been chosen as a guardian",
+    "inviteIntro": "<strong>{owner}</strong> has chosen you as one of their trusted people on Akashia, a place where they keep messages for their loved ones.",
+    "inviteBody": "If {owner} ever passes away, your confirmation (together with another guardian's, if there are more) helps deliver their messages to the people they love.",
+    "inviteButton": "See my guardian role",
+    "inviteNote": "You don't need to do anything now. Just keep this email.",
+    "resetSubject": "Reset your password — Akashia",
+    "resetTitle": "Reset your password",
+    "resetBody": "We received a request to reset your Akashia password. If it was you, click below:",
+    "resetButton": "Choose a new password",
+    "resetNote": "This link expires in 1 hour. If it wasn't you, ignore this email.",
+    "confirmedSubject": "A guardian confirmed the death of {owner}",
+    "confirmedTitle": "A guardian confirmed a death",
+    "confirmedBody": "{guardian} confirmed on Akashia that {owner} has passed away.",
+    "pendingOwnerSubject": "Your guardians confirmed your death — Akashia",
+    "pendingOwnerTitle": "Your guardians confirmed your death",
+    "pendingOwnerBody": "Your guardians on Akashia have just confirmed your death. If this is correct, you don't need to do anything — in <strong>{hours} hours</strong> your capsules will be delivered to the people you chose.",
+    "pendingOwnerWarn": "<strong>If this is a mistake</strong> (you're still with us), click below to cancel it right away:",
+    "pendingOwnerButton": "Cancel — I'm okay",
+    "pendingOwnerNote": "Keep this email. The link only works until the delivery is complete.",
+    "pendingSubject": "Waiting period active for {owner} — Akashia",
+    "pendingTitle": "Death confirmed — waiting period active",
+    "pendingDone": "The required confirmations for {owner} are complete.",
+    "pendingBody": "For safety, Akashia waits <strong>{hours} hours</strong> before delivering the capsules — enough time for {owner} to cancel if it was a mistake. We'll let you know when the delivery is complete.",
+    "cancelledSubject": "{owner} cancelled the confirmation — Akashia",
+    "cancelledTitle": "The death confirmation was cancelled",
+    "cancelledBody": "<strong>{owner}</strong> cancelled the death confirmation — they are alive and aware of what happened. No capsule was delivered.",
+    "finalSubject": "Delivery completed for {owner} — Akashia",
+    "finalTitle": "Delivery completed",
+    "finalBody": "The waiting period has ended and {owner}'s capsules have been delivered to their recipients. Thank you for looking after this moment.",
+    "capsuleSubject": "A message from {sender} for you — Akashia",
+    "capsuleTitle": "A message from {sender} for you",
+    "capsuleIntro": "<strong>{sender}</strong> left this message for you on Akashia: \"{title}\"",
+    "capsuleAudio": "Listen to the message (audio)",
+    "capsuleVideo": "Watch the message (video)"
+  },
+  "saved": {
+    "eventTitle": "Today is a special date",
+    "guardianClosedTitle": "A guardian closed their account",
+    "guardianClosedBody": "{name} can no longer be your guardian. Invite someone else.",
+    "adoption": "{name}'s adoption"
+  },
+  "mail": {
+    "language": "Email language",
+    "accountHint": "People who already have an account get it in the language they use."
+  },
+  "legal": {
+    "privacyMeta": "Privacy policy — Akashia",
+    "termsMeta": "Terms of use — Akashia",
+    "privacyTitle": "Privacy policy",
+    "termsTitle": "Terms of use",
+    "updated": "Last updated: {date}",
+    "home": "Home"
   }
 }

@@ -4,6 +4,23 @@ import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { accountForGoogle } from "@/lib/google-account";
+import { callerLocale } from "@/lib/api-locale";
+
+// Anota el idioma de quien entra, solo si todavía no tiene uno. Un fallo aquí
+// nunca debe impedir el ingreso.
+async function rememberLocale(id: string) {
+  try {
+    await prisma.user.updateMany({
+      where: { id, locale: null },
+      data: { locale: await callerLocale() },
+    });
+  } catch (err) {
+    console.error(
+      "[Akashia] No se pudo guardar el idioma:",
+      err instanceof Error ? err.message : err
+    );
+  }
+}
 
 // El botón y el proveedor solo existen si están las dos claves de Google.
 export const googleEnabled = Boolean(
@@ -60,9 +77,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           select: { id: true, name: true, email: true },
         });
         if (!own) return null;
+        if (user) await rememberLocale(own.id);
         return { ...token, id: own.id, name: own.name, email: own.email };
       }
-      if (user) token.id = user.id;
+      if (user?.id) {
+        token.id = user.id;
+        await rememberLocale(user.id);
+      }
       return token;
     },
     session: async ({ session, token }) => {

@@ -2,7 +2,9 @@ import { z } from "zod";
 import type { Pet, Prisma } from "@prisma/client";
 import { MAX_PET_NAME, MAX_PET_STORY, PET_SPECIES } from "@/lib/pets";
 import { todayIn } from "@/lib/special-dates";
+import { textsFor } from "@/lib/translator";
 import { isStorageUrl } from "@/lib/uploads";
+import type { AppLocale } from "@/i18n/routing";
 
 const day = z
   .string()
@@ -87,12 +89,16 @@ export function parsePet(
 }
 
 /** Deja en "Fechas especiales" las de la mascota: crea, actualiza o quita. */
-export async function syncPetDates(tx: Prisma.TransactionClient, pet: Pet) {
+export async function syncPetDates(
+  tx: Prisma.TransactionClient,
+  pet: Pet,
+  locale: AppLocale
+) {
   const wanted = [
     { kind: "BIRTHDAY", title: pet.name, date: pet.birthDate },
     {
       kind: "ANNIVERSARY",
-      title: `Adopción de ${pet.name}`,
+      title: textsFor(locale, "saved")("adoption", { name: pet.name }),
       date: pet.adoptionDate,
     },
     { kind: "MEMORIAL", title: pet.name, date: pet.passedDate },

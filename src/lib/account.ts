@@ -1,6 +1,7 @@
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { filesOwnedBy } from "@/lib/own-files";
+import { textsFor, toLocale } from "@/lib/translator";
 import { isStorageUrl } from "@/lib/uploads";
 
 /**
@@ -24,7 +25,12 @@ export async function removeAccount(
       guardianRoles: {
         include: {
           owner: {
-            select: { id: true, isDeceased: true, deceasedPendingAt: true },
+            select: {
+              id: true,
+              isDeceased: true,
+              deceasedPendingAt: true,
+              locale: true,
+            },
           },
         },
       },
@@ -70,12 +76,13 @@ export async function removeAccount(
       where: { id: role.id },
       data: { userId: null, status: "PENDING" },
     });
+    const texts = textsFor(toLocale(role.owner.locale), "saved");
     await db.notification.create({
       data: {
         userId: role.ownerId,
         type: "GUARDIAN_INVITE",
-        title: "Un guardián cerró su cuenta",
-        body: `${user.name} ya no puede ser tu guardián. Invita a otra persona.`,
+        title: texts("guardianClosedTitle"),
+        body: texts("guardianClosedBody", { name: user.name }),
         linkUrl: "/dashboard/guardians",
       },
     });

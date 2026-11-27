@@ -9,8 +9,11 @@ import { LOCALE_NAMES, routing, type AppLocale } from "@/i18n/routing";
 // (ES, EN) para el encabezado.
 export default function LanguageSwitcher({
   compact = false,
+  remember = false,
 }: {
   compact?: boolean;
+  // Con sesión: guarda la elección en la cuenta, para los correos.
+  remember?: boolean;
 }) {
   const locale = useLocale();
   const pathname = usePathname();
@@ -21,6 +24,15 @@ export default function LanguageSwitcher({
   function change(next: AppLocale) {
     // Conserva lo que venga después del signo de pregunta.
     const query = window.location.search;
+    if (remember) {
+      // Si falla, la página cambia igual; solo no queda guardado.
+      void fetch("/api/profile/language", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ locale: next }),
+        keepalive: true,
+      }).catch(() => {});
+    }
     startTransition(() => router.replace(pathname + query, { locale: next }));
   }
 

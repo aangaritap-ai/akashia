@@ -4,7 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { allow, clientKey } from "@/lib/rate-limit";
 import { sendEmail } from "@/lib/email";
 import { passwordResetEmail } from "@/lib/email-templates";
-import { apiText } from "@/lib/api-locale";
+import { apiText, callerLocale } from "@/lib/api-locale";
+import { toLocale } from "@/lib/translator";
 
 const schema = z.object({ email: z.string().email() });
 
@@ -43,13 +44,15 @@ export async function POST(req: Request) {
     },
   });
 
-  const resetUrl = `${process.env.APP_URL || "http://localhost:3000"}/reset-password/${token.token}`;
-
   try {
     await sendEmail({
       to: user.email,
-      subject: "Recupera tu contraseña — Akashia",
-      html: passwordResetEmail({ name: user.name, resetUrl }),
+      ...passwordResetEmail({
+        // El de la cuenta; si no tiene, el de la página donde lo pidió.
+        locale: user.locale ? toLocale(user.locale) : await callerLocale(),
+        name: user.name,
+        token: token.token,
+      }),
     });
   } catch (err) {
     // La respuesta no cambia: un error aquí delataría que la cuenta existe.

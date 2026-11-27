@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { deleteFiles, filesOwnedBy } from "@/lib/own-files";
 import { parsePet, syncPetDates } from "@/lib/pets-db";
-import { apiText } from "@/lib/api-locale";
+import { apiText, callerLocale } from "@/lib/api-locale";
 
 // La mascota, solo si es de quien pide. Si no, responde como si no existiera.
 async function ownPet(params: Promise<{ id: string }>) {
@@ -37,13 +37,14 @@ export async function PATCH(
     return NextResponse.json({ error: await apiText(parsed.error) }, { status: 400 });
   }
 
+  const locale = await callerLocale();
   await prisma.$transaction(
     async (tx) => {
       const updated = await tx.pet.update({
         where: { id: pet.id },
         data: parsed.data,
       });
-      await syncPetDates(tx, updated);
+      await syncPetDates(tx, updated, locale);
     },
     { timeout: 20_000, maxWait: 10_000 }
   );

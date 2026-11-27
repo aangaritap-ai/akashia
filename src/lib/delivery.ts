@@ -8,6 +8,8 @@ import {
   deathCancelledEmail,
   deathFinalizedGuardianEmail,
 } from "@/lib/email-templates";
+import { toLocale } from "@/lib/translator";
+import { localeForEmail } from "@/lib/user-locale";
 
 /** Hours between guardians reaching quorum and capsules actually being
  * delivered — gives the owner a window to cancel a mistaken confirmation. */
@@ -40,8 +42,11 @@ export async function deliverCapsule(capsuleId: string) {
     try {
       await sendEmail({
         to: recipient.email,
-        subject: `Un mensaje de ${capsule.owner.name} para ti — Akashia`,
-        html: capsuleDeliveredEmail({
+        ...capsuleDeliveredEmail({
+          locale: await localeForEmail(
+            recipient.email,
+            recipient.locale ?? capsule.owner.locale
+          ),
           recipientName: recipient.name,
           senderName: capsule.owner.name,
           title: capsule.title,
@@ -103,15 +108,13 @@ export async function startDeathGracePeriod(ownerId: string) {
     data: { deceasedPendingAt: new Date(), deceasedCancelToken: cancelToken },
   });
 
-  const cancelUrl = `${process.env.APP_URL || "http://localhost:3000"}/cancel-death/${cancelToken}`;
-
   await notify({
     to: owner.email,
-    subject: "Tus guardianes confirmaron tu fallecimiento — Akashia",
-    html: deathPendingOwnerEmail({
+    ...deathPendingOwnerEmail({
+      locale: toLocale(owner.locale),
       name: owner.name,
       graceHours: GRACE_PERIOD_HOURS,
-      cancelUrl,
+      cancelToken,
     }),
   });
 
@@ -119,8 +122,8 @@ export async function startDeathGracePeriod(ownerId: string) {
   for (const g of guardians) {
     await notify({
       to: g.email,
-      subject: `Periodo de espera activo para ${owner.name} — Akashia`,
-      html: deathPendingGuardianEmail({
+      ...deathPendingGuardianEmail({
+        locale: await localeForEmail(g.email, g.locale),
         ownerName: owner.name,
         graceHours: GRACE_PERIOD_HOURS,
       }),
@@ -142,8 +145,10 @@ export async function cancelDeathGracePeriod(ownerId: string) {
   for (const g of guardians) {
     await notify({
       to: g.email,
-      subject: `${owner.name} canceló la confirmación — Akashia`,
-      html: deathCancelledEmail({ ownerName: owner.name }),
+      ...deathCancelledEmail({
+        locale: await localeForEmail(g.email, g.locale),
+        ownerName: owner.name,
+      }),
     });
   }
   return true;
@@ -174,8 +179,10 @@ export async function finalizePendingDeaths() {
     for (const g of guardians) {
       await notify({
         to: g.email,
-        subject: `Se completó la entrega para ${owner.name} — Akashia`,
-        html: deathFinalizedGuardianEmail({ ownerName: owner.name }),
+        ...deathFinalizedGuardianEmail({
+          locale: await localeForEmail(g.email, g.locale),
+          ownerName: owner.name,
+        }),
       });
     }
   }

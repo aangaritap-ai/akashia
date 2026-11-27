@@ -10,7 +10,7 @@ import {
   yearsSince,
   type DateKind,
 } from "@/lib/special-dates";
-import { savedTexts } from "@/lib/translator";
+import { textsFor, toLocale } from "@/lib/translator";
 
 export type UpcomingDate = {
   id: string;
@@ -90,12 +90,15 @@ export async function createEventReminders(): Promise<number> {
 
   const due = await prisma.specialDate.findMany({
     where: { AND: [{ OR: days }, { OR: notYetThisYear }] },
+    include: { owner: { select: { locale: true } } },
     take: 500,
   });
 
-  const texts = savedTexts();
   let created = 0;
   for (const date of due) {
+    // El aviso se escribe en el idioma de su dueño.
+    const locale = toLocale(date.owner.locale);
+    const texts = textsFor(locale, "dates");
     const years = yearsLabel(
       date.kind,
       yearsSince(date.year, today.year),
@@ -113,7 +116,7 @@ export async function createEventReminders(): Promise<number> {
         data: {
           userId: date.ownerId,
           type: "EVENT_REMINDER",
-          title: "Hoy es una fecha especial",
+          title: textsFor(locale, "saved")("eventTitle"),
           body: `${dateLabel(date.kind, date.title, texts)}${
             years ? ` (${years})` : ""
           }.`,

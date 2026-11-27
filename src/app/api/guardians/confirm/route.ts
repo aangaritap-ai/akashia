@@ -9,6 +9,7 @@ import {
   notify,
 } from "@/lib/delivery";
 import { apiText } from "@/lib/api-locale";
+import { localeForEmail } from "@/lib/user-locale";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -53,8 +54,8 @@ export async function POST(req: Request) {
   for (const g of otherGuardians) {
     await notify({
       to: g.email,
-      subject: `Un guardián confirmó el fallecimiento de ${guardian.owner.name}`,
-      html: guardianConfirmedNoticeEmail({
+      ...guardianConfirmedNoticeEmail({
+        locale: await localeForEmail(g.email, g.locale),
         ownerName: guardian.owner.name,
         guardianName: guardian.name,
       }),

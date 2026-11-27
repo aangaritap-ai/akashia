@@ -64,7 +64,7 @@ export default async function ProfilePage({
           </div>
           <p className="text-xs text-muted">{language("hint")}</p>
         </div>
-        <LanguageSwitcher />
+        <LanguageSwitcher remember />
       </div>
       <DeleteAccountSection
         error={typeof eliminar === "string" ? eliminar : undefined}

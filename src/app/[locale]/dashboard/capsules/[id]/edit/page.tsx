@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import EditCapsuleForm from "@/components/EditCapsuleForm";
 import { capsuleLockReason } from "@/lib/capsules";
+import { toLocale } from "@/lib/translator";
 
 export default async function EditCapsulePage({
   params,
@@ -37,6 +38,9 @@ export default async function EditCapsulePage({
         triggerDate: capsule.triggerDate
           ? capsule.triggerDate.toISOString().slice(0, 10)
           : "",
+        locale: capsule.recipients[0]?.locale
+          ? toLocale(capsule.recipients[0].locale)
+          : null,
         recipients: capsule.recipients.map((r) => ({
           name: r.name,
           email: r.email,

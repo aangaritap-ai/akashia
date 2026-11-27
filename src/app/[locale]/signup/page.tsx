@@ -61,7 +61,9 @@ export default async function SignupPage({
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    await prisma.user.create({ data: { name, email, passwordHash } });
+    await prisma.user.create({
+      data: { name, email, passwordHash, locale },
+    });
 
     try {
       await signIn("credentials", {

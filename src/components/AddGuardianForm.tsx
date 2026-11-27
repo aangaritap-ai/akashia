@@ -1,8 +1,9 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
+import MailLanguageSelect from "@/components/MailLanguageSelect";
 import { Callout, inputClass, primaryButtonClass } from "@/components/ui";
 
 type FoundUser = { id: string; name: string; email: string };
@@ -14,6 +15,8 @@ export default function AddGuardianForm() {
   const followers = useTranslations("followers");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const pageLocale = useLocale();
+  const [mailLocale, setMailLocale] = useState(pageLocale);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
@@ -63,7 +66,7 @@ export default function AddGuardianForm() {
     const res = await fetch("/api/guardians", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email }),
+      body: JSON.stringify({ name, email, locale: mailLocale }),
     });
 
     const data = await res.json().catch(() => ({}));
@@ -167,6 +170,7 @@ export default function AddGuardianForm() {
           {loading ? common("sending") : t("invite")}
         </button>
       </div>
+      <MailLanguageSelect value={mailLocale} onChange={setMailLocale} />
     </form>
   );
 }

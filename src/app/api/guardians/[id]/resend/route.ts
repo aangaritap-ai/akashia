@@ -5,6 +5,7 @@ import { sendEmail, EmailSendError } from "@/lib/email";
 import { guardianInviteEmail } from "@/lib/email-templates";
 import { notifyGuardianInvite } from "@/lib/notifications";
 import { apiText } from "@/lib/api-locale";
+import { localeForEmail } from "@/lib/user-locale";
 
 export async function POST(
   _req: Request,
@@ -24,8 +25,6 @@ export async function POST(
     return NextResponse.json({ error: await apiText("notFound") }, { status: 404 });
   }
 
-  const confirmUrl = `${process.env.APP_URL || "http://localhost:3000"}/guardian/${guardian.token}`;
-
   const notified = await notifyGuardianInvite({
     guardianEmail: guardian.email,
     guardianToken: guardian.token,
@@ -36,11 +35,11 @@ export async function POST(
   try {
     await sendEmail({
       to: guardian.email,
-      subject: `${guardian.owner.name} te designó como guardián en Akashia`,
-      html: guardianInviteEmail({
+      ...guardianInviteEmail({
+        locale: await localeForEmail(guardian.email, guardian.locale),
         guardianName: guardian.name,
         ownerName: guardian.owner.name,
-        confirmUrl,
+        token: guardian.token,
       }),
     });
   } catch (err) {

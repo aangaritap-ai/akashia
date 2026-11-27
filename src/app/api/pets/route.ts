@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { MAX_PETS } from "@/lib/pets";
 import { parsePet, syncPetDates } from "@/lib/pets-db";
-import { apiText } from "@/lib/api-locale";
+import { apiText, callerLocale } from "@/lib/api-locale";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -24,12 +24,13 @@ export async function POST(req: Request) {
     );
   }
 
+  const locale = await callerLocale();
   const pet = await prisma.$transaction(
     async (tx) => {
       const created = await tx.pet.create({
         data: { ...parsed.data, ownerId: me },
       });
-      await syncPetDates(tx, created);
+      await syncPetDates(tx, created, locale);
       return created;
     },
     { timeout: 20_000, maxWait: 10_000 }

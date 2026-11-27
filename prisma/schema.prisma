@@ -14,6 +14,8 @@ model User {
   passwordHash String
   // Identificador de la cuenta de Google vinculada, si entró con Google.
   googleId     String?  @unique
+  // Idioma preferido ("es", "en"…) para correos y avisos. Vacío = español.
+  locale       String?
 
   // Datos opcionales del perfil.
   coverUrl String?
@@ -181,6 +183,8 @@ model Guardian {
   status    GuardianStatus @default(PENDING)
   token     String         @unique @default(cuid())
   invitedAt DateTime       @default(now())
+  // Idioma elegido para sus correos si no tiene cuenta.
+  locale    String?
 
   // Set once the invited person registers/logs in with a matching account
   // and formally accepts the guardian role.
@@ -234,6 +238,8 @@ model CapsuleRecipient {
   email      String
   delivered  Boolean  @default(false)
   deliveredAt DateTime?
+  // Idioma elegido para el correo de entrega si no tiene cuenta.
+  locale     String?
 }
 
 enum SpecialDateKind {

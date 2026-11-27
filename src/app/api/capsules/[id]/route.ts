@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { isOwnMedia } from "@/lib/media";
 import { capsuleLockReason, deleteUnusedCapsuleMedia } from "@/lib/capsules";
 import { apiText } from "@/lib/api-locale";
+import { routing } from "@/i18n/routing";
 
 const schema = z.object({
   title: z.string().min(1),
@@ -16,6 +17,8 @@ const schema = z.object({
     .min(1),
   triggerType: z.enum(["DATE", "DEATH"]),
   triggerDate: z.string().optional().nullable(),
+  // Idioma del correo de entrega.
+  locale: z.enum(routing.locales).optional(),
 });
 
 export async function PATCH(
@@ -106,7 +109,11 @@ export async function PATCH(
         editCount: { increment: 1 },
         sealed: false,
         recipients: {
-          create: data.recipients.map((r) => ({ name: r.name, email: r.email })),
+          create: data.recipients.map((r) => ({
+          name: r.name,
+          email: r.email,
+          locale: data.locale,
+        })),
         },
       },
       include: { recipients: true },

@@ -581,11 +581,67 @@
   },
   "language": {
     "label": "Idioma",
-    "hint": "Se recuerda en este navegador."
+    "hint": "También se usa en los correos que te enviamos."
   },
   "share": {
     "imageAlt": "Akashia — Deja tu huella en quienes amas",
     "imageText": "Deja mensajes para las personas que amas, entregados en el momento que elijas.",
     "appDescription": "Deja tu huella en quienes amas."
+  },
+  "email": {
+    "hello": "Hola {name},",
+    "inviteSubject": "{owner} te designó como guardián en Akashia",
+    "inviteTitle": "Te han designado como guardián",
+    "inviteIntro": "<strong>{owner}</strong> te ha elegido como una de las personas de confianza en Akashia, un lugar donde guarda mensajes para sus seres queridos.",
+    "inviteBody": "Si en algún momento {owner} llegara a fallecer, tu confirmación (junto a la de otro guardián, si los hay) ayuda a que sus mensajes se entreguen a quienes ama.",
+    "inviteButton": "Ver mi rol de guardián",
+    "inviteNote": "No necesitas hacer nada ahora. Solo guarda este correo.",
+    "resetSubject": "Recupera tu contraseña — Akashia",
+    "resetTitle": "Recupera tu contraseña",
+    "resetBody": "Recibimos una solicitud para restablecer tu contraseña en Akashia. Si fuiste tú, haz clic abajo:",
+    "resetButton": "Elegir nueva contraseña",
+    "resetNote": "Este enlace vence en 1 hora. Si no fuiste tú, ignora este correo.",
+    "confirmedSubject": "Un guardián confirmó el fallecimiento de {owner}",
+    "confirmedTitle": "Un guardián confirmó un fallecimiento",
+    "confirmedBody": "{guardian} confirmó en Akashia el fallecimiento de {owner}.",
+    "pendingOwnerSubject": "Tus guardianes confirmaron tu fallecimiento — Akashia",
+    "pendingOwnerTitle": "Tus guardianes confirmaron tu fallecimiento",
+    "pendingOwnerBody": "Tus guardianes en Akashia acaban de confirmar tu fallecimiento. Si esto es correcto, no necesitas hacer nada — en <strong>{hours} horas</strong> tus cápsulas se entregarán a las personas que elegiste.",
+    "pendingOwnerWarn": "<strong>Si esto es un error</strong> (sigues con nosotros), haz clic abajo para cancelarlo de inmediato:",
+    "pendingOwnerButton": "Cancelar — estoy bien",
+    "pendingOwnerNote": "Guarda este correo. El enlace funciona solo hasta que se complete la entrega.",
+    "pendingSubject": "Periodo de espera activo para {owner} — Akashia",
+    "pendingTitle": "Se confirmó el fallecimiento — periodo de espera activo",
+    "pendingDone": "Se completaron las confirmaciones necesarias para {owner}.",
+    "pendingBody": "Por seguridad, Akashia espera <strong>{hours} horas</strong> antes de entregar sus cápsulas — tiempo suficiente para que {owner} pueda cancelarlo si fue un error. Te avisaremos cuando la entrega se complete.",
+    "cancelledSubject": "{owner} canceló la confirmación — Akashia",
+    "cancelledTitle": "Se canceló la confirmación de fallecimiento",
+    "cancelledBody": "<strong>{owner}</strong> canceló la confirmación de fallecimiento — sigue con vida y está al tanto de lo ocurrido. No se entregó ninguna cápsula.",
+    "finalSubject": "Se completó la entrega para {owner} — Akashia",
+    "finalTitle": "Se completó la entrega",
+    "finalBody": "Terminó el periodo de espera y las cápsulas de {owner} ya fueron entregadas a sus destinatarios. Gracias por cuidar este momento.",
+    "capsuleSubject": "Un mensaje de {sender} para ti — Akashia",
+    "capsuleTitle": "Un mensaje de {sender} para ti",
+    "capsuleIntro": "<strong>{sender}</strong> dejó este mensaje para ti en Akashia: \"{title}\"",
+    "capsuleAudio": "Escuchar el mensaje (audio)",
+    "capsuleVideo": "Ver el mensaje (video)"
+  },
+  "saved": {
+    "eventTitle": "Hoy es una fecha especial",
+    "guardianClosedTitle": "Un guardián cerró su cuenta",
+    "guardianClosedBody": "{name} ya no puede ser tu guardián. Invita a otra persona.",
+    "adoption": "Adopción de {name}"
+  },
+  "mail": {
+    "language": "Idioma del correo",
+    "accountHint": "Quien ya tenga cuenta lo recibe en el idioma que usa."
+  },
+  "legal": {
+    "privacyMeta": "Política de privacidad — Akashia",
+    "termsMeta": "Términos de uso — Akashia",
+    "privacyTitle": "Política de privacidad",
+    "termsTitle": "Términos de uso",
+    "updated": "Última actualización: {date}",
+    "home": "Inicio"
   }
 }
