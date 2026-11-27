@@ -11,8 +11,10 @@ import {
 } from "@/lib/stories";
 import { storageConfigured } from "@/lib/uploads";
 import { apiText } from "@/lib/api-locale";
+import { MAX_ACTIVE_VIDEOS, isOwnStoryVideo } from "@/lib/story-video";
 
-// Publicar una historia: foto + texto corto. Exige sesión.
+// Publicar una historia: foto (o video ya subido, con su portada) y texto
+// corto. Exige sesión.
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -58,6 +60,32 @@ export async function POST(req: Request) {
     );
   }
 
+  // El video llega ya subido (no cabe en esta petición); `file` es su portada.
+  const rawVideo = form?.get("videoUrl");
+  const videoUrl = typeof rawVideo === "string" && rawVideo ? rawVideo : null;
+  if (videoUrl) {
+    if (!isOwnStoryVideo(videoUrl, me)) {
+      return NextResponse.json(
+        { error: await apiText("invalidVideo") },
+        { status: 400 }
+      );
+    }
+    const videos = await prisma.story.count({
+      where: {
+        authorId: me,
+        videoUrl: { not: null },
+        expiresAt: { gt: new Date() },
+      },
+    });
+    if (videos >= MAX_ACTIVE_VIDEOS) {
+      await del(videoUrl).catch(() => {});
+      return NextResponse.json(
+        { error: await apiText("tooManyVideos") },
+        { status: 429 }
+      );
+    }
+  }
+
   // El nombre del archivo lo decidimos nosotros (no el de quien sube) y lleva
   // un sufijo aleatorio para que la dirección no se pueda adivinar.
   const blob = await put(`stories/${me}/story.${ext}`, file, {
@@ -71,13 +99,14 @@ export async function POST(req: Request) {
       data: {
         authorId: me,
         imageUrl: blob.url,
+        videoUrl,
         caption: caption || null,
         expiresAt: new Date(Date.now() + STORY_HOURS * 60 * 60 * 1000),
       },
     });
     return NextResponse.json({ ok: true, id: story.id });
   } catch (err) {
-    await del(blob.url).catch(() => {});
+    await del(videoUrl ? [blob.url, videoUrl] : blob.url).catch(() => {});
     throw err;
   }
 }

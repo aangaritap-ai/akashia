@@ -195,6 +195,31 @@ export async function suggestions(
   return chosen.map(([id]) => ({ ...byId.get(id)!, mutuals: mutuals.get(id)! }));
 }
 
+/** Cuánto tiempo se considera "nueva" una cuenta. */
+export const NEWCOMER_DAYS = 30;
+
+/** "Nuevos en Akashia": quienes se registraron hace poco y con quienes no tengo
+ * relación ni solicitud. Solo nombre y foto. */
+export async function newcomers(
+  me: string,
+  exclude: string[] = [],
+  take = 12,
+  db: Db = prisma
+): Promise<Person[]> {
+  return db.user.findMany({
+    where: {
+      id: { notIn: [me, ...exclude] },
+      isDeceased: false,
+      createdAt: { gte: new Date(Date.now() - NEWCOMER_DAYS * 86_400_000) },
+      connectionsSent: { none: { addresseeId: me } },
+      connectionsReceived: { none: { requesterId: me } },
+    },
+    select: personSelect,
+    orderBy: { createdAt: "desc" },
+    take,
+  });
+}
+
 /** Mi relación hacia otra persona: no la sigo, pedí seguirla, o la sigo. */
 export type FollowState = "none" | "sent" | "following";
 

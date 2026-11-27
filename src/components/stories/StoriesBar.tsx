@@ -48,6 +48,17 @@ function StoryCard({
         className="absolute inset-0 w-full h-full object-cover transition duration-300 group-hover:scale-105"
       />
       <span className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/20" />
+      {cover.videoUrl && (
+        <span
+          role="img"
+          aria-label={t("video")}
+          className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-black/55 text-white"
+        >
+          <svg viewBox="0 0 24 24" className="h-3 w-3" fill="currentColor">
+            <path d="M7 5l12 7-12 7z" />
+          </svg>
+        </span>
+      )}
       <span
         className={`absolute top-2 left-2 rounded-full p-[3px] ${
           group.hasUnseen || group.isMine ? "bg-gold" : "bg-white/70"

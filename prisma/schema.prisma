@@ -97,7 +97,9 @@ model Story {
   id        String      @id @default(cuid())
   authorId  String
   author    User        @relation("StoryAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  // La foto; en las historias de video, la imagen de portada.
   imageUrl  String
+  videoUrl  String?
   caption   String?
   createdAt DateTime    @default(now())
   expiresAt DateTime

@@ -86,7 +86,7 @@
     "pageTitle": "Your page",
     "pageBody": "A cover photo, your motto and a place where family and friends leave you messages.",
     "storiesTitle": "Stories",
-    "storiesBody": "Daily photos that last 24 hours, seen only by the followers you approve.",
+    "storiesBody": "Photos and short videos that last 24 hours, seen only by the followers you approve.",
     "petsTitle": "Paw Prints",
     "petsBody": "A page for each pet: an album while they're with you and a memorial when they're gone.",
     "datesTitle": "Special dates",
@@ -180,15 +180,15 @@
     "create": "Create story",
     "mine": "Your story",
     "empty": "Stories from people you follow will appear here.",
-    "badType": "Use a JPG, PNG, WebP or GIF photo.",
-    "pickFirst": "Choose a photo first.",
+    "badType": "Use a JPG, PNG, WebP or GIF photo, or an MP4, MOV or WebM video.",
+    "pickFirst": "Choose a photo or a video first.",
     "publishFailed": "The story couldn't be posted.",
     "newStory": "New story",
-    "newStoryHint": "It lasts 24 hours. Only you and the followers you approve can see it.",
+    "newStoryHint": "A photo or a short video. It lasts 24 hours and only you and the followers you approve can see it.",
     "previewAlt": "Preview of your story",
     "preparingPhoto": "Preparing the photo...",
-    "choosePhoto": "Choose a photo",
-    "changePhoto": "Tap the photo to change it.",
+    "choosePhoto": "Choose a photo or a video",
+    "changePhoto": "Tap the preview to change it.",
     "captionLabel": "Text (optional)",
     "captionPlaceholder": "Write something short...",
     "publishing": "Posting...",
@@ -200,7 +200,17 @@
     "confirmDelete": "Delete?",
     "close": "Close",
     "like": "Like",
-    "likes": "{count, plural, one {# like} other {# likes}}"
+    "likes": "{count, plural, one {# like} other {# likes}}",
+    "videoLimits": "Video: up to 30 seconds and 15 MB.",
+    "videoTooBig": "The video can't be larger than 15 MB.",
+    "videoTooLong": "The video can't be longer than 30 seconds.",
+    "videoUnreadable": "We couldn't read this video. Try an MP4.",
+    "videoLimit": "You already have 3 active videos. Wait for one to expire or delete one.",
+    "preparingVideo": "Preparing the video...",
+    "uploadingVideo": "Uploading video {percent}%",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "video": "Video"
   },
   "uploads": {
     "tooBig": "The image can't be larger than 4 MB."
@@ -393,7 +403,8 @@
     "deleteRequest": "Delete",
     "accepted": "Request confirmed",
     "declined": "Request deleted",
-    "mutuals": "{count, plural, one {# mutual connection} other {# mutual connections}}"
+    "mutuals": "{count, plural, one {# mutual connection} other {# mutual connections}}",
+    "newPeople": "New on Akashia"
   },
   "notifications": {
     "title": "Notifications",
@@ -578,7 +589,9 @@
     "emailFailed": "The email couldn't be sent",
     "guardianAddedNoEmail": "The guardian was added, but the invitation email couldn't be sent. Use 'Resend' later, or share the link yourself.",
     "guardianAddedError": "The guardian was added, but an unexpected error occurred while sending the email.",
-    "contactInvalid": "Fill in your first name, last name, a valid phone number and your city."
+    "contactInvalid": "Fill in your first name, last name, a valid phone number and your city.",
+    "invalidVideo": "Invalid video",
+    "tooManyVideos": "You already have 3 active videos. Wait for one to expire or delete one."
   },
   "language": {
     "label": "Language",

@@ -25,6 +25,28 @@ function Heart({ filled }: { filled: boolean }) {
   );
 }
 
+function Speaker({ muted }: { muted: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="w-5 h-5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" />
+      {muted ? (
+        <path d="M16 9.5l5 5M21 9.5l-5 5" />
+      ) : (
+        <path d="M15.5 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11" />
+      )}
+    </svg>
+  );
+}
+
 // Debe coincidir con la duración de .story-progress en globals.css.
 const STORY_MS = 5000;
 
@@ -60,8 +82,17 @@ export default function StoryViewer({
   // Historia propia cuya lista de "me gusta" está abierta.
   const [likesFor, setLikesFor] = useState<string | null>(null);
 
+  // Sonido de los videos y su avance (de 0 a 1), ligado a la historia.
+  const [muted, setMuted] = useState(false);
+  const [played, setPlayed] = useState({ key: "", value: 0 });
+  // Videos que no cargaron: se muestran como foto, con su portada.
+  const [broken, setBroken] = useState<string[]>([]);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
   const group = groups[gi];
   const story = group.stories[si];
+  const videoUrl = broken.includes(story.id) ? null : story.videoUrl;
+  const playKey = `${story.id}-${restart}`;
   const showingLikes = likesFor === story.id;
   const paused = confirmingDelete || deleting || showingLikes;
   const liked = likedNow[story.id] ?? story.liked;
@@ -122,12 +153,29 @@ export default function StoryViewer({
     else if (e.key === "ArrowLeft") prev();
   });
 
-  // Avance automático.
+  // Avance automático de las fotos; los videos avanzan al terminar.
   useEffect(() => {
-    if (paused) return;
+    if (paused || videoUrl) return;
     const t = setTimeout(() => onTimeout(), STORY_MS);
     return () => clearTimeout(t);
-  }, [gi, si, restart, paused]);
+  }, [gi, si, restart, paused, videoUrl]);
+
+  // Reproduce o detiene el video. Si el navegador no deja reproducir con
+  // sonido sin un toque, empieza en silencio.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (paused) {
+      video.pause();
+      return;
+    }
+    video.play().catch((err) => {
+      if (err?.name !== "NotAllowedError") return;
+      video.muted = true;
+      setMuted(true);
+      video.play().catch(() => {});
+    });
+  }, [playKey, paused, videoUrl]);
 
   // Marca como vista la historia que se está mostrando.
   useEffect(() => {
@@ -159,12 +207,34 @@ export default function StoryViewer({
       className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
     >
       <div className="relative w-full max-w-[420px] h-full sm:h-[min(92vh,760px)] sm:rounded-2xl overflow-hidden bg-black">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={story.imageUrl}
-          alt={story.caption || t("storyOf", { name: group.authorName })}
-          className="absolute inset-0 w-full h-full object-contain"
-        />
+        {videoUrl ? (
+          <video
+            key={playKey}
+            ref={videoRef}
+            src={videoUrl}
+            poster={story.imageUrl}
+            muted={muted}
+            playsInline
+            preload="auto"
+            aria-label={story.caption || t("storyOf", { name: group.authorName })}
+            onTimeUpdate={(e) => {
+              const { currentTime, duration } = e.currentTarget;
+              if (duration > 0) {
+                setPlayed({ key: playKey, value: currentTime / duration });
+              }
+            }}
+            onEnded={next}
+            onError={() => setBroken((ids) => [...ids, story.id])}
+            className="absolute inset-0 w-full h-full object-contain"
+          />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={story.imageUrl}
+            alt={story.caption || t("storyOf", { name: group.authorName })}
+            className="absolute inset-0 w-full h-full object-contain"
+          />
+        )}
 
         {/* Zonas de toque: izquierda = anterior, derecha = siguiente. Para
             teclado y lectores de pantalla están las flechas. */}
@@ -211,6 +281,15 @@ export default function StoryViewer({
               >
                 {i < si ? (
                   <div className="h-full w-full bg-white" />
+                ) : i === si && videoUrl ? (
+                  <div
+                    className="h-full w-full origin-left bg-white"
+                    style={{
+                      transform: `scaleX(${
+                        played.key === playKey ? played.value : 0
+                      })`,
+                    }}
+                  />
                 ) : i === si ? (
                   <div
                     key={`${s.id}-${restart}-${paused}`}
@@ -268,6 +347,17 @@ export default function StoryViewer({
                   {common("delete")}
                 </button>
               ))}
+
+            {videoUrl && (
+              <button
+                type="button"
+                onClick={() => setMuted(!muted)}
+                aria-label={muted ? t("unmute") : t("mute")}
+                className="w-9 h-9 flex items-center justify-center rounded-full text-white hover:bg-white/15"
+              >
+                <Speaker muted={muted} />
+              </button>
+            )}
 
             <button
               ref={closeRef}

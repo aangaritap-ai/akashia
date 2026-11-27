@@ -86,7 +86,7 @@
     "pageTitle": "Tu página",
     "pageBody": "Portada, tu frase y un lugar donde tu familia y amigos te dejan mensajes.",
     "storiesTitle": "Historias",
-    "storiesBody": "Fotos del día que duran 24 horas y solo ven los seguidores que apruebas.",
+    "storiesBody": "Fotos y videos cortos que duran 24 horas y solo ven los seguidores que apruebas.",
     "petsTitle": "Huellitas",
     "petsBody": "Una página para cada mascota: su álbum en vida y su memorial cuando parta.",
     "datesTitle": "Fechas especiales",
@@ -180,15 +180,15 @@
     "create": "Crear historia",
     "mine": "Tu historia",
     "empty": "Aquí aparecerán las historias de las personas que sigues.",
-    "badType": "Usa una foto JPG, PNG, WebP o GIF.",
-    "pickFirst": "Elige una foto primero.",
+    "badType": "Usa una foto JPG, PNG, WebP o GIF, o un video MP4, MOV o WebM.",
+    "pickFirst": "Elige una foto o un video primero.",
     "publishFailed": "No se pudo publicar la historia.",
     "newStory": "Nueva historia",
-    "newStoryHint": "Dura 24 horas. La ven tú y los seguidores que apruebes.",
+    "newStoryHint": "Una foto o un video corto. Dura 24 horas y la ven tú y los seguidores que apruebes.",
     "previewAlt": "Vista previa de tu historia",
     "preparingPhoto": "Preparando la foto...",
-    "choosePhoto": "Elegir una foto",
-    "changePhoto": "Toca la foto para cambiarla.",
+    "choosePhoto": "Elegir una foto o un video",
+    "changePhoto": "Toca la vista previa para cambiarla.",
     "captionLabel": "Texto (opcional)",
     "captionPlaceholder": "Escribe algo corto...",
     "publishing": "Publicando...",
@@ -200,7 +200,17 @@
     "confirmDelete": "¿Borrar?",
     "close": "Cerrar",
     "like": "Me gusta",
-    "likes": "{count} me gusta"
+    "likes": "{count} me gusta",
+    "videoLimits": "Video: hasta 30 segundos y 15 MB.",
+    "videoTooBig": "El video no puede pesar más de 15 MB.",
+    "videoTooLong": "El video no puede durar más de 30 segundos.",
+    "videoUnreadable": "No pudimos leer este video. Prueba con un MP4.",
+    "videoLimit": "Ya tienes 3 videos activos. Espera a que venzan o borra alguno.",
+    "preparingVideo": "Preparando el video...",
+    "uploadingVideo": "Subiendo video {percent}%",
+    "mute": "Silenciar",
+    "unmute": "Activar sonido",
+    "video": "Video"
   },
   "uploads": {
     "tooBig": "La imagen no puede pesar más de 4 MB."
@@ -393,7 +403,8 @@
     "deleteRequest": "Eliminar",
     "accepted": "Solicitud confirmada",
     "declined": "Solicitud eliminada",
-    "mutuals": "{count, plural, one {# persona en común} other {# personas en común}}"
+    "mutuals": "{count, plural, one {# persona en común} other {# personas en común}}",
+    "newPeople": "Nuevos en Akashia"
   },
   "notifications": {
     "title": "Notificaciones",
@@ -578,7 +589,9 @@
     "emailFailed": "No se pudo enviar el correo",
     "guardianAddedNoEmail": "El guardián se agregó, pero el correo de invitación no se pudo enviar. Usa 'Reenviar' más tarde, o comparte el enlace manualmente.",
     "guardianAddedError": "El guardián se agregó, pero ocurrió un error inesperado enviando el correo.",
-    "contactInvalid": "Completa nombre, apellido, un teléfono válido y tu ciudad."
+    "contactInvalid": "Completa nombre, apellido, un teléfono válido y tu ciudad.",
+    "invalidVideo": "Video no válido",
+    "tooManyVideos": "Ya tienes 3 videos activos. Espera a que venzan o borra alguno."
   },
   "language": {
     "label": "Idioma",

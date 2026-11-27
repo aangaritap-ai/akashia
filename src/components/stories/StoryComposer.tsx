@@ -2,12 +2,19 @@
 
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { uploadPresigned } from "@vercel/blob/client";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { IconCamera } from "@/components/icons";
 import { inputClass, primaryButtonClass } from "@/components/ui";
 import { shrinkImage } from "@/lib/shrink-image";
 import { MAX_UPLOAD_BYTES } from "@/lib/uploads";
+import {
+  MAX_STORY_VIDEO_BYTES,
+  MAX_STORY_VIDEO_SECONDS,
+  STORY_VIDEO_TYPES,
+} from "@/lib/story-video";
+import { readVideo } from "@/lib/video-poster";
 
 // Mismos límites que el servidor (src/lib/stories.ts). Se repiten aquí para
 // avisar antes de subir; el servidor vuelve a validar.
@@ -19,14 +26,18 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
   const t = useTranslations("stories");
   const common = useTranslations("common");
   const uploads = useTranslations("uploads");
+  // La foto a publicar; en un video, su portada.
   const [file, setFile] = useState<File | null>(null);
+  const [video, setVideo] = useState<File | null>(null);
+  // Avance de la subida del video.
+  const [progress, setProgress] = useState(0);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [caption, setCaption] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const previewRef = useRef<string | null>(null);
   const [preparing, setPreparing] = useState(false);
-  // Número de la última foto elegida, para descartar una anterior que tarde más.
+  // Número del último archivo elegido, para descartar uno anterior que tarde más.
   const pickRef = useRef(0);
 
   const onKey = useEffectEvent((e: KeyboardEvent) => {
@@ -45,9 +56,44 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
     };
   }, []);
 
+  function show(url: string) {
+    if (previewRef.current) URL.revokeObjectURL(previewRef.current);
+    previewRef.current = url;
+    setPreviewUrl(url);
+  }
+
+  async function pickVideo(picked: File) {
+    if (picked.size > MAX_STORY_VIDEO_BYTES) {
+      setError(t("videoTooBig"));
+      return;
+    }
+    const turn = ++pickRef.current;
+    setPreparing(true);
+    const url = URL.createObjectURL(picked);
+    const info = await readVideo(url).catch(() => null);
+    const problem = !info
+      ? t("videoUnreadable")
+      : info.seconds > MAX_STORY_VIDEO_SECONDS + 0.5
+        ? t("videoTooLong")
+        : null;
+    if (turn !== pickRef.current || problem || !info) {
+      URL.revokeObjectURL(url);
+      if (turn === pickRef.current) {
+        setPreparing(false);
+        setError(problem);
+      }
+      return;
+    }
+    setPreparing(false);
+    show(url);
+    setVideo(picked);
+    setFile(new File([info.poster], "portada.jpg", { type: "image/jpeg" }));
+  }
+
   async function onPick(picked: File | null) {
     setError(null);
     if (!picked) return;
+    if (picked.type in STORY_VIDEO_TYPES) return pickVideo(picked);
     if (!ALLOWED.includes(picked.type)) {
       setError(t("badType"));
       return;
@@ -61,11 +107,30 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
       setError(uploads("tooBig"));
       return;
     }
-    if (previewRef.current) URL.revokeObjectURL(previewRef.current);
-    const url = URL.createObjectURL(ready);
-    previewRef.current = url;
+    show(URL.createObjectURL(ready));
+    setVideo(null);
     setFile(ready);
-    setPreviewUrl(url);
+  }
+
+  /** Sube el video directo al almacenamiento y devuelve su dirección. */
+  async function uploadVideo(picked: File) {
+    const check = await fetch("/api/upload/presign?para=historia");
+    const info = await check.json().catch(() => ({}));
+    if (!check.ok) throw new Error(info.error || t("publishFailed"));
+    if (info.videosLeft <= 0) throw new Error(t("videoLimit"));
+    const session = await fetch("/api/auth/session").then((r) => r.json());
+    const extension = STORY_VIDEO_TYPES[picked.type];
+    const blob = await uploadPresigned(
+      `stories/${session?.user?.id}/video.${extension}`,
+      picked,
+      {
+        access: "public",
+        handleUploadUrl: "/api/upload/presign",
+        contentType: picked.type,
+        onUploadProgress: (e) => setProgress(Math.round(e.percentage)),
+      }
+    );
+    return blob.url;
   }
 
   async function publish(e: React.FormEvent) {
@@ -80,6 +145,7 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
       const form = new FormData();
       form.append("file", file);
       form.append("caption", caption);
+      if (video) form.append("videoUrl", await uploadVideo(video));
       const res = await fetch("/api/stories", { method: "POST", body: form });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -88,10 +154,18 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
       }
       router.refresh();
       onClose();
-    } catch {
-      setError(common("offline"));
+    } catch (err) {
+      // Un fallo de red llega como TypeError, con un texto en inglés.
+      setError(
+        err instanceof TypeError
+          ? common("offline")
+          : err instanceof Error
+            ? err.message
+            : t("publishFailed")
+      );
     } finally {
       setBusy(false);
+      setProgress(0);
     }
   }
 
@@ -120,7 +194,17 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
         </div>
 
         <label className="relative flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-background cursor-pointer overflow-hidden aspect-[3/4] hover:border-accent transition">
-          {previewUrl ? (
+          {previewUrl && video ? (
+            <video
+              src={previewUrl}
+              muted
+              loop
+              autoPlay
+              playsInline
+              aria-label={t("previewAlt")}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : previewUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={previewUrl}
@@ -131,23 +215,21 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
             <>
               <IconCamera className="w-8 h-8 text-muted" />
               <span className="text-sm text-muted">
-                {preparing ? t("preparingPhoto") : t("choosePhoto")}
+                {preparing ? t("preparing") : t("choosePhoto")}
               </span>
             </>
           )}
           <input
             type="file"
-            accept={ALLOWED.join(",")}
+            accept={[...ALLOWED, ...Object.keys(STORY_VIDEO_TYPES)].join(",")}
             className="sr-only"
             aria-label={t("choosePhoto")}
             onChange={(e) => onPick(e.target.files?.[0] ?? null)}
           />
         </label>
-        {previewUrl && (
-          <p className="text-xs text-muted -mt-2">
-            {t("changePhoto")}
-          </p>
-        )}
+        <p className="text-xs text-muted -mt-2">
+          {previewUrl ? t("changePhoto") : t("videoLimits")}
+        </p>
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="story-caption" className="text-sm font-medium text-foreground">
@@ -191,7 +273,9 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
             className={primaryButtonClass}
           >
             {busy
-              ? t("publishing")
+              ? progress > 0 && progress < 100
+                ? t("uploadingVideo", { percent: progress })
+                : t("publishing")
               : preparing
                 ? t("preparing")
                 : t("publish")}

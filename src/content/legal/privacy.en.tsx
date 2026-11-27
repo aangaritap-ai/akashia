@@ -99,8 +99,12 @@ export default function PrivacyEn() {
           <strong>Capsules:</strong> you and, once delivered, their recipients.
         </li>
         <li>
-          <strong>Stories:</strong> you and the followers you approve, for 24
-          hours. They are then hidden and deleted in the next daily cleanup.
+          <strong>Stories</strong> (photos and videos): you and the followers you
+          approve, for 24 hours. They are then hidden and deleted in the next daily cleanup.
+        </li>
+        <li>
+          <strong>New on Akashia:</strong> people with an account can see the
+          name and photo of those who signed up in the last 30 days.
         </li>
         <li>
           <strong>Mutual connections:</strong> in follow requests and

@@ -21,9 +21,10 @@ export async function DELETE(
   }
 
   await prisma.story.delete({ where: { id } });
-  await del(story.imageUrl).catch((err) => {
+  const files = [story.imageUrl, ...(story.videoUrl ? [story.videoUrl] : [])];
+  await del(files).catch((err) => {
     console.error(
-      "[Akashia] No se pudo borrar la foto de la historia:",
+      "[Akashia] No se pudieron borrar los archivos de la historia:",
       err instanceof Error ? err.message : err
     );
   });

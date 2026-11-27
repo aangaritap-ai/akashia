@@ -93,9 +93,14 @@ export default function PrivacyEs() {
           destinatarios.
         </li>
         <li>
-          <strong>Historias:</strong> tú y los seguidores que apruebes, durante
-          24 horas. Luego se ocultan y se borran en la siguiente limpieza
+          <strong>Historias</strong> (fotos y videos): tú y los seguidores que
+          apruebes, durante 24 horas. Luego se ocultan y se borran en la siguiente limpieza
           diaria.
+        </li>
+        <li>
+          <strong>Nuevos en Akashia:</strong> quienes tienen cuenta pueden ver
+          el nombre y la foto de las personas que se registraron en los últimos
+          30 días.
         </li>
         <li>
           <strong>Personas en común:</strong> en las solicitudes y sugerencias

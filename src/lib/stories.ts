@@ -17,7 +17,9 @@ export const STORY_IMAGE_TYPES: Record<string, string> = {
 
 export type StoryDTO = {
   id: string;
+  /** La foto; en los videos, su portada. */
   imageUrl: string;
+  videoUrl: string | null;
   caption: string | null;
   createdAt: string;
   seen: boolean;
@@ -90,6 +92,7 @@ export async function getVisibleStories(userId: string): Promise<StoryGroup[]> {
     group.stories.push({
       id: s.id,
       imageUrl: s.imageUrl,
+      videoUrl: s.videoUrl,
       caption: s.caption,
       createdAt: s.createdAt.toISOString(),
       seen,
@@ -133,10 +136,14 @@ export async function setStoryLike(
 ) {
   const { storyId, viewerId, liked } = like;
   const likedAt = liked ? new Date() : null;
-  await db.storyView.upsert({
+  // Primero la fila (puede estar creándose a la vez al marcarla como vista).
+  await db.storyView.createMany({
+    data: [{ storyId, viewerId }],
+    skipDuplicates: true,
+  });
+  await db.storyView.update({
     where: { storyId_viewerId: { storyId, viewerId } },
-    create: { storyId, viewerId, likedAt },
-    update: { likedAt },
+    data: { likedAt },
   });
   if (!liked) return;
 
@@ -164,15 +171,17 @@ export async function setStoryLike(
 export async function cleanupExpiredStories(): Promise<number> {
   const expired = await prisma.story.findMany({
     where: { expiresAt: { lte: new Date() } },
-    select: { id: true, imageUrl: true },
+    select: { id: true, imageUrl: true, videoUrl: true },
     take: 500,
   });
   if (expired.length === 0) return 0;
 
   try {
-    await del(expired.map((s) => s.imageUrl));
+    await del(
+      expired.flatMap((s) => [s.imageUrl, ...(s.videoUrl ? [s.videoUrl] : [])])
+    );
   } catch (err) {
-    // Si falla el borrado de fotos, se deja la fila para reintentar mañana.
+    // Si falla el borrado de archivos, se deja la fila para reintentar mañana.
     console.error(
       "[Akashia] No se pudieron borrar fotos de historias vencidas:",
       err instanceof Error ? err.message : err

@@ -9,7 +9,12 @@ import RemoveFollowerButton from "@/components/connections/RemoveFollowerButton"
 import RequestButtons from "@/components/connections/RequestButtons";
 import Suggestions from "@/components/connections/Suggestions";
 import { PageHeader } from "@/components/ui";
-import { followFromRow, followRequests, suggestions } from "@/lib/connections";
+import {
+  followFromRow,
+  followRequests,
+  newcomers,
+  suggestions,
+} from "@/lib/connections";
 
 function Section({
   title,
@@ -65,6 +70,10 @@ export default async function FollowersPage() {
   ]);
 
   const t = await getTranslations("followers");
+  const newPeople = await newcomers(
+    me,
+    suggested.map((p) => p.id)
+  );
   const following = outgoing.filter((c) => c.status === "ACCEPTED");
   const sent = outgoing.filter((c) => c.status === "PENDING");
 
@@ -92,7 +101,9 @@ export default async function FollowersPage() {
         ))}
       </Section>
 
-      <Suggestions people={suggested} />
+      <Suggestions title={t("suggestions")} people={suggested} />
+
+      <Suggestions title={t("newPeople")} people={newPeople} />
 
       <Section
         title={t("followingYou")}

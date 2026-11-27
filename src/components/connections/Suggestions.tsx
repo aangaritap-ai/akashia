@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import FollowButton from "@/components/FollowButton";
 import PersonCard, { personGridClass } from "@/components/connections/PersonCard";
 import { blockSecondaryClass } from "@/components/ui";
-import type { Suggestion } from "@/lib/connections";
+import type { Mutuals, Person } from "@/lib/connections";
 import { hiddenSuggestions, hideSuggestion } from "@/lib/hidden-suggestions";
 
 function subscribe(onChange: () => void) {
@@ -13,11 +13,17 @@ function subscribe(onChange: () => void) {
   return () => window.removeEventListener("storage", onChange);
 }
 
-export default function Suggestions({ people }: { people: Suggestion[] }) {
+// Personas para seguir, con un título. Se pueden quitar de la lista.
+export default function Suggestions({
+  title,
+  people,
+}: {
+  title: string;
+  people: (Person & { mutuals?: Mutuals })[];
+}) {
   const saved = useSyncExternalStore(subscribe, hiddenSuggestions, () => "");
   // Respaldo por si el navegador no deja guardar.
   const [dismissed, setDismissed] = useState<string[]>([]);
-  const t = useTranslations("followers");
   const common = useTranslations("common");
   const hidden = new Set([...saved.split(","), ...dismissed]);
   const shown = people.filter((p) => !hidden.has(p.id));
@@ -32,7 +38,7 @@ export default function Suggestions({ people }: { people: Suggestion[] }) {
   return (
     <section className="flex flex-col gap-3">
       <h2 className="font-display font-medium text-xl text-foreground">
-        {t("suggestions")}
+        {title}
       </h2>
       <div className={personGridClass}>
         {shown.map((person) => (

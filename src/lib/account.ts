@@ -19,7 +19,7 @@ export async function removeAccount(
     where: { id: userId },
     include: {
       capsules: { include: { recipients: true } },
-      stories: { select: { imageUrl: true } },
+      stories: { select: { imageUrl: true, videoUrl: true } },
       pets: { select: { photoUrl: true } },
       memorialMessages: { select: { imageUrl: true } },
       guardianRoles: {
@@ -44,7 +44,7 @@ export async function removeAccount(
   const files = filesOwnedBy(userId, [
     user.avatarUrl,
     user.coverUrl,
-    ...user.stories.map((s) => s.imageUrl),
+    ...user.stories.flatMap((s) => [s.imageUrl, s.videoUrl]),
     ...user.pets.map((p) => p.photoUrl),
     ...user.capsules
       .filter((c) => !c.recipients.some((r) => r.delivered))

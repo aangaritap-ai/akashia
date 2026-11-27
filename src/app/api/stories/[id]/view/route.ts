@@ -26,10 +26,10 @@ export async function POST(
   }
 
   if (story.authorId !== me) {
-    await prisma.storyView.upsert({
-      where: { storyId_viewerId: { storyId: story.id, viewerId: me } },
-      create: { storyId: story.id, viewerId: me },
-      update: {},
+    // "Crear si no existe": ver y dar "me gusta" pueden llegar a la vez.
+    await prisma.storyView.createMany({
+      data: [{ storyId: story.id, viewerId: me }],
+      skipDuplicates: true,
     });
   }
 
