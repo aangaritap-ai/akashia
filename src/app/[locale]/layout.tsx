@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { Outfit, Public_Sans } from "next/font/google";
 import "../globals.css";
 import AppHeader from "@/components/AppHeader";
+import InstallCapture from "@/components/install/InstallCapture";
 import { routing } from "@/i18n/routing";
 
 // Fuente del logo, los títulos y los nombres (clase font-display).
@@ -58,6 +59,7 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <NextIntlClientProvider>
+          <InstallCapture />
           <AppHeader />
           {children}
         </NextIntlClientProvider>

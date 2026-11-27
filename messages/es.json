@@ -704,5 +704,29 @@
     "unsupported": "Este navegador no permite grabar aquí. Abre akashia.app en Chrome o Safari, o elige un video de tu galería.",
     "failed": "No pudimos usar la cámara. Cierra otras aplicaciones que la estén usando e inténtalo de nuevo.",
     "recorded": "Video grabado ({size} MB). Revísalo antes de guardar."
+  },
+  "install": {
+    "button": "Instalar Akashia",
+    "cardTitle": "Lleva Akashia contigo",
+    "cardBody": "Instálala y ábrela con un toque desde tu pantalla, como cualquier aplicación.",
+    "dismiss": "Ahora no",
+    "close": "Cerrar",
+    "stepsIntro": "Instálala con estos pasos:",
+    "iosIntro": "En iPhone y iPad, Apple no permite instalar con un solo botón. Son tres toques:",
+    "ios1": "Toca el botón Compartir (un cuadro con una flecha hacia arriba). Si no lo ves, toca primero los tres puntos.",
+    "ios2": "Elige “Agregar a inicio”. Puede que tengas que bajar en la lista.",
+    "ios3": "Toca “Agregar”.",
+    "android1": "Abre el menú de tu navegador (los tres puntos o las tres rayas).",
+    "android2": "Elige “Instalar app” o “Agregar a la pantalla principal”.",
+    "android3": "Confirma con “Instalar” o “Agregar”.",
+    "desktop1": "Haz clic en el ícono de instalar, al final de la barra de direcciones.",
+    "desktop2": "Si no aparece, abre el menú del navegador. En Chrome: “Transmitir, guardar y compartir” y luego “Instalar página como aplicación”. En Edge: “Aplicaciones” y luego “Instalar este sitio como una aplicación”.",
+    "mac1": "En la barra de arriba, abre el menú Archivo.",
+    "mac2": "Elige “Agregar al Dock”.",
+    "inApp": "Estás viendo Akashia dentro de otra aplicación y desde ahí no se puede instalar. Copia la dirección y ábrela en Chrome o en Safari.",
+    "firefox": "Para instalarla en el computador, copia la dirección y ábrela en Chrome o en Edge.",
+    "copy": "Copiar dirección",
+    "copied": "Dirección copiada",
+    "already": "Si ya la instalaste, búscala en la pantalla de inicio o entre tus aplicaciones."
   }
 }

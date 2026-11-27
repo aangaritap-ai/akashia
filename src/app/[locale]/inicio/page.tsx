@@ -13,6 +13,7 @@ import { upcomingDates } from "@/lib/special-dates-db";
 import { getVisibleStories } from "@/lib/stories";
 import { requireContact } from "@/lib/require-contact";
 import FollowRequests from "@/components/inicio/FollowRequests";
+import InstallCard from "@/components/install/InstallCard";
 import ShortcutsSidebar from "@/components/inicio/ShortcutsSidebar";
 import UpcomingEvents from "@/components/inicio/UpcomingEvents";
 import MessageCard from "@/components/MessageCard";
@@ -65,7 +66,8 @@ export default async function HomePage() {
   if (!me) redirect("/login");
   const t = await getTranslations("home");
 
-  // En el celular las piezas van en una columna en este orden: historias,
+  // En el celular las piezas van en una columna en este orden: instalar la app
+  // (hasta que se instale o se cierre), historias,
   // crear publicación, fechas y feed. En pantallas anchas se reparten en tres columnas, y a la
   // derecha aparecen además las solicitudes de seguimiento.
   return (
@@ -82,6 +84,7 @@ export default async function HomePage() {
         </aside>
 
         <div className="min-w-0 flex flex-col gap-4 lg:col-start-2 lg:row-start-1">
+          <InstallCard dismissible />
           <div className="rounded-2xl border border-border bg-surface px-4 py-4 shadow-sm">
             <StoriesBar groups={storyGroups} me={me} />
           </div>

@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import InstallButton from "@/components/install/InstallButton";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { Logo, LogoMark } from "@/components/Logo";
 import {
@@ -92,6 +93,7 @@ export default function Home() {
             >
               {t("seeFeed")}
             </Link>
+            <InstallButton className="rounded-xl border border-gold/60 bg-surface/60 px-7 py-3.5 text-sm font-semibold text-accent hover:bg-surface hover:border-gold" />
           </div>
 
           <div

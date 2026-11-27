@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { splitName } from "@/lib/contact";
 import { profileSelect } from "@/lib/profile";
+import InstallCard from "@/components/install/InstallCard";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import ProfileForm from "@/components/ProfileForm";
 import DeleteAccountSection from "@/components/DeleteAccountSection";
@@ -70,6 +71,7 @@ export default async function ProfilePage({
         </div>
         <LanguageSwitcher remember />
       </div>
+      <InstallCard />
       <DeleteAccountSection
         error={typeof eliminar === "string" ? eliminar : undefined}
       />
