@@ -404,7 +404,8 @@
     "accepted": "Solicitud confirmada",
     "declined": "Solicitud eliminada",
     "mutuals": "{count, plural, one {# persona en común} other {# personas en común}}",
-    "newPeople": "Nuevos en Akashia"
+    "newPeople": "Nuevos en Akashia",
+    "noNewPeople": "Por ahora no hay personas nuevas para mostrarte. Aquí aparecerá quien se registre; si ya lo sigues o hay una solicitud entre ustedes, no se repite."
   },
   "notifications": {
     "title": "Notificaciones",

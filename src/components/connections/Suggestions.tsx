@@ -13,13 +13,16 @@ function subscribe(onChange: () => void) {
   return () => window.removeEventListener("storage", onChange);
 }
 
-// Personas para seguir, con un título. Se pueden quitar de la lista.
+// Personas para seguir, con un título. Se pueden quitar de la lista. Sin
+// personas, la sección se oculta, salvo que haya un texto para ese caso.
 export default function Suggestions({
   title,
   people,
+  empty,
 }: {
   title: string;
   people: (Person & { mutuals?: Mutuals })[];
+  empty?: string;
 }) {
   const saved = useSyncExternalStore(subscribe, hiddenSuggestions, () => "");
   // Respaldo por si el navegador no deja guardar.
@@ -33,13 +36,18 @@ export default function Suggestions({
     setDismissed((prev) => [...prev, id]);
   }
 
-  if (shown.length === 0) return null;
+  if (shown.length === 0 && !empty) return null;
 
   return (
     <section className="flex flex-col gap-3">
       <h2 className="font-display font-medium text-xl text-foreground">
         {title}
       </h2>
+      {shown.length === 0 && (
+        <div className="rounded-2xl border border-border bg-surface px-6 py-8 text-center text-sm text-muted">
+          {empty}
+        </div>
+      )}
       <div className={personGridClass}>
         {shown.map((person) => (
           <PersonCard key={person.id} person={person} mutuals={person.mutuals}>

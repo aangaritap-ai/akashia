@@ -404,7 +404,8 @@
     "accepted": "Request confirmed",
     "declined": "Request deleted",
     "mutuals": "{count, plural, one {# mutual connection} other {# mutual connections}}",
-    "newPeople": "New on Akashia"
+    "newPeople": "New on Akashia",
+    "noNewPeople": "No new people to show you right now. Anyone who joins will appear here, unless you already follow them or there is a request between you."
   },
   "notifications": {
     "title": "Notifications",

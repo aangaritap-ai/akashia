@@ -103,7 +103,11 @@ export default async function FollowersPage() {
 
       <Suggestions title={t("suggestions")} people={suggested} />
 
-      <Suggestions title={t("newPeople")} people={newPeople} />
+      <Suggestions
+        title={t("newPeople")}
+        people={newPeople}
+        empty={t("noNewPeople")}
+      />
 
       <Section
         title={t("followingYou")}
