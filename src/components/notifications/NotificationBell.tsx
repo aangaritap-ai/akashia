@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
+import { Link, usePathname } from "@/i18n/navigation";
 import { IconBell } from "@/components/icons";
 import NotificationList from "@/components/notifications/NotificationList";
 
@@ -16,6 +16,7 @@ export default function NotificationBell({ unread }: { unread: number }) {
   const [openOn, setOpenOn] = useState<string | null>(null);
   const open = openOn === pathname;
   const box = useRef<HTMLDivElement>(null);
+  const t = useTranslations("notifications");
 
   useEffect(() => {
     if (!open) return;
@@ -38,7 +39,7 @@ export default function NotificationBell({ unread }: { unread: number }) {
       <Link
         href={PAGE}
         aria-label={
-          unread > 0 ? `Notificaciones: ${unread} sin leer` : "Notificaciones"
+          unread > 0 ? t("bellUnread", { count: unread }) : t("title")
         }
         aria-expanded={open}
         onClick={(e) => {
@@ -63,7 +64,7 @@ export default function NotificationBell({ unread }: { unread: number }) {
       {open && (
         <div
           role="dialog"
-          aria-label="Notificaciones"
+          aria-label={t("title")}
           className="absolute right-0 top-11 z-30 w-[380px] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-surface p-2 pt-3 shadow-xl"
         >
           <NotificationList panel onNavigate={() => setOpenOn(null)} />

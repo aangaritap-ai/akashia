@@ -4,7 +4,6 @@
 // Vercel rechaza (413) las peticiones a una función que pasen de ~4,5 MB, así
 // que el límite deja margen para el resto de la petición.
 export const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
-export const TOO_BIG_MESSAGE = "El archivo no puede pesar más de 4 MB.";
 
 /** ¿La dirección es de un archivo de nuestro almacenamiento? */
 export function isStorageUrl(value: string) {

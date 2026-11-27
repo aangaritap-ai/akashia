@@ -1,7 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { uploadCapsuleMedia } from "@/lib/upload-media";
 
 type CapsuleType = "TEXT" | "AUDIO" | "VIDEO";
@@ -22,6 +23,10 @@ export default function EditCapsuleForm({
   };
 }) {
   const router = useRouter();
+  const t = useTranslations("capsules");
+  const common = useTranslations("common");
+  const profile = useTranslations("profile");
+  const messages = useTranslations("messages");
 
   const [title, setTitle] = useState(capsule.title);
   const [type, setType] = useState<CapsuleType>(capsule.type);
@@ -52,7 +57,7 @@ export default function EditCapsuleForm({
       let mediaUrl: string | null = existingMediaUrl;
 
       if ((type === "AUDIO" || type === "VIDEO") && file) {
-        mediaUrl = await uploadCapsuleMedia(file, setProgress);
+        mediaUrl = await uploadCapsuleMedia(file, t, setProgress);
       }
 
       const res = await fetch(`/api/capsules/${capsule.id}`, {
@@ -69,12 +74,12 @@ export default function EditCapsuleForm({
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "No se pudo guardar");
+      if (!res.ok) throw new Error(data.error || profile("saveFailed"));
 
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Algo salió mal");
+      setError(err instanceof Error ? err.message : messages("somethingWrong"));
     } finally {
       setLoading(false);
     }
@@ -84,11 +89,10 @@ export default function EditCapsuleForm({
     <div className="flex flex-col gap-8 max-w-xl">
       <div>
         <h1 className="font-display text-2xl text-foreground">
-          Editar cápsula
+          {t("editTitle")}
         </h1>
         <p className="text-sm text-muted mt-2">
-          Puedes cambiarla las veces que quieras mientras no se haya
-          entregado.
+          {t("editHint")}
         </p>
       </div>
 
@@ -100,7 +104,7 @@ export default function EditCapsuleForm({
 
       <form onSubmit={onSubmit} className="flex flex-col gap-6">
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm text-muted">Título del mensaje</label>
+          <label className="text-sm text-muted">{t("messageTitle")}</label>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -110,20 +114,20 @@ export default function EditCapsuleForm({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm text-muted">Tipo de mensaje</label>
+          <label className="text-sm text-muted">{t("messageType")}</label>
           <div className="flex gap-2">
-            {(["TEXT", "AUDIO", "VIDEO"] as const).map((t) => (
+            {(["TEXT", "AUDIO", "VIDEO"] as const).map((kind) => (
               <button
-                key={t}
+                key={kind}
                 type="button"
-                onClick={() => setType(t)}
+                onClick={() => setType(kind)}
                 className={`rounded-lg px-4 py-2 text-sm border ${
-                  type === t
+                  type === kind
                     ? "border-accent bg-accent/15 text-accent"
                     : "border-border text-muted"
                 }`}
               >
-                {t === "TEXT" ? "Texto" : t === "AUDIO" ? "Audio" : "Video"}
+                {t(`type${kind}`)}
               </button>
             ))}
           </div>
@@ -131,7 +135,7 @@ export default function EditCapsuleForm({
 
         {type === "TEXT" ? (
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm text-muted">Tu mensaje</label>
+            <label className="text-sm text-muted">{t("yourMessage")}</label>
             <textarea
               value={textContent}
               onChange={(e) => setTextContent(e.target.value)}
@@ -143,12 +147,11 @@ export default function EditCapsuleForm({
         ) : (
           <div className="flex flex-col gap-1.5">
             <label className="text-sm text-muted">
-              Archivo de {type === "AUDIO" ? "audio" : "video"} (máximo 50 MB)
+              {type === "AUDIO" ? t("audioFile") : t("videoFile")}
             </label>
             {existingMediaUrl && !file && (
               <p className="text-xs text-muted">
-                Ya hay un archivo guardado. Sube uno nuevo solo si quieres
-                reemplazarlo.
+                {t("existingFile")}
               </p>
             )}
             <input
@@ -166,7 +169,7 @@ export default function EditCapsuleForm({
 
         <div className="flex flex-col gap-2">
           <label className="text-sm text-muted">
-            ¿Para quién es? (puedes agregar varias personas)
+            {t("recipients")}
           </label>
           {recipients.map((r, i) => (
             <div key={i} className="grid sm:grid-cols-2 gap-2 sm:gap-3 items-start">
@@ -180,7 +183,7 @@ export default function EditCapsuleForm({
                   )
                 }
                 required
-                placeholder="Nombre"
+                placeholder={common("name")}
                 className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
               />
               <div className="flex gap-2">
@@ -195,7 +198,7 @@ export default function EditCapsuleForm({
                     )
                   }
                   required
-                  placeholder="Correo"
+                  placeholder={common("email")}
                   className="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
                 />
                 {recipients.length > 1 && (
@@ -204,7 +207,7 @@ export default function EditCapsuleForm({
                     onClick={() =>
                       setRecipients((prev) => prev.filter((_, idx) => idx !== i))
                     }
-                    aria-label="Quitar destinatario"
+                    aria-label={t("removeRecipient")}
                     className="text-muted hover:text-red-600 px-2"
                   >
                     ✕
@@ -220,12 +223,12 @@ export default function EditCapsuleForm({
             }
             className="self-start text-sm text-accent font-semibold mt-1"
           >
-            + Agregar otra persona
+            {t("addRecipient")}
           </button>
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm text-muted">¿Cuándo se entrega?</label>
+          <label className="text-sm text-muted">{t("when")}</label>
           <div className="flex gap-2">
             <button
               type="button"
@@ -236,7 +239,7 @@ export default function EditCapsuleForm({
                   : "border-border text-muted"
               }`}
             >
-              En una fecha
+              {t("whenDate")}
             </button>
             <button
               type="button"
@@ -247,7 +250,7 @@ export default function EditCapsuleForm({
                   : "border-border text-muted"
               }`}
             >
-              Cuando yo falte
+              {t("whenGone")}
             </button>
           </div>
           {triggerType === "DATE" && (
@@ -261,7 +264,7 @@ export default function EditCapsuleForm({
           )}
           {triggerType === "DEATH" && (
             <p className="text-xs text-muted mt-1">
-              Se entregará cuando tus guardianes confirmen tu fallecimiento.
+              {t("deathHint")}
             </p>
           )}
         </div>
@@ -272,10 +275,10 @@ export default function EditCapsuleForm({
           className="mt-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-background hover:brightness-110 disabled:opacity-60"
         >
           {!loading
-            ? "Guardar cambios"
+            ? profile("saveChanges")
             : progress > 0 && progress < 100
-              ? `Subiendo archivo ${progress}%`
-              : "Guardando..."}
+              ? t("uploadingFile", { percent: progress })
+              : common("saving")}
         </button>
       </form>
     </div>

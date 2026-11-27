@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { Link, localizedPath } from "@/i18n/navigation";
 import { googleEnabled, signIn } from "@/lib/auth";
 
 function GoogleMark() {
@@ -27,11 +28,15 @@ function GoogleMark() {
 // "Continuar con Google" en entrar y crear cuenta. No se muestra mientras no
 // estén configuradas las claves de Google.
 export default function GoogleSignIn({ callbackUrl }: { callbackUrl: string }) {
+  const t = useTranslations("auth");
+  const locale = useLocale();
   if (!googleEnabled) return null;
 
   async function continueWithGoogle() {
     "use server";
-    await signIn("google", { redirectTo: callbackUrl });
+    await signIn("google", {
+      redirectTo: localizedPath(callbackUrl, locale),
+    });
   }
 
   return (
@@ -42,23 +47,26 @@ export default function GoogleSignIn({ callbackUrl }: { callbackUrl: string }) {
           className="flex items-center justify-center gap-3 rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-foreground shadow-sm hover:bg-black/[0.03]"
         >
           <GoogleMark />
-          Continuar con Google
+          {t("continueGoogle")}
         </button>
         <p className="text-center text-xs text-muted leading-relaxed">
-          Al continuar aceptas los{" "}
-          <Link href="/terminos" className="text-accent hover:underline">
-            términos
-          </Link>{" "}
-          y la{" "}
-          <Link href="/privacidad" className="text-accent hover:underline">
-            política de privacidad
-          </Link>
-          .
+          {t.rich("googleTerms", {
+            terms: (chunks) => (
+              <Link href="/terminos" className="text-accent hover:underline">
+                {chunks}
+              </Link>
+            ),
+            privacy: (chunks) => (
+              <Link href="/privacidad" className="text-accent hover:underline">
+                {chunks}
+              </Link>
+            ),
+          })}
         </p>
       </form>
       <div className="flex items-center gap-3 text-xs text-muted">
         <span className="h-px flex-1 bg-border" />
-        o con tu correo
+        {t("orEmail")}
         <span className="h-px flex-1 bg-border" />
       </div>
     </>

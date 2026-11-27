@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useSyncExternalStore } from "react";
+import { useTranslations } from "next-intl";
 import FollowButton from "@/components/FollowButton";
 import PersonCard, { personGridClass } from "@/components/connections/PersonCard";
 import { blockSecondaryClass } from "@/components/ui";
@@ -16,6 +17,8 @@ export default function Suggestions({ people }: { people: Suggestion[] }) {
   const saved = useSyncExternalStore(subscribe, hiddenSuggestions, () => "");
   // Respaldo por si el navegador no deja guardar.
   const [dismissed, setDismissed] = useState<string[]>([]);
+  const t = useTranslations("followers");
+  const common = useTranslations("common");
   const hidden = new Set([...saved.split(","), ...dismissed]);
   const shown = people.filter((p) => !hidden.has(p.id));
 
@@ -29,7 +32,7 @@ export default function Suggestions({ people }: { people: Suggestion[] }) {
   return (
     <section className="flex flex-col gap-3">
       <h2 className="font-display font-medium text-xl text-foreground">
-        Personas que quizá conozcas
+        {t("suggestions")}
       </h2>
       <div className={personGridClass}>
         {shown.map((person) => (
@@ -45,7 +48,7 @@ export default function Suggestions({ people }: { people: Suggestion[] }) {
               onClick={() => dismiss(person.id)}
               className={blockSecondaryClass}
             >
-              Quitar
+              {common("remove")}
             </button>
           </PersonCard>
         ))}

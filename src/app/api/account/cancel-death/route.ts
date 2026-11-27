@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { cancelDeathGracePeriod } from "@/lib/delivery";
+import { apiText } from "@/lib/api-locale";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
@@ -16,7 +17,7 @@ export async function POST(req: Request) {
     });
     if (!owner) {
       return NextResponse.json(
-        { error: "Este enlace ya no es válido." },
+        { error: await apiText("deadLink") },
         { status: 404 }
       );
     }
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
   } else {
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+      return NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 });
     }
     ownerId = session.user.id;
   }
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
   const cancelled = await cancelDeathGracePeriod(ownerId);
   if (!cancelled) {
     return NextResponse.json(
-      { error: "No hay ninguna confirmación pendiente para cancelar." },
+      { error: await apiText("noPendingDeath") },
       { status: 409 }
     );
   }

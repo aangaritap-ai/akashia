@@ -1,7 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { IconCamera } from "@/components/icons";
 import Avatar from "@/components/Avatar";
 import {
@@ -12,8 +13,8 @@ import {
 } from "@/components/ui";
 import { MAX_BIO, MAX_CITY, MAX_MOTTO } from "@/lib/profile";
 import { shrinkImage } from "@/lib/shrink-image";
-import { MONTH_NAMES } from "@/lib/special-dates";
-import { MAX_UPLOAD_BYTES, TOO_BIG_MESSAGE } from "@/lib/uploads";
+import { monthName } from "@/lib/special-dates";
+import { MAX_UPLOAD_BYTES } from "@/lib/uploads";
 
 export type ProfileValues = {
   name: string;
@@ -60,6 +61,11 @@ export default function ProfileForm({
   memberSince: string;
 }) {
   const router = useRouter();
+  const t = useTranslations("profile");
+  const common = useTranslations("common");
+  const messages = useTranslations("messages");
+  const uploads = useTranslations("uploads");
+  const locale = useLocale();
   const [values, setValues] = useState(initial);
   const [uploading, setUploading] = useState<"avatar" | "cover" | null>(null);
   const [saving, setSaving] = useState(false);
@@ -77,7 +83,7 @@ export default function ProfileForm({
     setError(null);
     try {
       const photo = await shrinkImage(file, kind === "avatar" ? 800 : 1600);
-      if (photo.size > MAX_UPLOAD_BYTES) throw new Error(TOO_BIG_MESSAGE);
+      if (photo.size > MAX_UPLOAD_BYTES) throw new Error(uploads("tooBig"));
       const form = new FormData();
       form.append("file", photo);
       const res = await fetch("/api/profile/avatar", {
@@ -85,10 +91,10 @@ export default function ProfileForm({
         body: form,
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "No se pudo subir la foto");
+      if (!res.ok) throw new Error(data.error || messages("uploadFailed"));
       set(kind === "avatar" ? "avatarUrl" : "coverUrl", data.url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Algo salió mal");
+      setError(err instanceof Error ? err.message : messages("somethingWrong"));
     } finally {
       setUploading(null);
     }
@@ -114,7 +120,7 @@ export default function ProfileForm({
 
     if (!res?.ok) {
       const data = await res?.json().catch(() => ({}));
-      setError(data?.error || "No se pudo guardar");
+      setError(data?.error || t("saveFailed"));
       return;
     }
 
@@ -140,7 +146,7 @@ export default function ProfileForm({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={values.coverUrl}
-            alt="Tu portada"
+            alt={t("coverAlt")}
             className="h-full w-full object-cover"
           />
         ) : (
@@ -153,14 +159,14 @@ export default function ProfileForm({
           <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-black/55 px-3 py-1.5 text-xs font-semibold text-white hover:bg-black/70">
             <IconCamera className="w-4 h-4" />
             {uploading === "cover"
-              ? "Subiendo..."
+              ? t("uploading")
               : values.coverUrl
-                ? "Cambiar portada"
-                : "Agregar portada"}
+                ? t("changeCover")
+                : t("addCover")}
             <input
               type="file"
               accept="image/*"
-              aria-label="Foto de portada"
+              aria-label={t("coverLabel")}
               className="hidden"
               disabled={uploading !== null}
               onChange={pick("cover")}
@@ -172,7 +178,7 @@ export default function ProfileForm({
               onClick={() => set("coverUrl", null)}
               className="rounded-full bg-black/55 px-3 py-1.5 text-xs font-semibold text-white hover:bg-black/70"
             >
-              Quitar
+              {common("remove")}
             </button>
           )}
         </div>
@@ -189,7 +195,7 @@ export default function ProfileForm({
             />
             <label
               className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-accent text-background ring-2 ring-surface flex items-center justify-center cursor-pointer hover:brightness-110"
-              aria-label="Cambiar foto"
+              aria-label={t("changePhoto")}
             >
               <IconCamera className="w-4 h-4" />
               <input
@@ -203,14 +209,14 @@ export default function ProfileForm({
           </div>
           <div className="pb-1 text-sm text-muted">
             {uploading === "avatar"
-              ? "Subiendo foto..."
-              : "Toca la cámara para cambiar tu foto."}
+              ? t("uploadingPhoto")
+              : t("tapCamera")}
           </div>
         </div>
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="profile-name" className={labelClass}>
-            Nombre
+            {common("name")}
           </label>
           <input
             id="profile-name"
@@ -223,21 +229,21 @@ export default function ProfileForm({
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="profile-motto" className={labelClass}>
-            Mi frase: cómo quiero que me recuerden
+            {t("motto")}
           </label>
           <input
             id="profile-motto"
             value={values.motto}
             onChange={(e) => set("motto", e.target.value)}
             maxLength={MAX_MOTTO}
-            placeholder="Con una sonrisa y la mesa llena"
+            placeholder={t("mottoPlaceholder")}
             className={inputClass}
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="profile-bio" className={labelClass}>
-            Sobre mí
+            {t("bio")}
           </label>
           <textarea
             id="profile-bio"
@@ -245,7 +251,7 @@ export default function ProfileForm({
             onChange={(e) => set("bio", e.target.value)}
             maxLength={MAX_BIO}
             rows={4}
-            placeholder="Quién eres, qué te apasiona, a quiénes amas..."
+            placeholder={t("bioPlaceholder")}
             className={`${inputClass} resize-none`}
           />
           <div className="text-right text-xs text-muted">
@@ -255,7 +261,7 @@ export default function ProfileForm({
 
         <div className="flex flex-col gap-2">
           <label htmlFor="profile-city" className={labelClass}>
-            Ciudad
+            {t("city")}
           </label>
           <input
             id="profile-city"
@@ -269,20 +275,20 @@ export default function ProfileForm({
             checked={values.showCity}
             onChange={(v) => set("showCity", v)}
           >
-            Mostrar mi ciudad en mi página
+            {t("showCity")}
           </Check>
         </div>
 
         <fieldset className="flex flex-col gap-2">
-          <legend className={`${labelClass} mb-2`}>Cumpleaños</legend>
+          <legend className={`${labelClass} mb-2`}>{t("birthday")}</legend>
           <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-3">
             <select
               value={values.birthDay}
               onChange={(e) => set("birthDay", e.target.value)}
-              aria-label="Día de cumpleaños"
+              aria-label={t("birthDayLabel")}
               className={inputClass}
             >
-              <option value="">Día</option>
+              <option value="">{t("day")}</option>
               {Array.from({ length: 31 }, (_, i) => (
                 <option key={i + 1} value={i + 1}>
                   {i + 1}
@@ -292,13 +298,13 @@ export default function ProfileForm({
             <select
               value={values.birthMonth}
               onChange={(e) => set("birthMonth", e.target.value)}
-              aria-label="Mes de cumpleaños"
+              aria-label={t("birthMonthLabel")}
               className={inputClass}
             >
-              <option value="">Mes</option>
-              {MONTH_NAMES.map((month, i) => (
-                <option key={month} value={i + 1}>
-                  {month}
+              <option value="">{t("month")}</option>
+              {Array.from({ length: 12 }, (_, i) => (
+                <option key={i + 1} value={i + 1}>
+                  {monthName(i + 1, locale)}
                 </option>
               ))}
             </select>
@@ -307,14 +313,14 @@ export default function ProfileForm({
             checked={values.shareBirthday}
             onChange={(v) => set("shareBirthday", v)}
           >
-            Mis seguidores pueden verlo y recibir un aviso ese día
+            {t("shareBirthday")}
           </Check>
-          <p className="text-xs text-muted">No pedimos el año.</p>
+          <p className="text-xs text-muted">{t("noYear")}</p>
         </fieldset>
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="profile-email" className={labelClass}>
-            Correo
+            {common("email")}
           </label>
           <input
             id="profile-email"
@@ -331,7 +337,7 @@ export default function ProfileForm({
         )}
         {saved && (
           <Callout tone="success" className="!py-3">
-            Perfil actualizado.
+            {t("updated")}
           </Callout>
         )}
 
@@ -341,10 +347,12 @@ export default function ProfileForm({
             disabled={saving || uploading !== null}
             className={primaryButtonClass}
           >
-            {saving ? "Guardando..." : "Guardar cambios"}
+            {saving ? common("saving") : t("saveChanges")}
           </button>
           <div className="text-xs text-muted">
-            Miembro desde {new Date(memberSince).toLocaleDateString("es")}
+            {t("memberSince", {
+              date: new Date(memberSince).toLocaleDateString(locale),
+            })}
           </div>
         </div>
       </div>

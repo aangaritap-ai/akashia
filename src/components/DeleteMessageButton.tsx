@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useApiAction } from "@/components/useApiAction";
 
 export default function DeleteMessageButton({
@@ -12,16 +13,18 @@ export default function DeleteMessageButton({
 }) {
   const { busy, error, run } = useApiAction();
   const [confirming, setConfirming] = useState(false);
+  const t = useTranslations("messages");
+  const common = useTranslations("common");
 
   if (!confirming) {
     return (
       <button
         type="button"
         onClick={() => setConfirming(true)}
-        aria-label={`Borrar el mensaje de ${author}`}
+        aria-label={t("deleteLabel", { name: author })}
         className="text-xs text-muted hover:text-red-600 hover:underline"
       >
-        Borrar
+        {common("delete")}
       </button>
     );
   }
@@ -29,7 +32,7 @@ export default function DeleteMessageButton({
   return (
     <span className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1 text-xs">
       <span role={error ? "alert" : undefined} className="text-red-700">
-        {error ?? "¿Borrar para siempre?"}
+        {error ?? t("confirmDelete")}
       </span>
       <button
         type="button"
@@ -42,14 +45,14 @@ export default function DeleteMessageButton({
         }
         className="font-semibold text-red-600 hover:underline disabled:opacity-50"
       >
-        {busy ? "Borrando..." : "Sí, borrar"}
+        {busy ? common("deleting") : t("yesDelete")}
       </button>
       <button
         type="button"
         onClick={() => setConfirming(false)}
         className="text-muted hover:underline"
       >
-        Cancelar
+        {common("cancel")}
       </button>
     </span>
   );

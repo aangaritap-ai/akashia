@@ -1,6 +1,9 @@
+import { useTranslations } from "next-intl";
 import { LogoMark } from "@/components/Logo";
 
 export default function Loading() {
+  const t = useTranslations("common");
+
   return (
     <div
       role="status"
@@ -9,7 +12,7 @@ export default function Loading() {
       <div className="float-soft">
         <LogoMark className="w-14 h-14" />
       </div>
-      <p className="text-sm text-muted">Cargando...</p>
+      <p className="text-sm text-muted">{t("loading")}</p>
     </div>
   );
 }

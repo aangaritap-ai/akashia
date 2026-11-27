@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { apiText } from "@/lib/api-locale";
 
 const schema = z.object({
   token: z.string().min(1),
@@ -13,7 +14,7 @@ export async function POST(req: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: "La contraseña necesita al menos 6 caracteres" },
+      { error: await apiText("shortPassword") },
       { status: 400 }
     );
   }
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
     resetToken.expiresAt < new Date()
   ) {
     return NextResponse.json(
-      { error: "Este enlace ya no es válido. Solicita uno nuevo." },
+      { error: await apiText("expiredReset") },
       { status: 400 }
     );
   }

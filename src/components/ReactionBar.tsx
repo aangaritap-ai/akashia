@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 type ReactionType = "HEART" | "CONDOLENCES" | "CONGRATS" | "SAD";
 
-const REACTIONS: { type: ReactionType; emoji: string; label: string }[] = [
-  { type: "HEART", emoji: "❤️", label: "Me encanta" },
-  { type: "CONDOLENCES", emoji: "🕊️", label: "Pésame" },
-  { type: "CONGRATS", emoji: "🎉", label: "Felicitaciones" },
-  { type: "SAD", emoji: "😢", label: "Tristeza" },
-];
+const REACTIONS = [
+  { type: "HEART", emoji: "❤️", label: "love" },
+  { type: "CONDOLENCES", emoji: "🕊️", label: "condolences" },
+  { type: "CONGRATS", emoji: "🎉", label: "congrats" },
+  { type: "SAD", emoji: "😢", label: "sad" },
+] as const;
 
 export default function ReactionBar({
   messageId,
@@ -31,6 +32,7 @@ export default function ReactionBar({
   });
   const [mine, setMine] = useState<Set<ReactionType>>(new Set());
   const storageKey = `akashia-reactions-${messageId}`;
+  const t = useTranslations("messages");
 
   useEffect(() => {
     try {
@@ -96,8 +98,8 @@ export default function ReactionBar({
             key={r.type}
             type="button"
             onClick={() => toggle(r.type)}
-            aria-label={r.label}
-            title={r.label}
+            aria-label={t(r.label)}
+            title={t(r.label)}
             className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs border transition ${
               active
                 ? "border-accent bg-accent/15 text-accent"

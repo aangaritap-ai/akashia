@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import Avatar from "@/components/Avatar";
 import DeleteMessageButton from "@/components/DeleteMessageButton";
 import ReactionBar from "@/components/ReactionBar";
@@ -33,6 +34,10 @@ export default function MessageCard({
   // Solo para el dueño de la página.
   canDelete?: boolean;
 }) {
+  const t = useTranslations("messages");
+  const time = useTranslations("time");
+  const locale = useLocale();
+
   return (
     <article
       className="reveal rounded-2xl border border-border bg-surface shadow-sm hover:shadow-md transition-shadow"
@@ -47,7 +52,7 @@ export default function MessageCard({
           <div className="text-xs text-muted truncate">
             {target && (
               <>
-                para{" "}
+                {t("to")}{" "}
                 <Link href={target.href} className="text-accent hover:underline">
                   {target.isPet && (
                     <IconPaw className="inline w-3.5 h-3.5 mr-0.5 -mt-0.5" />
@@ -57,7 +62,7 @@ export default function MessageCard({
                 ·{" "}
               </>
             )}
-            {timeAgo(m.createdAt)}
+            {timeAgo(m.createdAt, locale, time("justNow"))}
           </div>
         </div>
         {showPrivacy && (
@@ -69,13 +74,13 @@ export default function MessageCard({
             }`}
           >
             {!m.isPublic && <IconLock className="w-3 h-3" />}
-            {m.isPublic ? "Público" : "Privado"}
+            {m.isPublic ? t("public") : t("private")}
           </span>
         )}
         {!showPrivacy && !m.isPublic && (
           <span className="inline-flex items-center gap-1 rounded-full bg-gold/15 text-gold px-2.5 py-1 text-[11px] font-medium">
             <IconLock className="w-3 h-3" />
-            Privado
+            {t("private")}
           </span>
         )}
       </div>

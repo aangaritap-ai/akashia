@@ -1,7 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 
 export default function GuardianActions({
   id,
@@ -11,6 +12,8 @@ export default function GuardianActions({
   canResend: boolean;
 }) {
   const router = useRouter();
+  const t = useTranslations("guardians");
+  const common = useTranslations("common");
   const [busy, setBusy] = useState<"delete" | "resend" | null>(null);
   const [resent, setResent] = useState(false);
   const [resendError, setResendError] = useState<string | null>(null);
@@ -30,7 +33,7 @@ export default function GuardianActions({
     setBusy(null);
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setResendError(data.error || "No se pudo enviar el correo");
+      setResendError(data.error || t("sendFailed"));
       return;
     }
     setResent(true);
@@ -40,19 +43,19 @@ export default function GuardianActions({
   if (confirming) {
     return (
       <div className="flex items-center gap-3 text-xs">
-        <span className="text-muted">¿Eliminar?</span>
+        <span className="text-muted">{t("confirmRemove")}</span>
         <button
           onClick={remove}
           disabled={busy !== null}
           className="text-red-600 font-semibold hover:underline disabled:opacity-50"
         >
-          {busy === "delete" ? "Eliminando..." : "Sí, eliminar"}
+          {busy === "delete" ? t("removing") : t("yesRemove")}
         </button>
         <button
           onClick={() => setConfirming(false)}
           className="text-muted hover:underline"
         >
-          Cancelar
+          {common("cancel")}
         </button>
       </div>
     );
@@ -68,10 +71,10 @@ export default function GuardianActions({
             className="text-accent font-semibold hover:underline disabled:opacity-50"
           >
             {resent
-              ? "Enviado"
+              ? t("sent")
               : busy === "resend"
-                ? "Enviando..."
-                : "Reenviar"}
+                ? common("sending")
+                : t("resend")}
           </button>
         )}
         <button
@@ -79,7 +82,7 @@ export default function GuardianActions({
           disabled={busy !== null}
           className="text-muted hover:text-red-600 disabled:opacity-50"
         >
-          Eliminar
+          {t("removeButton")}
         </button>
       </div>
       {resendError && (

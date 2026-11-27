@@ -3,9 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { filesOwnedBy } from "@/lib/own-files";
 import { isStorageUrl } from "@/lib/uploads";
 
-/** Texto que hay que escribir para confirmar. */
-export const DELETE_WORD = "ELIMINAR";
-
 /**
  * Elimina una cuenta con todo lo suyo. Devuelve los archivos que hay que
  * borrar después, o el motivo por el que no se puede.
@@ -16,7 +13,7 @@ export const DELETE_WORD = "ELIMINAR";
 export async function removeAccount(
   userId: string,
   db: Prisma.TransactionClient = prisma
-): Promise<{ files: string[] } | { error: string }> {
+): Promise<{ files: string[] } | { error: "gone" | "pendingDeath" }> {
   const user = await db.user.findUnique({
     where: { id: userId },
     include: {
@@ -33,12 +30,9 @@ export async function removeAccount(
       },
     },
   });
-  if (!user) return { error: "La cuenta ya no existe" };
+  if (!user) return { error: "gone" };
   if (user.isDeceased || user.deceasedPendingAt) {
-    return {
-      error:
-        "Hay una confirmación de fallecimiento sobre esta cuenta. Cancélala antes de eliminarla.",
-    };
+    return { error: "pendingDeath" };
   }
 
   const files = filesOwnedBy(userId, [

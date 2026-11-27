@@ -1,7 +1,9 @@
-import Link from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Link, localizedPath } from "@/i18n/navigation";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import DashboardNav from "@/components/DashboardNav";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import NavHistoryButtons from "@/components/NavHistoryButtons";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { IconLogout } from "@/components/icons";
@@ -23,6 +25,9 @@ export default async function AppHeader() {
       ]).catch(() => null)
     : null;
   const me = data?.[1];
+  const t = await getTranslations("header");
+  const common = await getTranslations("common");
+  const locale = await getLocale();
 
   if (!data || !me) {
     return (
@@ -32,18 +37,22 @@ export default async function AppHeader() {
           <Logo markClassName="w-7 h-7" />
         </Link>
         <div className="flex-1" />
-        <div className="flex items-center gap-2 shrink-0 text-sm">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0 text-sm">
+          {/* En celular no cabe: allí está al pie de la portada y del acceso. */}
+          <span className="hidden sm:block">
+            <LanguageSwitcher compact />
+          </span>
           <Link
             href="/login"
             className="px-3 py-1.5 rounded-lg text-muted hover:text-foreground hover:bg-black/[0.04]"
           >
-            Entrar
+            {common("signIn")}
           </Link>
           <Link
             href="/signup"
             className="px-3 py-1.5 rounded-lg bg-accent text-background font-semibold hover:brightness-110"
           >
-            Crear cuenta
+            {common("createAccount")}
           </Link>
         </div>
       </header>
@@ -54,7 +63,7 @@ export default async function AppHeader() {
 
   async function logout() {
     "use server";
-    await signOut({ redirectTo: "/" });
+    await signOut({ redirectTo: localizedPath("/", locale) });
   }
 
   const initial = me.name.trim().charAt(0).toUpperCase() || "?";
@@ -77,7 +86,7 @@ export default async function AppHeader() {
 
           <Link
             href="/dashboard/profile"
-            aria-label="Tu perfil"
+            aria-label={t("profile")}
             className="w-9 h-9 rounded-full overflow-hidden border border-border shrink-0"
           >
             {me.avatarUrl ? (
@@ -97,7 +106,7 @@ export default async function AppHeader() {
           <form action={logout}>
             <button
               type="submit"
-              aria-label="Salir"
+              aria-label={t("logout")}
               className="w-9 h-9 flex items-center justify-center rounded-full text-muted hover:text-red-600 hover:bg-black/[0.04]"
             >
               <IconLogout />

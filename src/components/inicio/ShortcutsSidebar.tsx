@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import Avatar from "@/components/Avatar";
 import {
   IconBell,
@@ -20,7 +21,7 @@ function Badge({ count, label }: { count: number; label: string }) {
   if (count === 0) return null;
   return (
     <span
-      aria-label={`${count} ${label}`}
+      aria-label={label}
       className="ml-auto min-w-[20px] h-5 rounded-full bg-red-600 text-white text-[11px] font-semibold flex items-center justify-center px-1.5"
     >
       {count > 99 ? "99+" : count}
@@ -40,29 +41,45 @@ export default function ShortcutsSidebar({
   pendingRequests: number;
   unreadNotifications: number;
 }) {
+  const t = useTranslations("home");
+  const section = useTranslations("nav");
   const links = [
-    { href: "/inicio", label: "Inicio", icon: IconHome, active: true },
-    { href: "/dashboard", label: "Cápsulas", icon: IconCapsule },
-    { href: "/dashboard/guardians", label: "Guardianes", icon: IconShield },
+    { href: "/inicio", label: section("home"), icon: IconHome, active: true },
+    { href: "/dashboard", label: section("capsules"), icon: IconCapsule },
+    {
+      href: "/dashboard/guardians",
+      label: section("guardians"),
+      icon: IconShield,
+    },
     {
       href: "/dashboard/connections",
-      label: "Seguidores",
+      label: section("followers"),
       icon: IconUsers,
-      badge: { count: pendingRequests, label: "solicitudes pendientes" },
+      badge: {
+        count: pendingRequests,
+        label: t("pendingBadge", { count: pendingRequests }),
+      },
     },
-    { href: "/dashboard/dates", label: "Fechas", icon: IconCalendar },
-    { href: "/dashboard/pets", label: "Huellitas", icon: IconPaw },
-    { href: "/dashboard/memorial", label: "Mi página", icon: IconMemorial },
+    { href: "/dashboard/dates", label: section("dates"), icon: IconCalendar },
+    { href: "/dashboard/pets", label: section("pets"), icon: IconPaw },
+    {
+      href: "/dashboard/memorial",
+      label: section("myPage"),
+      icon: IconMemorial,
+    },
     {
       href: "/dashboard/notifications",
-      label: "Notificaciones",
+      label: section("notifications"),
       icon: IconBell,
-      badge: { count: unreadNotifications, label: "sin leer" },
+      badge: {
+        count: unreadNotifications,
+        label: t("unreadBadge", { count: unreadNotifications }),
+      },
     },
   ];
 
   return (
-    <nav aria-label="Accesos" className="flex flex-col gap-5">
+    <nav aria-label={t("shortcutsLabel")} className="flex flex-col gap-5">
       <Link
         href="/dashboard/profile"
         className="flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 shadow-sm hover:shadow-md"
@@ -72,7 +89,7 @@ export default function ShortcutsSidebar({
           <span className="block font-display font-medium text-foreground truncate">
             {me.name}
           </span>
-          <span className="block text-xs text-muted">Ver tu perfil</span>
+          <span className="block text-xs text-muted">{t("viewProfile")}</span>
         </span>
       </Link>
 
@@ -96,13 +113,13 @@ export default function ShortcutsSidebar({
 
       <div className="border-t border-border pt-4">
         <h2 className="px-3 text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-          Tus accesos directos
+          {t("yourShortcuts")}
         </h2>
         <ul className="mt-2 flex flex-col gap-0.5">
           <li>
             <Link href={`/memorial/${me.id}`} className={rowClass}>
               <Avatar name={me.name} src={me.avatarUrl} size="sm" />
-              <span className="truncate">Mi página pública</span>
+              <span className="truncate">{t("publicPage")}</span>
             </Link>
           </li>
           {following.map((person) => (
@@ -116,12 +133,12 @@ export default function ShortcutsSidebar({
         </ul>
         {following.length === 0 && (
           <p className="px-3 mt-2 text-xs text-muted leading-relaxed">
-            Las personas que sigas aparecerán aquí.{" "}
+            {t("followingHint")}{" "}
             <Link
               href="/dashboard/connections"
               className="font-semibold text-accent hover:underline"
             >
-              Buscar personas
+              {t("findPeople")}
             </Link>
           </p>
         )}

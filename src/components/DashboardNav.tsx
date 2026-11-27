@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import {
   IconCapsule,
   IconShield,
@@ -13,22 +13,23 @@ import {
 } from "@/components/icons";
 
 const items = [
-  { href: "/inicio", label: "Inicio", icon: IconHome },
-  { href: "/dashboard", label: "Cápsulas", icon: IconCapsule, exact: true },
-  { href: "/dashboard/guardians", label: "Guardianes", icon: IconShield },
-  { href: "/dashboard/connections", label: "Seguidores", icon: IconUsers },
-  { href: "/dashboard/dates", label: "Fechas", icon: IconCalendar },
-  { href: "/dashboard/pets", label: "Huellitas", icon: IconPaw },
-  { href: "/dashboard/memorial", label: "Mi página", icon: IconMemorial },
-];
+  { href: "/inicio", label: "home", icon: IconHome },
+  { href: "/dashboard", label: "capsules", icon: IconCapsule, exact: true },
+  { href: "/dashboard/guardians", label: "guardians", icon: IconShield },
+  { href: "/dashboard/connections", label: "followers", icon: IconUsers },
+  { href: "/dashboard/dates", label: "dates", icon: IconCalendar },
+  { href: "/dashboard/pets", label: "pets", icon: IconPaw },
+  { href: "/dashboard/memorial", label: "myPage", icon: IconMemorial },
+] as const;
 
 export default function DashboardNav() {
   const pathname = usePathname();
+  const t = useTranslations("nav");
 
   return (
     <nav className="flex items-center justify-around md:justify-center sm:gap-1 w-full overflow-x-auto">
       {items.map((item) => {
-        const active = item.exact
+        const active = "exact" in item
           ? pathname === item.href
           : pathname.startsWith(item.href);
         const Icon = item.icon;
@@ -36,7 +37,7 @@ export default function DashboardNav() {
           <Link
             key={item.href}
             href={item.href}
-            title={item.label}
+            title={t(item.label)}
             className={`flex flex-col items-center gap-0.5 px-0.5 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-[11px] whitespace-nowrap ${
               active
                 ? "bg-accent/10 text-accent"
@@ -44,7 +45,7 @@ export default function DashboardNav() {
             }`}
           >
             <Icon className="w-5 h-5" />
-            <span>{item.label}</span>
+            <span>{t(item.label)}</span>
           </Link>
         );
       })}

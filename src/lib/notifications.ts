@@ -1,6 +1,5 @@
 import type { NotificationType, Prisma } from "@prisma/client";
 import { mutualsWith, type Mutuals, type Person } from "@/lib/connections";
-import { shortAgo } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 
 export type NotificationView = {
@@ -10,8 +9,9 @@ export type NotificationView = {
   body: string;
   linkUrl: string | null;
   read: boolean;
-  /** Hace cuánto llegó, en corto: "2 h", "1 día". */
-  ago: string;
+  createdAt: string;
+  /** Hace cuánto llegó, en milisegundos, medido en el servidor. */
+  ageMs: number;
   /** Llegó en las últimas 24 horas (sección "Nuevas"). */
   recent: boolean;
   actor: Person | null;
@@ -67,7 +67,8 @@ export async function listNotifications(
       body: n.body,
       linkUrl: n.linkUrl,
       read: n.read,
-      ago: shortAgo(n.createdAt, now),
+      createdAt: n.createdAt.toISOString(),
+      ageMs: now - n.createdAt.getTime(),
       recent: now - n.createdAt.getTime() < DAY,
       actor: n.actor,
       request:

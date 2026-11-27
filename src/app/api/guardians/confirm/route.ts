@@ -8,16 +8,17 @@ import {
   GRACE_PERIOD_HOURS,
   notify,
 } from "@/lib/delivery";
+import { apiText } from "@/lib/api-locale";
 
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 });
   }
 
   const { token } = await req.json();
   if (!token) {
-    return NextResponse.json({ error: "Falta el token" }, { status: 400 });
+    return NextResponse.json({ error: await apiText("missingToken") }, { status: 400 });
   }
 
   const guardian = await prisma.guardian.findUnique({
@@ -25,11 +26,11 @@ export async function POST(req: Request) {
     include: { confirmation: true, owner: true },
   });
   if (!guardian) {
-    return NextResponse.json({ error: "Enlace inválido" }, { status: 404 });
+    return NextResponse.json({ error: await apiText("invalidLink") }, { status: 404 });
   }
   if (guardian.userId !== session.user.id) {
     return NextResponse.json(
-      { error: "Esta invitación no corresponde a tu cuenta" },
+      { error: await apiText("inviteNotYours") },
       { status: 403 }
     );
   }

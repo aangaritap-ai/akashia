@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { sendEmail, EmailSendError } from "@/lib/email";
 import { guardianInviteEmail } from "@/lib/email-templates";
 import { notifyGuardianInvite } from "@/lib/notifications";
+import { apiText } from "@/lib/api-locale";
 
 export async function POST(
   _req: Request,
@@ -11,7 +12,7 @@ export async function POST(
 ) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 });
   }
 
   const { id } = await params;
@@ -20,7 +21,7 @@ export async function POST(
     include: { owner: true },
   });
   if (!guardian || guardian.ownerId !== session.user.id) {
-    return NextResponse.json({ error: "No encontrado" }, { status: 404 });
+    return NextResponse.json({ error: await apiText("notFound") }, { status: 404 });
   }
 
   const confirmUrl = `${process.env.APP_URL || "http://localhost:3000"}/guardian/${guardian.token}`;
@@ -47,7 +48,7 @@ export async function POST(
       const message =
         err instanceof EmailSendError
           ? err.message
-          : "No se pudo enviar el correo";
+          : await apiText("emailFailed");
       return NextResponse.json({ error: message }, { status: 502 });
     }
   }

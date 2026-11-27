@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { canViewStory } from "@/lib/stories";
+import { apiText } from "@/lib/api-locale";
 
 // Marca una historia como vista (para el aro "sin ver" de la barra).
 export async function POST(
@@ -10,7 +11,7 @@ export async function POST(
 ) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 });
   }
   const me = session.user.id;
 
@@ -21,7 +22,7 @@ export async function POST(
   });
   // Misma respuesta si no existe o si no tienes permiso: no revela nada.
   if (!story || !(await canViewStory(me, story))) {
-    return NextResponse.json({ error: "No encontrado" }, { status: 404 });
+    return NextResponse.json({ error: await apiText("notFound") }, { status: 404 });
   }
 
   if (story.authorId !== me) {

@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { listNotifications } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
+import { apiText } from "@/lib/api-locale";
 
-const unauthorized = () =>
-  NextResponse.json({ error: "No autenticado" }, { status: 401 });
+const unauthorized = async () =>
+  NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 });
 
 // Los avisos para el panel de la campana.
 export async function GET() {

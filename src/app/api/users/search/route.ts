@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { apiText } from "@/lib/api-locale";
 
 export async function GET(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 });
   }
 
   const q = new URL(req.url).searchParams.get("q")?.trim() ?? "";

@@ -8,6 +8,7 @@ import { auth } from "@/lib/auth";
 import { MAX_MEDIA_BYTES, MEDIA_QUOTA_BYTES } from "@/lib/media";
 import { allow } from "@/lib/rate-limit";
 import { storageConfigured } from "@/lib/uploads";
+import { apiText } from "@/lib/api-locale";
 
 // Permisos para que el navegador suba el audio o video de una cápsula directo
 // al almacenamiento. El permiso vale solo para un archivo, en la carpeta de
@@ -30,13 +31,13 @@ async function requireUser() {
   const session = await auth();
   if (!session?.user?.id) {
     return {
-      fail: NextResponse.json({ error: "No autenticado" }, { status: 401 }),
+      fail: NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 }),
     };
   }
   if (!storageConfigured()) {
     return {
       fail: NextResponse.json(
-        { error: "El almacenamiento de archivos no está configurado todavía." },
+        { error: await apiText("fileStorageOff") },
         { status: 503 }
       ),
     };
@@ -58,7 +59,7 @@ export async function POST(req: Request) {
 
   if (!(await allow(`upload:${userId}`, 20, 3600))) {
     return NextResponse.json(
-      { error: "Has subido muchos archivos seguidos. Intenta más tarde." },
+      { error: await apiText("tooManyUploads") },
       { status: 429 }
     );
   }
@@ -103,7 +104,7 @@ export async function POST(req: Request) {
       err instanceof Error ? err.message : err
     );
     return NextResponse.json(
-      { error: "No se pudo autorizar la subida" },
+      { error: await apiText("uploadDenied") },
       { status: 400 }
     );
   }

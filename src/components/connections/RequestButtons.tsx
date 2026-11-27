@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useApiAction } from "@/components/useApiAction";
 import { blockPrimaryClass, blockSecondaryClass } from "@/components/ui";
 import { hideSuggestion } from "@/lib/hidden-suggestions";
@@ -20,6 +21,7 @@ export default function RequestButtons({
 }) {
   const [done, setDone] = useState<string | null>(null);
   const { busy, error, run } = useApiAction();
+  const t = useTranslations("followers");
 
   const respond = (action: "accept" | "decline") =>
     run(
@@ -31,9 +33,7 @@ export default function RequestButtons({
         }),
       () => {
         if (action === "decline") hideSuggestion(personId);
-        setDone(
-          action === "accept" ? "Solicitud confirmada" : "Solicitud eliminada"
-        );
+        setDone(action === "accept" ? t("accepted") : t("declined"));
         onDone?.();
       }
     );
@@ -57,7 +57,7 @@ export default function RequestButtons({
           disabled={busy}
           className={blockPrimaryClass}
         >
-          Confirmar
+          {t("confirm")}
         </button>
         <button
           type="button"
@@ -65,7 +65,7 @@ export default function RequestButtons({
           disabled={busy}
           className={blockSecondaryClass}
         >
-          Eliminar
+          {t("deleteRequest")}
         </button>
       </div>
       {error && <p className="text-xs text-red-600">{error}</p>}

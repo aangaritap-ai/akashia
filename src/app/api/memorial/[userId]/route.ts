@@ -3,6 +3,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { allow, clientKey } from "@/lib/rate-limit";
+import { apiText } from "@/lib/api-locale";
 
 const schema = z.object({
   authorName: z.string().min(1).max(80),
@@ -21,7 +22,7 @@ export async function POST(
   const body = await req.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
+    return NextResponse.json({ error: await apiText("invalidData") }, { status: 400 });
   }
 
   // Margen amplio: varias personas pueden compartir la misma conexión.
@@ -31,7 +32,7 @@ export async function POST(
     !(await allow(`msg-day:${who}`, 100, 24 * 3600))
   ) {
     return NextResponse.json(
-      { error: "Se han enviado muchos mensajes seguidos. Espera unos minutos." },
+      { error: await apiText("tooManyMessages") },
       { status: 429 }
     );
   }
@@ -39,14 +40,14 @@ export async function POST(
   // Sin sesión no se aceptan fotos, tampoco enlaces a imágenes externas.
   if (parsed.data.imageUrl && !(await auth())?.user?.id) {
     return NextResponse.json(
-      { error: "Inicia sesión para adjuntar una foto" },
+      { error: await apiText("loginForPhoto") },
       { status: 401 }
     );
   }
 
   const owner = await prisma.user.findUnique({ where: { id: userId } });
   if (!owner) {
-    return NextResponse.json({ error: "No encontrado" }, { status: 404 });
+    return NextResponse.json({ error: await apiText("notFound") }, { status: 404 });
   }
 
   // Un mensaje para una mascota debe ser de una mascota de esa familia.
@@ -55,7 +56,7 @@ export async function POST(
     petId &&
     !(await prisma.pet.findFirst({ where: { id: petId, ownerId: userId } }))
   ) {
-    return NextResponse.json({ error: "No encontrado" }, { status: 404 });
+    return NextResponse.json({ error: await apiText("notFound") }, { status: 404 });
   }
 
   const created = await prisma.memorialMessage.create({

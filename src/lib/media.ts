@@ -5,7 +5,6 @@
 export const MAX_MEDIA_BYTES = 50 * 1024 * 1024;
 /** Espacio total de archivos de cápsulas por persona (el plan es compartido). */
 export const MEDIA_QUOTA_BYTES = 200 * 1024 * 1024;
-export const MEDIA_TOO_BIG = "El archivo no puede pesar más de 50 MB.";
 
 /** Nombre de archivo sin caracteres problemáticos. */
 export function safeFileName(name: string) {

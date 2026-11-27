@@ -1,7 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 
 export default function DeletePetButton({
   id,
@@ -11,6 +12,9 @@ export default function DeletePetButton({
   name: string;
 }) {
   const router = useRouter();
+  const t = useTranslations("petsPage");
+  const common = useTranslations("common");
+  const messages = useTranslations("messages");
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +26,7 @@ export default function DeletePetButton({
       () => null
     );
     if (!res?.ok) {
-      setError("No se pudo borrar. Inténtalo de nuevo.");
+      setError(t("deleteFailed"));
       setBusy(false);
       return;
     }
@@ -37,7 +41,7 @@ export default function DeletePetButton({
         onClick={() => setConfirming(true)}
         className="self-start text-sm text-muted hover:text-red-600 hover:underline"
       >
-        Borrar a {name}
+        {t("deleteNamed", { name })}
       </button>
     );
   }
@@ -45,7 +49,7 @@ export default function DeletePetButton({
   return (
     <div className="flex flex-col gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
       <span>
-        Se borrarán su página, sus mensajes y sus fechas. No se puede deshacer.
+        {t("deleteWarning")}
       </span>
       {error && <span role="alert">{error}</span>}
       <div className="flex gap-4">
@@ -55,14 +59,14 @@ export default function DeletePetButton({
           disabled={busy}
           className="font-semibold hover:underline disabled:opacity-60"
         >
-          {busy ? "Borrando..." : "Sí, borrar"}
+          {busy ? common("deleting") : messages("yesDelete")}
         </button>
         <button
           type="button"
           onClick={() => setConfirming(false)}
           className="hover:underline"
         >
-          Cancelar
+          {common("cancel")}
         </button>
       </div>
     </div>

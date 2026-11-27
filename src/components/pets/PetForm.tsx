@@ -1,18 +1,18 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 import Avatar from "@/components/Avatar";
 import { inputClass, labelClass, primaryButtonClass } from "@/components/ui";
 import {
   MAX_PET_NAME,
   MAX_PET_STORY,
   PET_SPECIES,
-  SPECIES_LABELS,
   type Species,
 } from "@/lib/pets";
 import { shrinkImage } from "@/lib/shrink-image";
-import { MAX_UPLOAD_BYTES, TOO_BIG_MESSAGE } from "@/lib/uploads";
+import { MAX_UPLOAD_BYTES } from "@/lib/uploads";
 
 export type PetValues = {
   name: string;
@@ -34,11 +34,7 @@ const EMPTY: PetValues = {
   passedDate: "",
 };
 
-const DATE_FIELDS = [
-  { key: "birthDate", label: "Nacimiento" },
-  { key: "adoptionDate", label: "Llegó a casa" },
-  { key: "passedDate", label: "Partió (si aplica)" },
-] as const;
+const DATE_FIELDS = ["birthDate", "adoptionDate", "passedDate"] as const;
 
 // Sirve para agregar (sin petId) y para editar una mascota.
 export default function PetForm({
@@ -49,6 +45,12 @@ export default function PetForm({
   initial?: PetValues;
 }) {
   const router = useRouter();
+  const t = useTranslations("petsPage");
+  const common = useTranslations("common");
+  const profile = useTranslations("profile");
+  const messages = useTranslations("messages");
+  const uploads = useTranslations("uploads");
+  const species = useTranslations("pets");
   const [values, setValues] = useState(initial);
   const [busy, setBusy] = useState<"photo" | "save" | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +67,7 @@ export default function PetForm({
     setError(null);
     try {
       const photo = await shrinkImage(file, 1200);
-      if (photo.size > MAX_UPLOAD_BYTES) throw new Error(TOO_BIG_MESSAGE);
+      if (photo.size > MAX_UPLOAD_BYTES) throw new Error(uploads("tooBig"));
       const form = new FormData();
       form.append("file", photo);
       const res = await fetch("/api/profile/avatar", {
@@ -73,10 +75,10 @@ export default function PetForm({
         body: form,
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "No se pudo subir la foto");
+      if (!res.ok) throw new Error(data.error || messages("uploadFailed"));
       set("photoUrl", data.url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Algo salió mal");
+      setError(err instanceof Error ? err.message : messages("somethingWrong"));
     } finally {
       setBusy(null);
     }
@@ -99,12 +101,12 @@ export default function PetForm({
         }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "No se pudo guardar");
+      if (!res.ok) throw new Error(data.error || profile("saveFailed"));
       if (!petId) setValues(EMPTY);
       setSaved(true);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Algo salió mal");
+      setError(err instanceof Error ? err.message : messages("somethingWrong"));
     } finally {
       setBusy(null);
     }
@@ -116,7 +118,7 @@ export default function PetForm({
       className="reveal rounded-2xl border border-border bg-surface p-5 flex flex-col gap-4 shadow-sm"
     >
       <h2 className="font-display font-medium text-xl text-foreground">
-        {petId ? "Datos de tu mascota" : "Agregar una mascota"}
+        {petId ? t("formEdit") : t("formAdd")}
       </h2>
 
       <div className="flex items-center gap-4">
@@ -127,7 +129,7 @@ export default function PetForm({
         />
         <label className="flex min-w-0 flex-1 flex-col gap-1.5 text-sm">
           <span className={labelClass}>
-            {busy === "photo" ? "Subiendo foto..." : "Foto"}
+            {busy === "photo" ? t("uploadingPhoto") : t("photo")}
           </span>
           <input
             type="file"
@@ -146,7 +148,7 @@ export default function PetForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <label className="flex flex-col gap-1.5">
-          <span className={labelClass}>Nombre</span>
+          <span className={labelClass}>{common("name")}</span>
           <input
             value={values.name}
             onChange={(e) => set("name", e.target.value)}
@@ -157,7 +159,7 @@ export default function PetForm({
           />
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className={labelClass}>Especie</span>
+          <span className={labelClass}>{t("species")}</span>
           <select
             value={values.species}
             onChange={(e) => set("species", e.target.value as Species)}
@@ -165,7 +167,7 @@ export default function PetForm({
           >
             {PET_SPECIES.map((s) => (
               <option key={s} value={s}>
-                {SPECIES_LABELS[s]}
+                {species(`species${s}`)}
               </option>
             ))}
           </select>
@@ -173,9 +175,9 @@ export default function PetForm({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {DATE_FIELDS.map(({ key, label }) => (
+        {DATE_FIELDS.map((key) => (
           <label key={key} className="flex flex-col gap-1.5">
-            <span className={labelClass}>{label}</span>
+            <span className={labelClass}>{t(key)}</span>
             <input
               type="date"
               min="1900-01-01"
@@ -187,18 +189,17 @@ export default function PetForm({
         ))}
       </div>
       <p className="-mt-2 text-xs text-muted">
-        Las fechas son opcionales. Las que pongas aparecerán en tus fechas
-        especiales para recordártelas cada año.
+        {t("datesHint")}
       </p>
 
       <label className="flex flex-col gap-1.5">
-        <span className={labelClass}>Su historia</span>
+        <span className={labelClass}>{t("story")}</span>
         <textarea
           value={values.story}
           onChange={(e) => set("story", e.target.value)}
           maxLength={MAX_PET_STORY}
           rows={4}
-          placeholder="Cómo llegó, sus manías, lo que más le gusta..."
+          placeholder={t("storyPlaceholder")}
           className={`${inputClass} resize-none`}
         />
       </label>
@@ -213,7 +214,7 @@ export default function PetForm({
       )}
       {saved && (
         <div role="status" className="text-sm text-emerald-700">
-          {petId ? "Cambios guardados." : "Mascota agregada."}
+          {petId ? t("saved") : t("added")}
         </div>
       )}
 
@@ -223,10 +224,10 @@ export default function PetForm({
         className={`${primaryButtonClass} self-start`}
       >
         {busy === "save"
-          ? "Guardando..."
+          ? common("saving")
           : petId
-            ? "Guardar cambios"
-            : "Agregar mascota"}
+            ? profile("saveChanges")
+            : t("add")}
       </button>
     </form>
   );

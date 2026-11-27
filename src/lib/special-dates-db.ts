@@ -7,8 +7,10 @@ import {
   nextOccurrence,
   todayIn,
   yearsLabel,
+  yearsSince,
   type DateKind,
 } from "@/lib/special-dates";
+import { savedTexts } from "@/lib/translator";
 
 export type UpcomingDate = {
   id: string;
@@ -17,7 +19,8 @@ export type UpcomingDate = {
   month: number;
   day: number;
   daysUntil: number;
-  years: string | null;
+  /** Años que se cumplen, si se guardó el año. */
+  years: number | null;
   petId: string | null;
   /** Cumpleaños de alguien a quien sigo (no es una fecha propia). */
   personId: string | null;
@@ -50,11 +53,7 @@ export async function upcomingDates(userId: string): Promise<UpcomingDate[]> {
     month: r.month,
     day: r.day,
     daysUntil: until(r.month, r.day),
-    years: yearsLabel(
-      r.kind,
-      r.year,
-      nextOccurrence(r.month, r.day, today).year
-    ),
+    years: yearsSince(r.year, nextOccurrence(r.month, r.day, today).year),
     petId: r.petId,
     personId: null,
   }));
@@ -94,9 +93,14 @@ export async function createEventReminders(): Promise<number> {
     take: 500,
   });
 
+  const texts = savedTexts();
   let created = 0;
   for (const date of due) {
-    const years = yearsLabel(date.kind, date.year, today.year);
+    const years = yearsLabel(
+      date.kind,
+      yearsSince(date.year, today.year),
+      texts
+    );
     await prisma.$transaction(async (tx) => {
       // Se marca primero y solo avisa quien logró marcarla: así dos
       // ejecuciones seguidas no duplican el aviso.
@@ -110,7 +114,7 @@ export async function createEventReminders(): Promise<number> {
           userId: date.ownerId,
           type: "EVENT_REMINDER",
           title: "Hoy es una fecha especial",
-          body: `${dateLabel(date.kind, date.title)}${
+          body: `${dateLabel(date.kind, date.title, texts)}${
             years ? ` (${years})` : ""
           }.`,
           linkUrl: "/dashboard/dates",

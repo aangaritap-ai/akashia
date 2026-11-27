@@ -1,8 +1,10 @@
+import { useTranslations } from "next-intl";
 import Avatar from "@/components/Avatar";
 import type { Mutuals } from "@/lib/connections";
 
 // "3 personas en común", con la foto de algunas. No muestra nada si no hay.
 export default function MutualsLine({ mutuals }: { mutuals: Mutuals }) {
+  const t = useTranslations("followers");
   if (mutuals.count === 0) return null;
   return (
     <span className="flex items-center gap-1.5 min-w-0 text-xs text-muted">
@@ -18,9 +20,7 @@ export default function MutualsLine({ mutuals }: { mutuals: Mutuals }) {
         ))}
       </span>
       <span className="truncate">
-        {mutuals.count === 1
-          ? "1 persona en común"
-          : `${mutuals.count} personas en común`}
+        {t("mutuals", { count: mutuals.count })}
       </span>
     </span>
   );

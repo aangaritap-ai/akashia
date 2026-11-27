@@ -15,27 +15,28 @@ export const DATE_KINDS = [
 ] as const;
 export type DateKind = (typeof DATE_KINDS)[number];
 
-export const KIND_LABELS: Record<DateKind, string> = {
-  BIRTHDAY: "Cumpleaños",
-  ANNIVERSARY: "Aniversario",
-  MEMORIAL: "Fecha de recuerdo",
-  OTHER: "Otra fecha",
-};
+/** "marzo" / "March" (mes de 1 a 12). */
+export function monthName(month: number, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
+    month: "long",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(2000, month - 1, 1)));
+}
 
-export const MONTH_NAMES = [
-  "enero",
-  "febrero",
-  "marzo",
-  "abril",
-  "mayo",
-  "junio",
-  "julio",
-  "agosto",
-  "septiembre",
-  "octubre",
-  "noviembre",
-  "diciembre",
-];
+/** "14 de marzo" / "March 14"; con año, la fecha completa. */
+export function dayAndMonth(
+  month: number,
+  day: number,
+  locale: string,
+  year?: number
+) {
+  return new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "long",
+    ...(year ? { year: "numeric" } : {}),
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(year ?? 2000, month - 1, day)));
+}
 
 export type Day = { year: number; month: number; day: number };
 
@@ -84,29 +85,43 @@ export function daysBetween(from: Day, to: Day) {
   return Math.round((utc(to) - utc(from)) / 86_400_000);
 }
 
+// Los textos que siguen reciben `t`, la sección "dates" del idioma.
+type DateText = (
+  key:
+    | "birthdayOf"
+    | "anniversaryOf"
+    | "memorialOf"
+    | "turns"
+    | "yearsAgo"
+    | "today"
+    | "tomorrow"
+    | "inDays",
+  values?: Record<string, string | number>
+) => string;
+
 /** "Cumpleaños de Mamá", "En memoria de Luis"… */
-export function dateLabel(kind: DateKind, title: string) {
-  if (kind === "BIRTHDAY") return `Cumpleaños de ${title}`;
-  if (kind === "ANNIVERSARY") return `Aniversario: ${title}`;
-  if (kind === "MEMORIAL") return `En memoria de ${title}`;
+export function dateLabel(kind: DateKind, title: string, t: DateText) {
+  if (kind === "BIRTHDAY") return t("birthdayOf", { title });
+  if (kind === "ANNIVERSARY") return t("anniversaryOf", { title });
+  if (kind === "MEMORIAL") return t("memorialOf", { title });
   return title;
 }
 
-/** "cumple 30 años" o "hace 5 años", si se guardó el año. */
-export function yearsLabel(
-  kind: DateKind,
-  year: number | null,
-  occurrenceYear: number
-) {
+/** Años que se cumplen en esa ocurrencia, si se guardó el año. */
+export function yearsSince(year: number | null, occurrenceYear: number) {
   if (!year) return null;
   const years = occurrenceYear - year;
-  if (years <= 0) return null;
-  const unit = years === 1 ? "año" : "años";
-  return kind === "BIRTHDAY" ? `cumple ${years} ${unit}` : `${years} ${unit}`;
+  return years > 0 ? years : null;
 }
 
-export function whenLabel(daysUntil: number) {
-  if (daysUntil === 0) return "Hoy";
-  if (daysUntil === 1) return "Mañana";
-  return `En ${daysUntil} días`;
+/** "cumple 30 años" o "5 años". */
+export function yearsLabel(kind: DateKind, years: number | null, t: DateText) {
+  if (!years) return null;
+  return t(kind === "BIRTHDAY" ? "turns" : "yearsAgo", { count: years });
+}
+
+export function whenLabel(daysUntil: number, t: DateText) {
+  if (daysUntil === 0) return t("today");
+  if (daysUntil === 1) return t("tomorrow");
+  return t("inDays", { count: daysUntil });
 }

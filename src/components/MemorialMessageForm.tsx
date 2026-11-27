@@ -1,10 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
-import Link from "next/link";
+import { Link, useRouter } from "@/i18n/navigation";
 import { shrinkImage } from "@/lib/shrink-image";
-import { MAX_UPLOAD_BYTES, TOO_BIG_MESSAGE } from "@/lib/uploads";
+import { MAX_UPLOAD_BYTES } from "@/lib/uploads";
 
 export default function MemorialMessageForm({
   userId,
@@ -21,6 +21,9 @@ export default function MemorialMessageForm({
 }) {
   const firstName = ownerName.split(" ")[0];
   const router = useRouter();
+  const t = useTranslations("messages");
+  const common = useTranslations("common");
+  const uploads = useTranslations("uploads");
   const [authorName, setAuthorName] = useState("");
   const [message, setMessage] = useState("");
   const [isPublic, setIsPublic] = useState(true);
@@ -45,7 +48,7 @@ export default function MemorialMessageForm({
 
       if (file) {
         const photo = await shrinkImage(file);
-        if (photo.size > MAX_UPLOAD_BYTES) throw new Error(TOO_BIG_MESSAGE);
+        if (photo.size > MAX_UPLOAD_BYTES) throw new Error(uploads("tooBig"));
         const form = new FormData();
         form.append("file", photo);
         const uploadRes = await fetch("/api/memorial/upload", {
@@ -54,7 +57,7 @@ export default function MemorialMessageForm({
         });
         const uploadData = await uploadRes.json();
         if (!uploadRes.ok) {
-          throw new Error(uploadData.error || "No se pudo subir la foto");
+          throw new Error(uploadData.error || t("uploadFailed"));
         }
         imageUrl = uploadData.url;
       }
@@ -73,9 +76,7 @@ export default function MemorialMessageForm({
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(
-          data.error || "No se pudo enviar el mensaje. Intenta de nuevo."
-        );
+        throw new Error(data.error || t("sendFailed"));
       }
 
       setAuthorName("");
@@ -84,7 +85,7 @@ export default function MemorialMessageForm({
       setSent(isPublic ? "public" : "private");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Algo salió mal");
+      setError(err instanceof Error ? err.message : t("somethingWrong"));
     } finally {
       setLoading(false);
     }
@@ -96,27 +97,27 @@ export default function MemorialMessageForm({
       className="rounded-xl border border-border bg-surface p-5 flex flex-col gap-3 shadow-sm"
     >
       <div className="text-sm font-semibold text-foreground">
-        Deja un mensaje o un recuerdo
+        {t("formTitle")}
       </div>
       {error && <div className="text-sm text-red-600">{error}</div>}
       {sent && (
         <div role="status" className="text-sm text-emerald-700">
           {sent === "private" && !isOwner
-            ? `Gracias. Tu mensaje privado solo lo verá ${firstName}.`
-            : "Gracias por dejar tu mensaje."}
+            ? t("thanksPrivate", { name: firstName })
+            : t("thanks")}
         </div>
       )}
       <input
         value={authorName}
         onChange={(e) => setAuthorName(e.target.value)}
-        placeholder="Tu nombre"
+        placeholder={t("yourName")}
         required
         className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-accent"
       />
       <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder="Comparte un recuerdo, una foto en palabras, o simplemente gracias"
+        placeholder={t("placeholder")}
         required
         rows={4}
         className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-accent resize-none"
@@ -124,34 +125,34 @@ export default function MemorialMessageForm({
 
       {!canAttachPhoto && (
         <p className="text-xs text-muted">
-          ¿Quieres adjuntar una foto?{" "}
+          {t("wantPhoto")}{" "}
           <Link
             href={`/login?callbackUrl=${encodeURIComponent(
               petId ? `/huellitas/${petId}` : `/memorial/${userId}`
             )}`}
             className="font-semibold text-accent hover:underline"
           >
-            Inicia sesión
+            {t("logInLink")}
           </Link>
           .
         </p>
       )}
 
       <div className={canAttachPhoto ? "flex flex-col gap-2" : "hidden"}>
-        <label className="text-xs text-muted">Foto (opcional)</label>
+        <label className="text-xs text-muted">{t("photoOptional")}</label>
         {preview && (
           <div className="relative w-fit">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={preview}
-              alt="Vista previa"
+              alt={t("preview")}
               className="max-h-40 rounded-lg border border-border"
             />
             <button
               type="button"
               onClick={() => onFileChange(null)}
               className="absolute -top-2 -right-2 bg-background border border-border rounded-full w-6 h-6 text-xs text-muted hover:text-red-600"
-              aria-label="Quitar foto"
+              aria-label={t("removePhoto")}
             >
               ✕
             </button>
@@ -175,7 +176,7 @@ export default function MemorialMessageForm({
               : "border-border text-muted"
           }`}
         >
-          Público — aparece en el feed
+          {t("publicOption")}
         </button>
         <button
           type="button"
@@ -186,7 +187,9 @@ export default function MemorialMessageForm({
               : "border-border text-muted"
           }`}
         >
-          {isOwner ? "Privado — solo tú" : `Privado — solo ${firstName}`}
+          {isOwner
+            ? t("privateOwner")
+            : t("privateOther", { name: firstName })}
         </button>
       </div>
       <button
@@ -194,7 +197,7 @@ export default function MemorialMessageForm({
         disabled={loading}
         className="self-start rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-background hover:brightness-110 disabled:opacity-60"
       >
-        {loading ? "Enviando..." : "Dejar mensaje"}
+        {loading ? common("sending") : t("submit")}
       </button>
     </form>
   );

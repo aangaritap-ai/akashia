@@ -1,10 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 
 export default function CancelDeathButton({ token }: { token?: string }) {
   const router = useRouter();
+  const t = useTranslations("death");
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">(
     "idle"
   );
@@ -20,7 +22,7 @@ export default function CancelDeathButton({ token }: { token?: string }) {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setError(data.error || "No se pudo cancelar");
+      setError(data.error || t("cancelFailed"));
       setState("error");
       return;
     }
@@ -31,8 +33,7 @@ export default function CancelDeathButton({ token }: { token?: string }) {
   if (state === "done") {
     return (
       <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">
-        Listo, se canceló. Tus guardianes fueron avisados de que sigues con
-        nosotros.
+        {t("cancelled")}
       </div>
     );
   }
@@ -47,7 +48,7 @@ export default function CancelDeathButton({ token }: { token?: string }) {
         disabled={state === "loading"}
         className="rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-background hover:brightness-110 disabled:opacity-60"
       >
-        {state === "loading" ? "Cancelando..." : "Cancelar — estoy bien"}
+        {state === "loading" ? t("cancelling") : t("cancel")}
       </button>
     </div>
   );

@@ -1,10 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 
 export default function AcceptGuardianButton({ token }: { token: string }) {
   const router = useRouter();
+  const t = useTranslations("guardians");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,7 +21,7 @@ export default function AcceptGuardianButton({ token }: { token: string }) {
     setLoading(false);
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(data.error || "No se pudo aceptar");
+      setError(data.error || t("acceptFailed"));
       return;
     }
     router.refresh();
@@ -33,7 +35,7 @@ export default function AcceptGuardianButton({ token }: { token: string }) {
         disabled={loading}
         className="rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-background hover:brightness-110 disabled:opacity-60"
       >
-        {loading ? "Aceptando..." : "Aceptar ser guardián"}
+        {loading ? t("accepting") : t("accept")}
       </button>
     </div>
   );

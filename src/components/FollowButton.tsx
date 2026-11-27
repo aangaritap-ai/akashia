@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   StatusPill,
   blockPrimaryClass,
@@ -30,6 +31,8 @@ export default function FollowButton({
   const [confirming, setConfirming] = useState(false);
   const { busy, error, run } = useApiAction();
   const card = variant === "card";
+  const t = useTranslations("followers");
+  const common = useTranslations("common");
 
   const follow = () =>
     run<{ connection?: { id: string } }>(
@@ -69,7 +72,7 @@ export default function FollowButton({
             : `${primaryButtonClass} !py-2 whitespace-nowrap`
         }
       >
-        {busy ? "Enviando..." : "Seguir"}
+        {busy ? common("sending") : t("follow")}
       </button>
     );
   } else if (confirming) {
@@ -77,21 +80,21 @@ export default function FollowButton({
       <div
         className={`flex items-center gap-3 text-xs ${card ? "justify-center py-2" : ""}`}
       >
-        <span className="text-muted">¿Dejar de seguir?</span>
+        <span className="text-muted">{t("confirmUnfollow")}</span>
         <button
           type="button"
           onClick={stop}
           disabled={busy}
           className="text-red-600 font-semibold hover:underline disabled:opacity-50"
         >
-          {busy ? "..." : "Sí"}
+          {busy ? "..." : common("yes")}
         </button>
         <button
           type="button"
           onClick={() => setConfirming(false)}
           className="text-muted hover:underline"
         >
-          No
+          {common("no")}
         </button>
       </div>
     );
@@ -103,28 +106,28 @@ export default function FollowButton({
         disabled={busy}
         className={blockSecondaryClass}
       >
-        {state === "sent" ? "Cancelar solicitud" : "Dejar de seguir"}
+        {state === "sent" ? t("cancelRequest") : t("unfollow")}
       </button>
     );
   } else if (state === "sent") {
     body = (
       <div className="flex items-center gap-3">
-        <StatusPill tone="gold">Solicitud enviada</StatusPill>
+        <StatusPill tone="gold">{t("requestSent")}</StatusPill>
         <button type="button" onClick={stop} disabled={busy} className={link}>
-          Cancelar
+          {common("cancel")}
         </button>
       </div>
     );
   } else {
     body = (
       <div className="flex items-center gap-3">
-        <StatusPill tone="success">Siguiendo</StatusPill>
+        <StatusPill tone="success">{t("following")}</StatusPill>
         <button
           type="button"
           onClick={() => setConfirming(true)}
           className={link}
         >
-          Dejar de seguir
+          {t("unfollow")}
         </button>
       </div>
     );

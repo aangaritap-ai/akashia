@@ -10,6 +10,7 @@ import {
   isValidDay,
   todayIn,
 } from "@/lib/special-dates";
+import { apiText } from "@/lib/api-locale";
 
 const schema = z.object({
   title: z.string().trim().min(1).max(MAX_DATE_TITLE),
@@ -22,25 +23,25 @@ const schema = z.object({
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 });
   }
   const me = session.user.id;
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
-      { error: "Revisa el nombre y la fecha" },
+      { error: await apiText("checkDate") },
       { status: 400 }
     );
   }
   const { title, kind, month, day, year } = parsed.data;
 
   if (!isValidDay(month, day, year)) {
-    return NextResponse.json({ error: "Esa fecha no existe" }, { status: 400 });
+    return NextResponse.json({ error: await apiText("noSuchDate") }, { status: 400 });
   }
   if (year && year > todayIn().year) {
     return NextResponse.json(
-      { error: "El año no puede ser futuro" },
+      { error: await apiText("futureYear") },
       { status: 400 }
     );
   }
@@ -48,7 +49,7 @@ export async function POST(req: Request) {
   const count = await prisma.specialDate.count({ where: { ownerId: me } });
   if (count >= MAX_DATES) {
     return NextResponse.json(
-      { error: "Llegaste al máximo de fechas. Borra alguna para agregar otra." },
+      { error: await apiText("maxDates") },
       { status: 429 }
     );
   }

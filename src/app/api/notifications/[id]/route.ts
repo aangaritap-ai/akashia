@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { apiText } from "@/lib/api-locale";
 
-const notFound = () =>
-  NextResponse.json({ error: "No encontrado" }, { status: 404 });
-const unauthorized = () =>
-  NextResponse.json({ error: "No autenticado" }, { status: 401 });
+const notFound = async () =>
+  NextResponse.json({ error: await apiText("notFound") }, { status: 404 });
+const unauthorized = async () =>
+  NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 });
 
 // Marcar un aviso como leído. El filtro por dueño evita tocar los de otros.
 export async function PATCH(

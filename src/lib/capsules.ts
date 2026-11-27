@@ -9,12 +9,12 @@ import { prisma } from "@/lib/prisma";
 export function capsuleLockReason(owner: {
   isDeceased: boolean;
   deceasedPendingAt: Date | null;
-}): string | null {
+}): "lockDeceased" | "lockPending" | null {
   if (owner.isDeceased) {
-    return "Esta cuenta está marcada como fallecida: sus cápsulas ya no se pueden cambiar.";
+    return "lockDeceased";
   }
   if (owner.deceasedPendingAt) {
-    return "Hay una confirmación de fallecimiento en curso. Cancélala primero para cambiar tus cápsulas.";
+    return "lockPending";
   }
   return null;
 }

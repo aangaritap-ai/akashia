@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useApiAction } from "@/components/useApiAction";
 import { blockSecondaryClass } from "@/components/ui";
 import { hideSuggestion } from "@/lib/hidden-suggestions";
@@ -15,6 +16,8 @@ export default function RemoveFollowerButton({
 }) {
   const [confirming, setConfirming] = useState(false);
   const { busy, error, run } = useApiAction();
+  const t = useTranslations("followers");
+  const common = useTranslations("common");
 
   const remove = () =>
     run(
@@ -29,21 +32,21 @@ export default function RemoveFollowerButton({
     <div className="flex flex-col gap-1">
       {confirming ? (
         <div className="flex items-center justify-center gap-3 py-2 text-xs">
-          <span className="text-muted">¿Quitar seguidor?</span>
+          <span className="text-muted">{t("confirmRemove")}</span>
           <button
             type="button"
             onClick={remove}
             disabled={busy}
             className="text-red-600 font-semibold hover:underline disabled:opacity-50"
           >
-            {busy ? "..." : "Sí"}
+            {busy ? "..." : common("yes")}
           </button>
           <button
             type="button"
             onClick={() => setConfirming(false)}
             className="text-muted hover:underline"
           >
-            No
+            {common("no")}
           </button>
         </div>
       ) : (
@@ -52,7 +55,7 @@ export default function RemoveFollowerButton({
           onClick={() => setConfirming(true)}
           className={blockSecondaryClass}
         >
-          Quitar seguidor
+          {t("removeFollower")}
         </button>
       )}
       {error && <div className="text-xs text-red-600">{error}</div>}

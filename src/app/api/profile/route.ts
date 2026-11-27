@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { MAX_BIO, MAX_CITY, MAX_MOTTO } from "@/lib/profile";
 import { isValidDay } from "@/lib/special-dates";
 import { isStorageUrl } from "@/lib/uploads";
+import { apiText, type ApiError } from "@/lib/api-locale";
 
 // Texto opcional: vacío se guarda como "sin dato".
 const text = (max: number) =>
@@ -29,17 +30,17 @@ const schema = z.object({
   shareBirthday: z.boolean().optional(),
 });
 
-const fail = (error: string) =>
-  NextResponse.json({ error }, { status: 400 });
+const fail = async (error: ApiError) =>
+  NextResponse.json({ error: await apiText(error) }, { status: 400 });
 
 export async function PATCH(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 });
   }
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return fail("Datos inválidos");
+  if (!parsed.success) return fail("invalidData");
   const data = parsed.data;
 
   const current = await prisma.user.findUniqueOrThrow({
@@ -52,7 +53,7 @@ export async function PATCH(req: Request) {
     data.avatarUrl !== current.avatarUrl &&
     !isStorageUrl(data.avatarUrl)
   ) {
-    return fail("Datos inválidos");
+    return fail("invalidData");
   }
 
   // El cumpleaños son dos datos que van juntos: ambos, ninguno o sin cambios.
@@ -68,7 +69,7 @@ export async function PATCH(req: Request) {
         birthdayRemindedYear: null,
       };
     } else if (month === null || day === null || !isValidDay(month, day)) {
-      return fail("Revisa el día y el mes de tu cumpleaños");
+      return fail("checkBirthday");
     } else {
       const moved =
         month !== current.birthMonth || day !== current.birthDay;

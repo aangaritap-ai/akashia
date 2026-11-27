@@ -3,13 +3,14 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { deleteFiles, filesOwnedBy } from "@/lib/own-files";
 import { parsePet, syncPetDates } from "@/lib/pets-db";
+import { apiText } from "@/lib/api-locale";
 
 // La mascota, solo si es de quien pide. Si no, responde como si no existiera.
 async function ownPet(params: Promise<{ id: string }>) {
   const session = await auth();
   if (!session?.user?.id) {
     return {
-      fail: NextResponse.json({ error: "No autenticado" }, { status: 401 }),
+      fail: NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 }),
     };
   }
   const { id } = await params;
@@ -18,7 +19,7 @@ async function ownPet(params: Promise<{ id: string }>) {
   });
   if (!pet) {
     return {
-      fail: NextResponse.json({ error: "No encontrado" }, { status: 404 }),
+      fail: NextResponse.json({ error: await apiText("notFound") }, { status: 404 }),
     };
   }
   return { pet };
@@ -33,7 +34,7 @@ export async function PATCH(
 
   const parsed = parsePet(await req.json().catch(() => null));
   if ("error" in parsed) {
-    return NextResponse.json({ error: parsed.error }, { status: 400 });
+    return NextResponse.json({ error: await apiText(parsed.error) }, { status: 400 });
   }
 
   await prisma.$transaction(

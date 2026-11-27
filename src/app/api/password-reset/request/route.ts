@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { allow, clientKey } from "@/lib/rate-limit";
 import { sendEmail } from "@/lib/email";
 import { passwordResetEmail } from "@/lib/email-templates";
+import { apiText } from "@/lib/api-locale";
 
 const schema = z.object({ email: z.string().email() });
 
@@ -11,7 +12,7 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Correo inválido" }, { status: 400 });
+    return NextResponse.json({ error: await apiText("invalidEmail") }, { status: 400 });
   }
 
   const email = parsed.data.email.trim().toLowerCase();
@@ -19,7 +20,7 @@ export async function POST(req: Request) {
   // Protege el cupo diario de correos, del que también dependen las entregas.
   if (!(await allow(`reset-ip:${clientKey(req)}`, 10, 3600))) {
     return NextResponse.json(
-      { error: "Demasiados intentos. Espera una hora y vuelve a probar." },
+      { error: await apiText("tooManyAttempts") },
       { status: 429 }
     );
   }

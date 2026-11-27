@@ -1,21 +1,22 @@
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { auth } from "@/lib/auth";
-import { MAX_UPLOAD_BYTES, TOO_BIG_MESSAGE, storageConfigured } from "@/lib/uploads";
+import { MAX_UPLOAD_BYTES, storageConfigured } from "@/lib/uploads";
+import { apiText } from "@/lib/api-locale";
 
 // Adjuntar fotos exige sesión: sin cuenta solo se dejan mensajes de texto.
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json(
-      { error: "Inicia sesión para adjuntar una foto" },
+      { error: await apiText("loginForPhoto") },
       { status: 401 }
     );
   }
 
   if (!storageConfigured()) {
     return NextResponse.json(
-      { error: "El almacenamiento de imágenes no está configurado todavía." },
+      { error: await apiText("imageStorageOff") },
       { status: 503 }
     );
   }
@@ -23,16 +24,16 @@ export async function POST(req: Request) {
   const form = await req.formData();
   const file = form.get("file") as File | null;
   if (!file) {
-    return NextResponse.json({ error: "No se envió archivo" }, { status: 400 });
+    return NextResponse.json({ error: await apiText("noFile") }, { status: 400 });
   }
   if (!file.type.startsWith("image/")) {
     return NextResponse.json(
-      { error: "Solo se permiten imágenes" },
+      { error: await apiText("imagesOnly") },
       { status: 400 }
     );
   }
   if (file.size > MAX_UPLOAD_BYTES) {
-    return NextResponse.json({ error: TOO_BIG_MESSAGE }, { status: 400 });
+    return NextResponse.json({ error: await apiText("imageTooBig") }, { status: 400 });
   }
 
   const blob = await put(`memorial/${session.user.id}/${Date.now()}-${file.name}`, file, {

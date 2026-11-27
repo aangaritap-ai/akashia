@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
+import { Link } from "@/i18n/navigation";
 import Avatar from "@/components/Avatar";
 import FollowButton from "@/components/FollowButton";
 import { inputClass } from "@/components/ui";
@@ -22,6 +23,7 @@ export default function ConnectionSearch() {
   const [searched, setSearched] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latest = useRef(0);
+  const t = useTranslations("followers");
 
   function onChange(value: string) {
     setQuery(value);
@@ -55,21 +57,21 @@ export default function ConnectionSearch() {
   return (
     <div className="reveal rounded-2xl border border-border bg-surface p-5 flex flex-col gap-3 shadow-sm">
       <div className="font-display text-lg text-foreground">
-        Buscar personas
+        {t("search")}
       </div>
       <input
         value={query}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Escribe un nombre"
-        aria-label="Buscar personas por nombre"
+        placeholder={t("searchPlaceholder")}
+        aria-label={t("searchLabel")}
         className={inputClass}
       />
 
-      {searching && <div className="text-sm text-muted">Buscando...</div>}
+      {searching && <div className="text-sm text-muted">{t("searching")}</div>}
 
       {!searching && searched && results.length === 0 && (
         <div className="text-sm text-muted">
-          No encontramos a nadie con ese nombre.
+          {t("noResults")}
         </div>
       )}
 

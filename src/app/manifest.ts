@@ -1,12 +1,16 @@
 import type { MetadataRoute } from "next";
+import { getTranslations } from "next-intl/server";
+import { callerLocale } from "@/lib/api-locale";
 
 // Permite instalar Akashia en la pantalla del celular como una aplicación.
-export default function manifest(): MetadataRoute.Manifest {
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const locale = await callerLocale();
+  const t = await getTranslations({ locale, namespace: "share" });
   return {
     name: "Akashia",
     short_name: "Akashia",
-    description: "Deja tu huella en quienes amas.",
-    lang: "es",
+    description: t("appDescription"),
+    lang: locale,
     start_url: "/inicio",
     display: "standalone",
     background_color: "#faf6ef",

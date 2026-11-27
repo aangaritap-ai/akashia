@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Avatar from "@/components/Avatar";
 import { IconCalendar, IconPin } from "@/components/icons";
 
@@ -24,6 +25,8 @@ export default function ProfileHeader({
   city?: string | null;
   birthday?: string | null;
 }) {
+  const t = useTranslations("profileHeader");
+
   return (
     <div className="reveal rounded-2xl border border-border bg-surface overflow-hidden shadow-sm">
       {coverUrl ? (
@@ -91,14 +94,14 @@ export default function ProfileHeader({
               {birthday && (
                 <span className="inline-flex items-center gap-1.5">
                   <IconCalendar className="w-4 h-4 text-gold" />
-                  Cumple el {birthday}
+                  {t("birthday", { date: birthday })}
                 </span>
               )}
             </div>
           )}
           <div className="mt-4 text-xs text-muted">
             <span className="font-semibold text-foreground">{count}</span>{" "}
-            {count === 1 ? "mensaje" : "mensajes"}
+            {t("count", { count })}
           </div>
         </div>
       </div>

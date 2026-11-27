@@ -3,6 +3,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isOwnMedia } from "@/lib/media";
+import { apiText } from "@/lib/api-locale";
 
 const schema = z.object({
   title: z.string().min(1),
@@ -19,14 +20,14 @@ const schema = z.object({
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 });
   }
 
   const body = await req.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: "Datos inválidos", details: parsed.error.flatten() },
+      { error: await apiText("invalidData"), details: parsed.error.flatten() },
       { status: 400 }
     );
   }
@@ -34,23 +35,23 @@ export async function POST(req: Request) {
 
   if (data.triggerType === "DATE" && !data.triggerDate) {
     return NextResponse.json(
-      { error: "Falta la fecha de entrega" },
+      { error: await apiText("missingDate") },
       { status: 400 }
     );
   }
   if ((data.type === "AUDIO" || data.type === "VIDEO") && !data.mediaUrl) {
     return NextResponse.json(
-      { error: "Falta el archivo de audio/video" },
+      { error: await apiText("missingMedia") },
       { status: 400 }
     );
   }
   // El enlace viaja en el correo de entrega: solo archivos propios.
   if (data.mediaUrl && !isOwnMedia(data.mediaUrl, session.user.id)) {
-    return NextResponse.json({ error: "Archivo no válido" }, { status: 400 });
+    return NextResponse.json({ error: await apiText("invalidFile") }, { status: 400 });
   }
   if (data.type === "TEXT" && !data.textContent) {
     return NextResponse.json(
-      { error: "El mensaje de texto está vacío" },
+      { error: await apiText("emptyText") },
       { status: 400 }
     );
   }

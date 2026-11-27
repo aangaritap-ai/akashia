@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
   async redirects() {
@@ -16,4 +17,5 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Conecta los textos por idioma (src/i18n/request.ts).
+export default createNextIntlPlugin()(nextConfig);

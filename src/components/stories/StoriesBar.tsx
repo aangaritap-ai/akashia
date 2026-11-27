@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import Avatar from "@/components/Avatar";
 import StoryComposer from "@/components/stories/StoryComposer";
 import StoryViewer from "@/components/stories/StoryViewer";
@@ -21,6 +22,7 @@ function StoryCard({
   label: string;
   onOpen: () => void;
 }) {
+  const t = useTranslations("stories");
   // La portada es la primera sin ver; si ya vio todas, la más reciente.
   const cover =
     group.stories.find((s) => !s.seen) ??
@@ -32,10 +34,10 @@ function StoryCard({
       onClick={onOpen}
       aria-label={
         group.isMine
-          ? "Ver tu historia"
-          : `Ver historias de ${group.authorName}${
-              group.hasUnseen ? " (sin ver)" : ""
-            }`
+          ? t("viewMine")
+          : t(group.hasUnseen ? "viewOfUnseen" : "viewOf", {
+              name: group.authorName,
+            })
       }
       className={`${cardClass} bg-black`}
     >
@@ -75,17 +77,18 @@ export default function StoriesBar({
 }) {
   const [viewing, setViewing] = useState<number | null>(null);
   const [composing, setComposing] = useState(false);
+  const t = useTranslations("stories");
 
   const mine = groups.find((g) => g.isMine);
   const others = groups.filter((g) => !g.isMine);
 
   return (
-    <section aria-label="Historias" className="reveal">
+    <section aria-label={t("label")} className="reveal">
       <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
         <button
           type="button"
           onClick={() => setComposing(true)}
-          aria-label="Agregar una historia"
+          aria-label={t("add")}
           className={`${cardClass} bg-surface flex flex-col`}
         >
           <span className="relative block h-[118px] w-full overflow-hidden bg-accent/10">
@@ -107,7 +110,7 @@ export default function StoriesBar({
               +
             </span>
             <span className="text-xs font-semibold text-foreground">
-              Crear historia
+              {t("create")}
             </span>
           </span>
         </button>
@@ -115,7 +118,7 @@ export default function StoriesBar({
         {mine && (
           <StoryCard
             group={mine}
-            label="Tu historia"
+            label={t("mine")}
             onOpen={() => setViewing(groups.indexOf(mine))}
           />
         )}
@@ -133,7 +136,7 @@ export default function StoriesBar({
 
       {others.length === 0 && (
         <p className="mt-1 text-xs text-muted leading-relaxed">
-          Aquí aparecerán las historias de las personas que sigues.
+          {t("empty")}
         </p>
       )}
 

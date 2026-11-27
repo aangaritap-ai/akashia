@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { followFromRow } from "@/lib/connections";
+import { apiText } from "@/lib/api-locale";
 
 // Busca personas por nombre. A propósito NO busca ni devuelve correos, para
 // que nadie pueda recorrer la lista de correos de los usuarios.
 export async function GET(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 });
   }
   const me = session.user.id;
 

@@ -1,13 +1,17 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { Callout, inputClass, primaryButtonClass } from "@/components/ui";
 
 type FoundUser = { id: string; name: string; email: string };
 
 export default function AddGuardianForm() {
   const router = useRouter();
+  const t = useTranslations("guardians");
+  const common = useTranslations("common");
+  const followers = useTranslations("followers");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -66,16 +70,14 @@ export default function AddGuardianForm() {
     setLoading(false);
 
     if (!res.ok) {
-      setError(data.error || "No se pudo añadir el guardián");
+      setError(data.error || t("addFailed"));
       return;
     }
 
     if (data.emailError) {
       setWarning(data.emailError);
     } else if (data.notified) {
-      setNotice(
-        "Como ya tiene cuenta en Akashia, también le llegó una notificación dentro de la app."
-      );
+      setNotice(t("alsoNotified"));
     }
 
     setName("");
@@ -89,7 +91,7 @@ export default function AddGuardianForm() {
       className="reveal rounded-2xl border border-border bg-surface p-5 flex flex-col gap-3 shadow-sm"
     >
       <div className="font-display text-lg text-foreground">
-        Añadir guardián
+        {t("add")}
       </div>
       {error && <Callout tone="danger" className="!py-3">{error}</Callout>}
       {warning && <Callout tone="warning" className="!py-3">{warning}</Callout>}
@@ -97,7 +99,7 @@ export default function AddGuardianForm() {
 
       <div className="relative">
         <label className="text-xs text-muted">
-          ¿Ya tiene cuenta en Akashia? Búscalo por nombre o correo
+          {t("searchHint")}
         </label>
         <input
           value={search}
@@ -107,14 +109,14 @@ export default function AddGuardianForm() {
           }}
           onFocus={() => setShowResults(true)}
           onBlur={() => setTimeout(() => setShowResults(false), 150)}
-          placeholder="Buscar por nombre o correo"
+          placeholder={t("searchPlaceholder")}
           className={`mt-1 ${inputClass}`}
         />
         {showResults && (searching || results.length > 0) && (
           <div className="absolute z-10 mt-1 w-full rounded-xl border border-border bg-surface shadow-lg overflow-hidden">
             {searching ? (
               <div className="px-4 py-2.5 text-sm text-muted">
-                Buscando...
+                {followers("searching")}
               </div>
             ) : (
               results.map((u) => (
@@ -137,7 +139,7 @@ export default function AddGuardianForm() {
 
       <div className="flex items-center gap-2 text-xs text-muted">
         <div className="h-px flex-1 bg-border" />
-        o ingresa los datos manualmente
+        {t("orManual")}
         <div className="h-px flex-1 bg-border" />
       </div>
 
@@ -145,7 +147,7 @@ export default function AddGuardianForm() {
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Nombre"
+          placeholder={common("name")}
           required
           className={`flex-1 ${inputClass}`}
         />
@@ -153,7 +155,7 @@ export default function AddGuardianForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           type="email"
-          placeholder="Correo"
+          placeholder={common("email")}
           required
           className={`flex-1 ${inputClass}`}
         />
@@ -162,7 +164,7 @@ export default function AddGuardianForm() {
           disabled={loading}
           className={`${primaryButtonClass} whitespace-nowrap`}
         >
-          {loading ? "Enviando..." : "Invitar"}
+          {loading ? common("sending") : t("invite")}
         </button>
       </div>
     </form>

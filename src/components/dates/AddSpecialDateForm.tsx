@@ -1,26 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { inputClass, labelClass, primaryButtonClass } from "@/components/ui";
 import { useApiAction } from "@/components/useApiAction";
 import {
   DATE_KINDS,
-  KIND_LABELS,
   MAX_DATE_TITLE,
   MIN_YEAR,
-  MONTH_NAMES,
+  monthName,
   type DateKind,
 } from "@/lib/special-dates";
 
-const TITLE_HINTS: Record<DateKind, string> = {
-  BIRTHDAY: "Mamá",
-  ANNIVERSARY: "Nuestra boda",
-  MEMORIAL: "Abuelo Luis",
-  OTHER: "Grado de Sofía",
-};
-
 export default function AddSpecialDateForm() {
   const { busy, error, run } = useApiAction();
+  const t = useTranslations("datesPage");
+  const common = useTranslations("common");
+  const locale = useLocale();
   const [kind, setKind] = useState<DateKind>("BIRTHDAY");
   const [title, setTitle] = useState("");
   const [day, setDay] = useState("");
@@ -57,12 +53,12 @@ export default function AddSpecialDateForm() {
       className="reveal rounded-2xl border border-border bg-surface p-5 flex flex-col gap-4 shadow-sm"
     >
       <h2 className="font-display font-medium text-xl text-foreground">
-        Agregar una fecha
+        {t("addTitle")}
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <label className="flex flex-col gap-1.5">
-          <span className={labelClass}>Tipo</span>
+          <span className={labelClass}>{t("type")}</span>
           <select
             value={kind}
             onChange={(e) => setKind(e.target.value as DateKind)}
@@ -70,21 +66,21 @@ export default function AddSpecialDateForm() {
           >
             {DATE_KINDS.map((k) => (
               <option key={k} value={k}>
-                {KIND_LABELS[k]}
+                {t(`kind${k}`)}
               </option>
             ))}
           </select>
         </label>
         <label className="flex flex-col gap-1.5">
           <span className={labelClass}>
-            {kind === "OTHER" ? "Nombre de la fecha" : "¿De quién o de qué?"}
+            {kind === "OTHER" ? t("nameOther") : t("whose")}
           </span>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={MAX_DATE_TITLE}
             required
-            placeholder={TITLE_HINTS[kind]}
+            placeholder={t(`hint${kind}`)}
             className={inputClass}
           />
         </label>
@@ -92,7 +88,7 @@ export default function AddSpecialDateForm() {
 
       <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)_minmax(0,1.3fr)] gap-3">
         <label className="flex flex-col gap-1.5">
-          <span className={labelClass}>Día</span>
+          <span className={labelClass}>{t("day")}</span>
           <select
             value={day}
             onChange={(e) => setDay(e.target.value)}
@@ -110,7 +106,7 @@ export default function AddSpecialDateForm() {
           </select>
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className={labelClass}>Mes</span>
+          <span className={labelClass}>{t("month")}</span>
           <select
             value={month}
             onChange={(e) => setMonth(e.target.value)}
@@ -120,15 +116,15 @@ export default function AddSpecialDateForm() {
             <option value="" disabled>
               —
             </option>
-            {MONTH_NAMES.map((name, i) => (
-              <option key={name} value={i + 1}>
-                {name}
+            {Array.from({ length: 12 }, (_, i) => (
+              <option key={i + 1} value={i + 1}>
+                {monthName(i + 1, locale)}
               </option>
             ))}
           </select>
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className={labelClass}>Año</span>
+          <span className={labelClass}>{t("year")}</span>
           <input
             type="number"
             inputMode="numeric"
@@ -136,7 +132,7 @@ export default function AddSpecialDateForm() {
             max={new Date().getFullYear()}
             value={year}
             onChange={(e) => setYear(e.target.value)}
-            placeholder="Opcional"
+            placeholder={t("optional")}
             className={inputClass}
           />
         </label>
@@ -156,7 +152,7 @@ export default function AddSpecialDateForm() {
         disabled={busy}
         className={`${primaryButtonClass} self-start`}
       >
-        {busy ? "Guardando..." : "Agregar fecha"}
+        {busy ? common("saving") : t("add")}
       </button>
     </form>
   );

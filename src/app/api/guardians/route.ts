@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { sendEmail, EmailSendError } from "@/lib/email";
 import { guardianInviteEmail } from "@/lib/email-templates";
 import { notifyGuardianInvite } from "@/lib/notifications";
+import { apiText } from "@/lib/api-locale";
 
 const schema = z.object({
   name: z.string().min(1),
@@ -14,13 +15,13 @@ const schema = z.object({
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 });
   }
 
   const body = await req.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
+    return NextResponse.json({ error: await apiText("invalidData") }, { status: 400 });
   }
 
   const owner = await prisma.user.findUniqueOrThrow({
@@ -57,10 +58,11 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     if (!notified) {
-      emailError =
+      emailError = await apiText(
         err instanceof EmailSendError
-          ? "El guardián se agregó, pero el correo de invitación no se pudo enviar. Usa 'Reenviar' más tarde, o comparte el enlace manualmente."
-          : "El guardián se agregó, pero ocurrió un error inesperado enviando el correo.";
+          ? "guardianAddedNoEmail"
+          : "guardianAddedError"
+      );
     }
   }
 

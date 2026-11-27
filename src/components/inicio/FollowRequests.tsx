@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import Avatar from "@/components/Avatar";
 import MutualsLine from "@/components/connections/MutualsLine";
 import RequestButtons from "@/components/connections/RequestButtons";
@@ -11,20 +12,25 @@ export default function FollowRequests({
 }: {
   requests: FollowRequest[];
 }) {
+  const t = useTranslations("followers");
+  const common = useTranslations("common");
+  const time = useTranslations("time");
+  const locale = useLocale();
+
   return (
     <section
-      aria-label="Solicitudes de seguimiento"
+      aria-label={t("requests")}
       className="rounded-2xl border border-border bg-surface p-4 shadow-sm"
     >
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="font-display font-medium text-lg text-foreground">
-          Solicitudes de seguimiento
+          {t("requests")}
         </h2>
         <Link
           href="/dashboard/connections"
           className="shrink-0 text-sm font-semibold text-accent hover:underline"
         >
-          Ver todo
+          {common("seeAll")}
         </Link>
       </div>
 
@@ -51,7 +57,7 @@ export default function FollowRequests({
                   {r.person.name}
                 </Link>
                 <span className="shrink-0 text-xs text-muted">
-                  {shortAgo(r.createdAt)}
+                  {shortAgo(r.createdAt, time, locale)}
                 </span>
               </div>
               <MutualsLine mutuals={r.mutuals} />

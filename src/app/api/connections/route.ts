@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { MAX_PENDING_SENT } from "@/lib/connections";
 import { notifyFollowRequest } from "@/lib/notifications";
+import { apiText } from "@/lib/api-locale";
 
 const schema = z.object({ userId: z.string().min(1) });
 
@@ -11,19 +12,19 @@ const schema = z.object({ userId: z.string().min(1) });
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 });
   }
   const me = session.user.id;
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
+    return NextResponse.json({ error: await apiText("invalidData") }, { status: 400 });
   }
   const targetId = parsed.data.userId;
 
   if (targetId === me) {
     return NextResponse.json(
-      { error: "No puedes seguirte a ti mismo" },
+      { error: await apiText("selfFollow") },
       { status: 400 }
     );
   }
@@ -40,16 +41,17 @@ export async function POST(req: Request) {
   ]);
 
   if (!target) {
-    return NextResponse.json({ error: "No encontrado" }, { status: 404 });
+    return NextResponse.json({ error: await apiText("notFound") }, { status: 404 });
   }
 
   if (existing) {
     return NextResponse.json(
       {
-        error:
+        error: await apiText(
           existing.status === "ACCEPTED"
-            ? "Ya sigues a esta persona"
-            : "Ya enviaste una solicitud a esta persona",
+            ? "alreadyFollowing"
+            : "alreadyRequested"
+        ),
       },
       { status: 409 }
     );
@@ -61,8 +63,7 @@ export async function POST(req: Request) {
   if (pendingSent >= MAX_PENDING_SENT) {
     return NextResponse.json(
       {
-        error:
-          "Tienes muchas solicitudes pendientes. Espera a que respondan o cancela algunas.",
+        error: await apiText("tooManyPending"),
       },
       { status: 429 }
     );

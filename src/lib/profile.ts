@@ -1,6 +1,6 @@
 // Datos opcionales del perfil y quién puede verlos. Sin dependencias de
 // servidor.
-import { MONTH_NAMES } from "@/lib/special-dates";
+import { dayAndMonth } from "@/lib/special-dates";
 
 export const MAX_BIO = 500;
 export const MAX_MOTTO = 160;
@@ -34,7 +34,11 @@ type ProfileRow = {
  * activó; el cumpleaños, además, solo a quien tenga permiso para verlo (la
  * propia persona y sus seguidores aprobados).
  */
-export function profileDetails(row: ProfileRow, canSeeBirthday: boolean) {
+export function profileDetails(
+  row: ProfileRow,
+  canSeeBirthday: boolean,
+  locale: string
+) {
   return {
     coverUrl: row.coverUrl,
     bio: row.bio,
@@ -42,7 +46,7 @@ export function profileDetails(row: ProfileRow, canSeeBirthday: boolean) {
     city: row.showCity ? row.city : null,
     birthday:
       canSeeBirthday && row.shareBirthday && row.birthMonth && row.birthDay
-        ? `${row.birthDay} de ${MONTH_NAMES[row.birthMonth - 1]}`
+        ? dayAndMonth(row.birthMonth, row.birthDay, locale)
         : null,
   };
 }

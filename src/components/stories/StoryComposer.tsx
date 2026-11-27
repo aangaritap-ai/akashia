@@ -2,11 +2,12 @@
 
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { IconCamera } from "@/components/icons";
 import { inputClass, primaryButtonClass } from "@/components/ui";
 import { shrinkImage } from "@/lib/shrink-image";
-import { MAX_UPLOAD_BYTES, TOO_BIG_MESSAGE } from "@/lib/uploads";
+import { MAX_UPLOAD_BYTES } from "@/lib/uploads";
 
 // Mismos límites que el servidor (src/lib/stories.ts). Se repiten aquí para
 // avisar antes de subir; el servidor vuelve a validar.
@@ -15,6 +16,9 @@ const MAX_CAPTION = 140;
 
 export default function StoryComposer({ onClose }: { onClose: () => void }) {
   const router = useRouter();
+  const t = useTranslations("stories");
+  const common = useTranslations("common");
+  const uploads = useTranslations("uploads");
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [caption, setCaption] = useState("");
@@ -45,7 +49,7 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
     setError(null);
     if (!picked) return;
     if (!ALLOWED.includes(picked.type)) {
-      setError("Usa una foto JPG, PNG, WebP o GIF.");
+      setError(t("badType"));
       return;
     }
     const turn = ++pickRef.current;
@@ -54,7 +58,7 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
     if (turn !== pickRef.current) return;
     setPreparing(false);
     if (ready.size > MAX_UPLOAD_BYTES) {
-      setError(TOO_BIG_MESSAGE);
+      setError(uploads("tooBig"));
       return;
     }
     if (previewRef.current) URL.revokeObjectURL(previewRef.current);
@@ -67,7 +71,7 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
   async function publish(e: React.FormEvent) {
     e.preventDefault();
     if (!file) {
-      setError("Elige una foto primero.");
+      setError(t("pickFirst"));
       return;
     }
     setBusy(true);
@@ -79,13 +83,13 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
       const res = await fetch("/api/stories", { method: "POST", body: form });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error || "No se pudo publicar la historia.");
+        setError(data.error || t("publishFailed"));
         return;
       }
       router.refresh();
       onClose();
     } catch {
-      setError("Sin conexión. Inténtalo de nuevo.");
+      setError(common("offline"));
     } finally {
       setBusy(false);
     }
@@ -96,7 +100,7 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Nueva historia"
+      aria-label={t("newStory")}
       className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget && !busy) onClose();
@@ -108,10 +112,10 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
       >
         <div>
           <h2 className="font-display font-medium text-2xl text-foreground">
-            Nueva historia
+            {t("newStory")}
           </h2>
           <p className="text-sm text-muted mt-1">
-            Dura 24 horas. La ven tú y los seguidores que apruebes.
+            {t("newStoryHint")}
           </p>
         </div>
 
@@ -120,14 +124,14 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={previewUrl}
-              alt="Vista previa de tu historia"
+              alt={t("previewAlt")}
               className="absolute inset-0 w-full h-full object-cover"
             />
           ) : (
             <>
               <IconCamera className="w-8 h-8 text-muted" />
               <span className="text-sm text-muted">
-                {preparing ? "Preparando la foto..." : "Elegir una foto"}
+                {preparing ? t("preparingPhoto") : t("choosePhoto")}
               </span>
             </>
           )}
@@ -135,19 +139,19 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
             type="file"
             accept={ALLOWED.join(",")}
             className="sr-only"
-            aria-label="Elegir una foto"
+            aria-label={t("choosePhoto")}
             onChange={(e) => onPick(e.target.files?.[0] ?? null)}
           />
         </label>
         {previewUrl && (
           <p className="text-xs text-muted -mt-2">
-            Toca la foto para cambiarla.
+            {t("changePhoto")}
           </p>
         )}
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="story-caption" className="text-sm font-medium text-foreground">
-            Texto (opcional)
+            {t("captionLabel")}
           </label>
           <textarea
             id="story-caption"
@@ -155,7 +159,7 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
             onChange={(e) => setCaption(e.target.value.slice(0, MAX_CAPTION))}
             rows={2}
             maxLength={MAX_CAPTION}
-            placeholder="Escribe algo corto..."
+            placeholder={t("captionPlaceholder")}
             className={`${inputClass} resize-none`}
           />
           <div className="text-xs text-muted text-right">
@@ -179,14 +183,18 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
             disabled={busy}
             className="text-sm text-muted hover:underline disabled:opacity-50"
           >
-            Cancelar
+            {common("cancel")}
           </button>
           <button
             type="submit"
             disabled={busy || preparing || !file}
             className={primaryButtonClass}
           >
-            {busy ? "Publicando..." : preparing ? "Preparando..." : "Publicar"}
+            {busy
+              ? t("publishing")
+              : preparing
+                ? t("preparing")
+                : t("publish")}
           </button>
         </div>
       </form>

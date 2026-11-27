@@ -1,12 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 
 // Llamada a la API con estado de "ocupado" y error legible; al terminar bien
 // refresca los datos de la página.
 export function useApiAction() {
   const router = useRouter();
+  const t = useTranslations("common");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,13 +22,13 @@ export function useApiAction() {
       const res = await request();
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error || "No se pudo completar la acción");
+        setError(data.error || t("actionFailed"));
         return;
       }
       onOk(data as T);
       router.refresh();
     } catch {
-      setError("Sin conexión. Inténtalo de nuevo.");
+      setError(t("offline"));
     } finally {
       setBusy(false);
     }

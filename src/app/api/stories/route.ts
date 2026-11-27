@@ -9,19 +9,20 @@ import {
   STORY_HOURS,
   STORY_IMAGE_TYPES,
 } from "@/lib/stories";
-import { TOO_BIG_MESSAGE, storageConfigured } from "@/lib/uploads";
+import { storageConfigured } from "@/lib/uploads";
+import { apiText } from "@/lib/api-locale";
 
 // Publicar una historia: foto + texto corto. Exige sesión.
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 });
   }
   const me = session.user.id;
 
   if (!storageConfigured()) {
     return NextResponse.json(
-      { error: "El almacenamiento de imágenes no está configurado todavía." },
+      { error: await apiText("imageStorageOff") },
       { status: 503 }
     );
   }
@@ -29,18 +30,18 @@ export async function POST(req: Request) {
   const form = await req.formData().catch(() => null);
   const file = form?.get("file");
   if (!(file instanceof File)) {
-    return NextResponse.json({ error: "Elige una foto" }, { status: 400 });
+    return NextResponse.json({ error: await apiText("pickPhoto") }, { status: 400 });
   }
 
   const ext = STORY_IMAGE_TYPES[file.type];
   if (!ext) {
     return NextResponse.json(
-      { error: "Usa una foto JPG, PNG, WebP o GIF" },
+      { error: await apiText("badStoryType") },
       { status: 400 }
     );
   }
   if (file.size > MAX_STORY_IMAGE_BYTES) {
-    return NextResponse.json({ error: TOO_BIG_MESSAGE }, { status: 400 });
+    return NextResponse.json({ error: await apiText("imageTooBig") }, { status: 400 });
   }
 
   const rawCaption = form?.get("caption");
@@ -52,7 +53,7 @@ export async function POST(req: Request) {
   });
   if (active >= MAX_ACTIVE_STORIES) {
     return NextResponse.json(
-      { error: "Ya tienes muchas historias activas. Espera a que venzan o borra alguna." },
+      { error: await apiText("tooManyStories") },
       { status: 429 }
     );
   }

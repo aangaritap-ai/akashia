@@ -2,7 +2,8 @@
 
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import Avatar from "@/components/Avatar";
 import { IconChevronLeft, IconChevronRight } from "@/components/icons";
 import { timeAgo } from "@/lib/format";
@@ -40,6 +41,10 @@ export default function StoryViewer({
   onClose: () => void;
 }) {
   const router = useRouter();
+  const t = useTranslations("stories");
+  const common = useTranslations("common");
+  const time = useTranslations("time");
+  const locale = useLocale();
   const [gi, setGi] = useState(startGroup);
   const [si, setSi] = useState(() => {
     const first = groups[startGroup].stories.findIndex((s) => !s.seen);
@@ -150,14 +155,14 @@ export default function StoryViewer({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={`Historia de ${group.authorName}`}
+      aria-label={t("storyOf", { name: group.authorName })}
       className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
     >
       <div className="relative w-full max-w-[420px] h-full sm:h-[min(92vh,760px)] sm:rounded-2xl overflow-hidden bg-black">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={story.imageUrl}
-          alt={story.caption || `Historia de ${group.authorName}`}
+          alt={story.caption || t("storyOf", { name: group.authorName })}
           className="absolute inset-0 w-full h-full object-contain"
         />
 
@@ -182,7 +187,7 @@ export default function StoryViewer({
           <button
             type="button"
             onClick={prev}
-            aria-label="Historia anterior"
+            aria-label={t("previous")}
             className={`${arrowClass} left-2`}
           >
             <IconChevronLeft className="w-6 h-6" />
@@ -191,7 +196,7 @@ export default function StoryViewer({
         <button
           type="button"
           onClick={next}
-          aria-label="Siguiente historia"
+          aria-label={t("next")}
           className={`${arrowClass} right-2`}
         >
           <IconChevronRight className="w-6 h-6" />
@@ -227,31 +232,31 @@ export default function StoryViewer({
             />
             <div className="min-w-0 flex-1 text-white">
               <div className="text-sm font-semibold truncate">
-                {group.isMine ? "Tu historia" : group.authorName}
+                {group.isMine ? t("mine") : group.authorName}
               </div>
               <div className="text-xs text-white/70">
-                {timeAgo(story.createdAt)}
+                {timeAgo(story.createdAt, locale, time("justNow"))}
               </div>
             </div>
 
             {group.isMine &&
               (confirmingDelete ? (
                 <div className="flex items-center gap-2 text-xs text-white">
-                  <span>¿Borrar?</span>
+                  <span>{t("confirmDelete")}</span>
                   <button
                     type="button"
                     onClick={remove}
                     disabled={deleting}
                     className="font-semibold text-red-300 hover:underline disabled:opacity-60"
                   >
-                    {deleting ? "Borrando..." : "Sí"}
+                    {deleting ? common("deleting") : common("yes")}
                   </button>
                   <button
                     type="button"
                     onClick={() => setConfirmingDelete(false)}
                     className="hover:underline"
                   >
-                    No
+                    {common("no")}
                   </button>
                 </div>
               ) : (
@@ -260,7 +265,7 @@ export default function StoryViewer({
                   onClick={() => setConfirmingDelete(true)}
                   className="text-xs text-white/80 hover:text-white hover:underline"
                 >
-                  Borrar
+                  {common("delete")}
                 </button>
               ))}
 
@@ -268,7 +273,7 @@ export default function StoryViewer({
               ref={closeRef}
               type="button"
               onClick={close}
-              aria-label="Cerrar"
+              aria-label={t("close")}
               className="w-9 h-9 flex items-center justify-center rounded-full text-white hover:bg-white/15"
             >
               <svg
@@ -303,7 +308,7 @@ export default function StoryViewer({
             type="button"
             onClick={toggleLike}
             aria-pressed={liked}
-            aria-label="Me gusta"
+            aria-label={t("like")}
             className={`absolute bottom-4 right-3 z-20 w-12 h-12 flex items-center justify-center rounded-full bg-black/45 hover:bg-black/70 ${
               liked ? "text-red-500" : "text-white"
             }`}
@@ -337,7 +342,7 @@ export default function StoryViewer({
               <span className="text-red-500">
                 <Heart filled />
               </span>
-              {story.likes.length} me gusta
+              {t("likes", { count: story.likes.length })}
             </button>
           </div>
         )}

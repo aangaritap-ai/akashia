@@ -1,5 +1,11 @@
-import Link from "next/link";
-import { MONTH_NAMES, dateLabel, whenLabel } from "@/lib/special-dates";
+import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import {
+  dateLabel,
+  monthName,
+  whenLabel,
+  yearsLabel,
+} from "@/lib/special-dates";
 import type { UpcomingDate } from "@/lib/special-dates-db";
 
 const DAYS_AHEAD = 60;
@@ -9,21 +15,24 @@ const MAX_SHOWN = 5;
 export default function UpcomingEvents({ events }: { events: UpcomingDate[] }) {
   const soon = events.filter((e) => e.daysUntil <= DAYS_AHEAD);
   const shown = soon.slice(0, MAX_SHOWN);
+  const t = useTranslations("home");
+  const dates = useTranslations("dates");
+  const locale = useLocale();
 
   return (
     <section
-      aria-label="Próximas fechas"
+      aria-label={t("upcoming")}
       className="rounded-2xl border border-border bg-surface p-4 shadow-sm"
     >
       <h2 className="font-display font-medium text-lg text-foreground">
-        Próximas fechas
+        {t("upcoming")}
       </h2>
 
       {shown.length === 0 ? (
         <p className="mt-2 text-sm text-muted leading-relaxed">
           {events.length === 0
-            ? "Agrega cumpleaños y aniversarios para tenerlos presentes."
-            : `No tienes fechas en los próximos ${DAYS_AHEAD} días.`}
+            ? t("addDatesHint")
+            : t("noDatesSoon", { days: DAYS_AHEAD })}
         </p>
       ) : (
         <ul className="mt-3 flex flex-col gap-3">
@@ -41,12 +50,12 @@ export default function UpcomingEvents({ events }: { events: UpcomingDate[] }) {
                   {event.day}
                 </span>
                 <span className="text-[9px] uppercase mt-0.5">
-                  {MONTH_NAMES[event.month - 1].slice(0, 3)}
+                  {monthName(event.month, locale).slice(0, 3)}
                 </span>
               </span>
               <span className="min-w-0">
                 <span className="block text-sm font-medium text-foreground [overflow-wrap:anywhere]">
-                  {dateLabel(event.kind, event.title)}
+                  {dateLabel(event.kind, event.title, dates)}
                 </span>
                 <span
                   className={`block text-xs ${
@@ -55,8 +64,10 @@ export default function UpcomingEvents({ events }: { events: UpcomingDate[] }) {
                       : "text-muted"
                   }`}
                 >
-                  {whenLabel(event.daysUntil)}
-                  {event.years ? ` · ${event.years}` : ""}
+                  {whenLabel(event.daysUntil, dates)}
+                  {event.years
+                    ? ` · ${yearsLabel(event.kind, event.years, dates)}`
+                    : ""}
                 </span>
               </span>
             </li>
@@ -69,10 +80,10 @@ export default function UpcomingEvents({ events }: { events: UpcomingDate[] }) {
         className="mt-4 inline-block text-sm font-semibold text-accent hover:underline"
       >
         {events.length === 0
-          ? "Agregar una fecha"
+          ? t("addDate")
           : soon.length > MAX_SHOWN
-            ? `Ver las ${events.length} fechas`
-            : "Ver todas y agregar"}
+            ? t("seeAllDates", { count: events.length })
+            : t("seeAndAdd")}
       </Link>
     </section>
   );

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { allow, clientKey } from "@/lib/rate-limit";
+import { apiText } from "@/lib/api-locale";
 
 const REACTION_FIELDS = {
   HEART: "heartCount",
@@ -24,12 +25,12 @@ export async function POST(
   const body = await req.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
+    return NextResponse.json({ error: await apiText("invalidData") }, { status: 400 });
   }
 
   if (!(await allow(`react:${clientKey(req)}`, 60, 60))) {
     return NextResponse.json(
-      { error: "Demasiadas reacciones seguidas" },
+      { error: await apiText("tooManyReactions") },
       { status: 429 }
     );
   }
@@ -46,7 +47,7 @@ export async function POST(
     },
   });
   if (!message) {
-    return NextResponse.json({ error: "No encontrado" }, { status: 404 });
+    return NextResponse.json({ error: await apiText("notFound") }, { status: 404 });
   }
 
   const current = message[field];

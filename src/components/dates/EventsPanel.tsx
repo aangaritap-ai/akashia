@@ -1,18 +1,28 @@
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import DeleteDateButton from "@/components/dates/DeleteDateButton";
 import { IconCalendar } from "@/components/icons";
 import { ListCard, StatusPill } from "@/components/ui";
-import { MONTH_NAMES, dateLabel, whenLabel } from "@/lib/special-dates";
+import {
+  dateLabel,
+  dayAndMonth,
+  monthName,
+  whenLabel,
+  yearsLabel,
+} from "@/lib/special-dates";
 import type { UpcomingDate } from "@/lib/special-dates-db";
 
 export default function EventsPanel({ events }: { events: UpcomingDate[] }) {
+  const t = useTranslations("datesPage");
+  const dates = useTranslations("dates");
+  const locale = useLocale();
+
   if (events.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-border bg-surface px-6 py-10 flex flex-col items-center gap-3 text-center">
         <IconCalendar className="w-8 h-8 text-gold" />
         <p className="text-sm text-muted max-w-xs leading-relaxed">
-          Agrega cumpleaños, aniversarios o fechas de recuerdo y te avisaremos
-          ese día.
+          {t("empty")}
         </p>
       </div>
     );
@@ -21,7 +31,7 @@ export default function EventsPanel({ events }: { events: UpcomingDate[] }) {
   return (
     <ul className="flex flex-col gap-3">
       {events.map((event, i) => {
-        const label = dateLabel(event.kind, event.title);
+        const label = dateLabel(event.kind, event.title, dates);
         return (
           <li key={event.id}>
             <ListCard index={i}>
@@ -38,7 +48,7 @@ export default function EventsPanel({ events }: { events: UpcomingDate[] }) {
                     {event.day}
                   </span>
                   <span className="text-[10px] uppercase mt-0.5">
-                    {MONTH_NAMES[event.month - 1].slice(0, 3)}
+                    {monthName(event.month, locale).slice(0, 3)}
                   </span>
                 </div>
                 <div className="min-w-0">
@@ -46,8 +56,10 @@ export default function EventsPanel({ events }: { events: UpcomingDate[] }) {
                     {label}
                   </div>
                   <div className="text-xs text-muted mt-0.5">
-                    {event.day} de {MONTH_NAMES[event.month - 1]}
-                    {event.years ? ` · ${event.years}` : ""}
+                    {dayAndMonth(event.month, event.day, locale)}
+                    {event.years
+                      ? ` · ${yearsLabel(event.kind, event.years, dates)}`
+                      : ""}
                   </div>
                   <div className="mt-1.5">
                     <StatusPill
@@ -59,7 +71,7 @@ export default function EventsPanel({ events }: { events: UpcomingDate[] }) {
                             : "neutral"
                       }
                     >
-                      {whenLabel(event.daysUntil)}
+                      {whenLabel(event.daysUntil, dates)}
                     </StatusPill>
                   </div>
                 </div>
@@ -69,14 +81,14 @@ export default function EventsPanel({ events }: { events: UpcomingDate[] }) {
                   href={`/memorial/${event.personId}`}
                   className="text-xs text-muted hover:underline shrink-0"
                 >
-                  Ver página
+                  {t("viewPage")}
                 </Link>
               ) : event.petId ? (
                 <Link
                   href={`/dashboard/pets/${event.petId}`}
                   className="text-xs text-muted hover:underline shrink-0"
                 >
-                  Ver mascota
+                  {t("viewPet")}
                 </Link>
               ) : (
                 <DeleteDateButton id={event.id} label={label} />

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { canViewStory, setStoryLike } from "@/lib/stories";
+import { apiText } from "@/lib/api-locale";
 
 const schema = z.object({ liked: z.boolean() });
 
@@ -13,13 +14,13 @@ export async function POST(
 ) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 });
   }
   const me = session.user.id;
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
+    return NextResponse.json({ error: await apiText("invalidData") }, { status: 400 });
   }
 
   const { id } = await params;
@@ -29,11 +30,11 @@ export async function POST(
   });
   // Misma respuesta si no existe o si no tienes permiso: no revela nada.
   if (!story || !(await canViewStory(me, story))) {
-    return NextResponse.json({ error: "No encontrado" }, { status: 404 });
+    return NextResponse.json({ error: await apiText("notFound") }, { status: 404 });
   }
   if (story.authorId === me) {
     return NextResponse.json(
-      { error: "Es tu propia historia" },
+      { error: await apiText("ownStory") },
       { status: 400 }
     );
   }

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { notifyFollowAccepted } from "@/lib/notifications";
+import { apiText } from "@/lib/api-locale";
 
 const patchSchema = z.object({ action: z.enum(["accept", "decline"]) });
 
@@ -13,13 +14,13 @@ export async function PATCH(
 ) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 });
   }
   const me = session.user.id;
 
   const parsed = patchSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
+    return NextResponse.json({ error: await apiText("invalidData") }, { status: 400 });
   }
 
   const { id } = await params;
@@ -29,7 +30,7 @@ export async function PATCH(
     connection.addresseeId !== me ||
     connection.status !== "PENDING"
   ) {
-    return NextResponse.json({ error: "No encontrado" }, { status: 404 });
+    return NextResponse.json({ error: await apiText("notFound") }, { status: 404 });
   }
 
   // El aviso de esa solicitud: se borra si se rechaza y queda leído si se
@@ -74,7 +75,7 @@ export async function DELETE(
 ) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 });
   }
   const me = session.user.id;
 
@@ -84,7 +85,7 @@ export async function DELETE(
     !connection ||
     (connection.requesterId !== me && connection.addresseeId !== me)
   ) {
-    return NextResponse.json({ error: "No encontrado" }, { status: 404 });
+    return NextResponse.json({ error: await apiText("notFound") }, { status: 404 });
   }
 
   await prisma.connection.delete({ where: { id } });

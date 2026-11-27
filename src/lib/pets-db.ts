@@ -32,9 +32,17 @@ type PetData = Pick<
 >;
 
 /** Valida lo que llega del formulario. Devuelve los datos o el error. */
-export function parsePet(body: unknown): { data: PetData } | { error: string } {
+type PetError =
+  | "petInvalid"
+  | "petBadDate"
+  | "petDateRange"
+  | "petPassedBefore";
+
+export function parsePet(
+  body: unknown
+): { data: PetData } | { error: PetError } {
   const parsed = schema.safeParse(body);
-  if (!parsed.success) return { error: "Revisa los datos de tu mascota" };
+  if (!parsed.success) return { error: "petInvalid" };
 
   const t = todayIn();
   const today = Date.UTC(t.year, t.month - 1, t.day);
@@ -48,10 +56,10 @@ export function parsePet(body: unknown): { data: PetData } | { error: string } {
     const date = new Date(`${value}T00:00:00Z`);
     // Rechaza fechas que no existen, como el 31 de abril.
     if (Number.isNaN(date.getTime()) || !date.toISOString().startsWith(value)) {
-      return { error: "Una de las fechas no existe" };
+      return { error: "petBadDate" };
     }
     if (date.getTime() > today || date.getUTCFullYear() < 1900) {
-      return { error: "Las fechas no pueden ser futuras ni tan antiguas" };
+      return { error: "petDateRange" };
     }
     dates[key] = date;
   }
@@ -62,7 +70,7 @@ export function parsePet(body: unknown): { data: PetData } | { error: string } {
     ((birthDate && passedDate < birthDate) ||
       (adoptionDate && passedDate < adoptionDate))
   ) {
-    return { error: "La fecha de partida no puede ser anterior a las demás" };
+    return { error: "petPassedBefore" };
   }
 
   return {

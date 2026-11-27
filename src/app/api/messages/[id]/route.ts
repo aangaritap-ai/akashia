@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { deleteFiles } from "@/lib/own-files";
 import { isStorageUrl } from "@/lib/uploads";
+import { apiText } from "@/lib/api-locale";
 
 // El dueño de una página borra un mensaje que le dejaron (a él o a una de sus
 // mascotas).
@@ -12,7 +13,7 @@ export async function DELETE(
 ) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: await apiText("notAuthenticated") }, { status: 401 });
   }
 
   const { id } = await params;
@@ -21,7 +22,7 @@ export async function DELETE(
     select: { imageUrl: true },
   });
   if (!message) {
-    return NextResponse.json({ error: "No encontrado" }, { status: 404 });
+    return NextResponse.json({ error: await apiText("notFound") }, { status: 404 });
   }
 
   await prisma.memorialMessage.delete({ where: { id } });

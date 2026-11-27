@@ -1,5 +1,7 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import type { ReactNode } from "react";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { LogoMark } from "@/components/Logo";
 
 // Marco común de las pantallas de acceso: logo, título y una tarjeta.
@@ -14,6 +16,9 @@ export default function AuthShell({
   children: ReactNode;
   footer?: ReactNode;
 }) {
+  const t = useTranslations("header");
+  const common = useTranslations("common");
+
   return (
     <main className="relative flex-1 flex items-center justify-center px-6 py-14 overflow-hidden">
       <div
@@ -22,7 +27,7 @@ export default function AuthShell({
       />
       <div className="relative w-full max-w-sm flex flex-col gap-6">
         <div className="reveal flex flex-col items-center text-center gap-3">
-          <Link href="/" aria-label="Akashia, inicio">
+          <Link href="/" aria-label={t("logoHome")}>
             <LogoMark className="w-16 h-16" variant="detail" />
           </Link>
           <h1 className="font-display font-medium text-3xl text-foreground">
@@ -49,13 +54,16 @@ export default function AuthShell({
 
         <p className="text-center text-xs text-muted">
           <Link href="/privacidad" className="hover:underline">
-            Privacidad
+            {common("privacy")}
           </Link>{" "}
           ·{" "}
           <Link href="/terminos" className="hover:underline">
-            Términos
+            {common("terms")}
           </Link>
         </p>
+        <div className="flex justify-center">
+          <LanguageSwitcher />
+        </div>
       </div>
     </main>
   );
