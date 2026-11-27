@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { MAX_BIO, MAX_CITY, MAX_MOTTO } from "@/lib/profile";
+import { contactData, contactShape } from "@/lib/contact";
+import { MAX_BIO, MAX_MOTTO } from "@/lib/profile";
 import { isValidDay } from "@/lib/special-dates";
 import { isStorageUrl } from "@/lib/uploads";
 import { apiText, type ApiError } from "@/lib/api-locale";
@@ -18,12 +19,11 @@ const text = (max: number) =>
     .transform((v) => (v === "" ? null : v));
 
 const schema = z.object({
-  name: z.string().trim().min(1).max(100),
+  ...contactShape,
   avatarUrl: z.string().url().nullable().optional(),
   coverUrl: z.string().url().refine(isStorageUrl).nullable().optional(),
   bio: text(MAX_BIO),
   motto: text(MAX_MOTTO),
-  city: text(MAX_CITY),
   showCity: z.boolean().optional(),
   birthMonth: z.number().int().min(1).max(12).nullable().optional(),
   birthDay: z.number().int().min(1).max(31).nullable().optional(),
@@ -40,7 +40,12 @@ export async function PATCH(req: Request) {
   }
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return fail("invalidData");
+  if (!parsed.success) {
+    const contact = parsed.error.issues.some(
+      (issue) => String(issue.path[0]) in contactShape
+    );
+    return fail(contact ? "contactInvalid" : "invalidData");
+  }
   const data = parsed.data;
 
   const current = await prisma.user.findUniqueOrThrow({
@@ -85,12 +90,11 @@ export async function PATCH(req: Request) {
   const user = await prisma.user.update({
     where: { id: session.user.id },
     data: {
-      name: data.name,
+      ...contactData(data),
       avatarUrl: data.avatarUrl,
       coverUrl: data.coverUrl,
       bio: data.bio,
       motto: data.motto,
-      city: data.city,
       showCity: data.showCity,
       ...birthday,
     },

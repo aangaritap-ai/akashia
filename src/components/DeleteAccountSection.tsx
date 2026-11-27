@@ -8,7 +8,14 @@ import { deleteFiles } from "@/lib/own-files";
 import { Callout, inputClass } from "@/components/ui";
 
 // Eliminar la propia cuenta, desde el perfil.
-export default function DeleteAccountSection({ error }: { error?: string }) {
+export default function DeleteAccountSection({
+  error,
+  returnTo = "/dashboard/profile",
+}: {
+  error?: string;
+  // Página a la que se vuelve si no se pudo eliminar.
+  returnTo?: string;
+}) {
   const t = useTranslations("deleteAccount");
   // La palabra de confirmación, en el idioma en que se muestra la página.
   const word = t("word");
@@ -21,14 +28,14 @@ export default function DeleteAccountSection({ error }: { error?: string }) {
     if (!session?.user?.id) redirect(localizedPath("/login", locale));
 
     if (String(formData.get("confirm") ?? "").trim() !== word) {
-      redirect(localizedPath("/dashboard/profile?eliminar=palabra", locale));
+      redirect(localizedPath(`${returnTo}?eliminar=palabra`, locale));
     }
     const result = await prisma.$transaction(
       (tx) => removeAccount(session.user.id, tx),
       { timeout: 30_000, maxWait: 15_000 }
     );
     if ("error" in result) {
-      redirect(localizedPath("/dashboard/profile?eliminar=bloqueada", locale));
+      redirect(localizedPath(`${returnTo}?eliminar=bloqueada`, locale));
     }
 
     await deleteFiles(result.files);

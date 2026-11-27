@@ -11,13 +11,21 @@ import {
   labelClass,
   primaryButtonClass,
 } from "@/components/ui";
+import {
+  MAX_FIRST_NAME,
+  MAX_LAST_NAME,
+  MAX_PHONE,
+  PHONE_PATTERN,
+} from "@/lib/contact";
 import { MAX_BIO, MAX_CITY, MAX_MOTTO } from "@/lib/profile";
 import { shrinkImage } from "@/lib/shrink-image";
 import { monthName } from "@/lib/special-dates";
 import { MAX_UPLOAD_BYTES } from "@/lib/uploads";
 
 export type ProfileValues = {
-  name: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
   avatarUrl: string | null;
   coverUrl: string | null;
   bio: string;
@@ -65,6 +73,7 @@ export default function ProfileForm({
   const common = useTranslations("common");
   const messages = useTranslations("messages");
   const uploads = useTranslations("uploads");
+  const contact = useTranslations("contact");
   const locale = useLocale();
   const [values, setValues] = useState(initial);
   const [uploading, setUploading] = useState<"avatar" | "cover" | null>(null);
@@ -188,7 +197,7 @@ export default function ProfileForm({
         <div className="flex items-end gap-4 -mt-10">
           <div className="relative shrink-0">
             <Avatar
-              name={values.name || "?"}
+              name={values.firstName || "?"}
               src={values.avatarUrl}
               size="xl"
               className="relative ring-4 ring-surface shadow-sm"
@@ -214,17 +223,53 @@ export default function ProfileForm({
           </div>
         </div>
 
+        <div className="grid grid-cols-2 gap-3">
+          <div className="flex min-w-0 flex-col gap-1.5">
+            <label htmlFor="profile-first-name" className={labelClass}>
+              {contact("firstName")}
+            </label>
+            <input
+              id="profile-first-name"
+              value={values.firstName}
+              onChange={(e) => set("firstName", e.target.value)}
+              maxLength={MAX_FIRST_NAME}
+              autoComplete="given-name"
+              required
+              className={inputClass}
+            />
+          </div>
+          <div className="flex min-w-0 flex-col gap-1.5">
+            <label htmlFor="profile-last-name" className={labelClass}>
+              {contact("lastName")}
+            </label>
+            <input
+              id="profile-last-name"
+              value={values.lastName}
+              onChange={(e) => set("lastName", e.target.value)}
+              maxLength={MAX_LAST_NAME}
+              autoComplete="family-name"
+              required
+              className={inputClass}
+            />
+          </div>
+        </div>
+
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="profile-name" className={labelClass}>
-            {common("name")}
+          <label htmlFor="profile-phone" className={labelClass}>
+            {contact("phone")}
           </label>
           <input
-            id="profile-name"
-            value={values.name}
-            onChange={(e) => set("name", e.target.value)}
+            id="profile-phone"
+            type="tel"
+            value={values.phone}
+            onChange={(e) => set("phone", e.target.value)}
+            maxLength={MAX_PHONE}
+            pattern={PHONE_PATTERN}
+            autoComplete="tel"
             required
             className={inputClass}
           />
+          <p className="text-xs text-muted">{contact("phoneHint")}</p>
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -268,6 +313,7 @@ export default function ProfileForm({
             value={values.city}
             onChange={(e) => set("city", e.target.value)}
             maxLength={MAX_CITY}
+            required
             placeholder="Barichara"
             className={inputClass}
           />

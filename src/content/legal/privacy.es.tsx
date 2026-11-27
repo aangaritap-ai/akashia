@@ -18,11 +18,14 @@ export default function PrivacyEs() {
       <h2>2. Qué datos tratamos</h2>
       <ul>
         <li>
-          <strong>Tu cuenta:</strong> nombre, correo, foto de perfil si la
-          subes, idioma preferido, fecha de registro y de último ingreso. La
-          contraseña se guarda cifrada de forma irreversible. Si los completas, también la foto de
-          portada, el texto sobre ti, tu frase, tu ciudad y el día y mes de tu
-          cumpleaños (no guardamos el año).
+          <strong>Tu cuenta:</strong> nombre, apellido, teléfono, ciudad y
+          correo (obligatorios); foto de perfil si la subes, idioma preferido,
+          fecha de registro y de último ingreso. La contraseña se guarda cifrada
+          de forma irreversible. Si los completas, también la foto de portada,
+          el texto sobre ti, tu frase y el día y mes de tu cumpleaños (no
+          guardamos el año). El teléfono lo usamos solo para contactarte por
+          temas de tu cuenta, su seguridad y las entregas: no se muestra a otros
+          usuarios ni se usa para publicidad.
         </li>
         <li>
           <strong>Lo que creas:</strong> cápsulas (texto, audio o video),

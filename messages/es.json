@@ -577,7 +577,8 @@
     "tooManyReactions": "Demasiadas reacciones seguidas",
     "emailFailed": "No se pudo enviar el correo",
     "guardianAddedNoEmail": "El guardián se agregó, pero el correo de invitación no se pudo enviar. Usa 'Reenviar' más tarde, o comparte el enlace manualmente.",
-    "guardianAddedError": "El guardián se agregó, pero ocurrió un error inesperado enviando el correo."
+    "guardianAddedError": "El guardián se agregó, pero ocurrió un error inesperado enviando el correo.",
+    "contactInvalid": "Completa nombre, apellido, un teléfono válido y tu ciudad."
   },
   "language": {
     "label": "Idioma",
@@ -659,5 +660,19 @@
     "savedPrivate": "Guardada. Solo tú la ves.",
     "failed": "No se pudo publicar. Inténtalo de nuevo.",
     "promptShort": "¿Qué quieres compartir?"
+  },
+  "contact": {
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "phone": "Teléfono",
+    "city": "Ciudad",
+    "phonePlaceholder": "300 123 4567",
+    "phoneHint": "Solo para temas de tu cuenta. Otros usuarios no lo ven.",
+    "consent": "Autorizo el tratamiento de mis datos según la <privacy>política de privacidad</privacy> y acepto los <terms>términos</terms>.",
+    "invalid": "Completa nombre, apellido, un teléfono válido y tu ciudad.",
+    "completeTitle": "Completa tus datos",
+    "completeSubtitle": "Antes de seguir, necesitamos estos datos.",
+    "save": "Guardar y continuar",
+    "meta": "Completa tus datos — Akashia"
   }
 }

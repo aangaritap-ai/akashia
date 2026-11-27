@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { splitName } from "@/lib/contact";
 import { profileSelect } from "@/lib/profile";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import ProfileForm from "@/components/ProfileForm";
@@ -21,6 +22,8 @@ export default async function ProfilePage({
       id: true,
       name: true,
       email: true,
+      lastName: true,
+      phone: true,
       avatarUrl: true,
       createdAt: true,
       ...profileSelect,
@@ -43,7 +46,8 @@ export default async function ProfilePage({
       />
       <ProfileForm
         initial={{
-          name: user.name,
+          ...splitName(user.name, user.lastName),
+          phone: user.phone ?? "",
           avatarUrl: user.avatarUrl,
           coverUrl: user.coverUrl,
           bio: user.bio ?? "",

@@ -16,8 +16,12 @@ model User {
   googleId     String?  @unique
   // Idioma preferido ("es", "en"…) para correos y avisos. Vacío = español.
   locale       String?
+  // Obligatorios junto con `name` (nombre y apellido) y `city`. El teléfono
+  // nunca se muestra a otras personas.
+  lastName     String?
+  phone        String?
 
-  // Datos opcionales del perfil.
+  // Datos del perfil.
   coverUrl String?
   bio      String?
   motto    String?

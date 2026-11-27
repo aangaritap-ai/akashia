@@ -577,7 +577,8 @@
     "tooManyReactions": "Too many reactions in a row",
     "emailFailed": "The email couldn't be sent",
     "guardianAddedNoEmail": "The guardian was added, but the invitation email couldn't be sent. Use 'Resend' later, or share the link yourself.",
-    "guardianAddedError": "The guardian was added, but an unexpected error occurred while sending the email."
+    "guardianAddedError": "The guardian was added, but an unexpected error occurred while sending the email.",
+    "contactInvalid": "Fill in your first name, last name, a valid phone number and your city."
   },
   "language": {
     "label": "Language",
@@ -659,5 +660,19 @@
     "savedPrivate": "Saved. Only you can see it.",
     "failed": "It couldn't be posted. Please try again.",
     "promptShort": "What would you like to share?"
+  },
+  "contact": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "phone": "Phone",
+    "city": "City",
+    "phonePlaceholder": "+57 300 123 4567",
+    "phoneHint": "Only for matters about your account. Other users don't see it.",
+    "consent": "I authorize the processing of my data under the <privacy>privacy policy</privacy> and accept the <terms>terms</terms>.",
+    "invalid": "Fill in your first name, last name, a valid phone number and your city.",
+    "completeTitle": "Complete your details",
+    "completeSubtitle": "Before you continue, we need these details.",
+    "save": "Save and continue",
+    "meta": "Complete your details — Akashia"
   }
 }

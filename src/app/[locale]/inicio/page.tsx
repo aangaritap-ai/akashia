@@ -11,6 +11,7 @@ import {
 import { messageTarget, publicMessages } from "@/lib/feed";
 import { upcomingDates } from "@/lib/special-dates-db";
 import { getVisibleStories } from "@/lib/stories";
+import { requireContact } from "@/lib/require-contact";
 import FollowRequests from "@/components/inicio/FollowRequests";
 import ShortcutsSidebar from "@/components/inicio/ShortcutsSidebar";
 import UpcomingEvents from "@/components/inicio/UpcomingEvents";
@@ -32,6 +33,7 @@ export default async function HomePage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
   const userId = session.user.id;
+  await requireContact(userId);
 
   const [
     me,

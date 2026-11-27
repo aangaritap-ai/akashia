@@ -24,11 +24,14 @@ export default function PrivacyEn() {
       <h2>2. What data we process</h2>
       <ul>
         <li>
-          <strong>Your account:</strong> name, email, profile photo if you
-          upload one, preferred language, sign-up date and last log-in. Your
-          password is stored irreversibly encrypted. If you fill them in, also
-          your cover photo, the text about you, your motto, your city and the day
-          and month of your birthday (we don’t store the year).
+          <strong>Your account:</strong> first name, last name, phone, city and
+          email (required); profile photo if you upload one, preferred language,
+          sign-up date and last log-in. Your password is stored irreversibly
+          encrypted. If you fill them in, also your cover photo, the text about
+          you, your motto and the day and month of your birthday (we don’t store
+          the year). We use your phone only to contact you about your account,
+          its security and deliveries: it is not shown to other users or used for
+          advertising.
         </li>
         <li>
           <strong>What you create:</strong> capsules (text, audio or video),

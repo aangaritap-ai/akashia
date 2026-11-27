@@ -5,7 +5,9 @@ import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { signIn } from "@/lib/auth";
+import { contactData, contactSchema } from "@/lib/contact";
 import AuthShell from "@/components/AuthShell";
+import ContactFields, { ConsentField } from "@/components/ContactFields";
 import GoogleSignIn from "@/components/GoogleSignIn";
 import {
   Callout,
@@ -35,16 +37,24 @@ export default async function SignupPage({
     "use server";
 
     const dest = safeCallback(formData.get("callbackUrl") as string);
-    const name = String(formData.get("name") || "").trim();
+    const contact = contactSchema.safeParse({
+      firstName: formData.get("firstName"),
+      lastName: formData.get("lastName"),
+      phone: formData.get("phone"),
+      city: formData.get("city"),
+    });
     const email = String(formData.get("email") || "")
       .trim()
       .toLowerCase();
     const password = String(formData.get("password") || "");
 
-    if (!name || !email || password.length < 6) {
+    // Sin la autorización de datos no se crea la cuenta.
+    const authorized = formData.get("consent") === "on";
+    if (!contact.success || !authorized || !email || password.length < 6) {
+      const reason = contact.success ? "invalid" : "contact";
       redirect(
         localizedPath(
-          `/signup?error=invalid&callbackUrl=${encodeURIComponent(dest)}&email=${encodeURIComponent(email)}`,
+          `/signup?error=${reason}&callbackUrl=${encodeURIComponent(dest)}&email=${encodeURIComponent(email)}`,
           locale
         )
       );
@@ -62,7 +72,7 @@ export default async function SignupPage({
 
     const passwordHash = await bcrypt.hash(password, 10);
     await prisma.user.create({
-      data: { name, email, passwordHash, locale },
+      data: { ...contactData(contact.data), email, passwordHash, locale },
     });
 
     try {
@@ -113,22 +123,17 @@ export default async function SignupPage({
         </Callout>
       )}
 
+      {error === "contact" && (
+        <Callout tone="danger" className="!py-3">
+          {(await getTranslations("contact"))("invalid")}
+        </Callout>
+      )}
+
       <GoogleSignIn callbackUrl={callbackUrl} />
 
       <form action={signup} className="flex flex-col gap-4">
         <input type="hidden" name="callbackUrl" value={callbackUrl} />
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="name" className={labelClass}>
-            {common("name")}
-          </label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            required
-            className={inputClass}
-          />
-        </div>
+        <ContactFields />
         <div className="flex flex-col gap-1.5">
           <label htmlFor="email" className={labelClass}>
             {common("email")}
@@ -156,6 +161,7 @@ export default async function SignupPage({
           />
           <p className="text-xs text-muted">{common("minPassword")}</p>
         </div>
+        <ConsentField />
         <button type="submit" className={`mt-1 ${primaryButtonClass}`}>
           {common("createAccount")}
         </button>
