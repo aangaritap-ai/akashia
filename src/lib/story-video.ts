@@ -5,6 +5,8 @@ import { isStorageUrl } from "@/lib/uploads";
 // servidor: el formulario avisa antes de subir y el servidor vuelve a validar.
 export const MAX_STORY_VIDEO_BYTES = 15 * 1024 * 1024;
 export const MAX_STORY_VIDEO_SECONDS = 30;
+/** Calidad al grabar dentro de Akashia: 30 segundos pesan cerca de 10 MB. */
+export const STORY_VIDEO_BITS = 2_500_000;
 /** Videos sin vencer que puede tener una persona a la vez. */
 export const MAX_ACTIVE_VIDEOS = 3;
 export const STORY_VIDEO_TYPES: Record<string, string> = {

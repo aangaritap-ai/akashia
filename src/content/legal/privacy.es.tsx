@@ -33,6 +33,11 @@ export default function PrivacyEs() {
           reacciones.
         </li>
         <li>
+          <strong>Cámara y micrófono:</strong> si grabas un video desde Akashia,
+          tu navegador te pide permiso. Solo se usan mientras la cámara está
+          abierta y nada se sube hasta que publiques o guardes.
+        </li>
+        <li>
           <strong>Datos de otras personas que tú registras:</strong> nombre,
           correo e idioma elegido para escribirles de guardianes y
           destinatarios, y los nombres y fechas de tus fechas especiales. Al registrarlos confirmas que puedes hacerlo.

@@ -124,6 +124,41 @@ export function IconCamera({ className = base }: IconProps) {
   );
 }
 
+export function IconVideo({ className = base }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <rect x="3" y="6" width="13" height="12" rx="2" />
+      <path d="M16 10.5 21 7.5v9l-5-3" />
+    </svg>
+  );
+}
+
+export function IconImage({ className = base }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <circle cx="8.5" cy="9.5" r="1.5" />
+      <path d="m4 18 5.5-5.5 4 4 3-3L21 18" />
+    </svg>
+  );
+}
+
 export function IconLock({ className = base }: IconProps) {
   return (
     <svg

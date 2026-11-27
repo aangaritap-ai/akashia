@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
+import CapsuleRecorder from "@/components/camera/CapsuleRecorder";
 import MailLanguageSelect from "@/components/MailLanguageSelect";
 import { uploadCapsuleMedia } from "@/lib/upload-media";
 
@@ -22,6 +23,8 @@ export default function NewCapsulePage() {
   const [type, setType] = useState<CapsuleType>("TEXT");
   const [textContent, setTextContent] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  // Al grabar, el selector de archivo vuelve a quedar vacío.
+  const [recordings, setRecordings] = useState(0);
   const [recipients, setRecipients] = useState([{ name: "", email: "" }]);
   const [triggerType, setTriggerType] = useState<TriggerType>("DATE");
   const [triggerDate, setTriggerDate] = useState("");
@@ -98,7 +101,10 @@ export default function NewCapsulePage() {
               <button
                 key={kind}
                 type="button"
-                onClick={() => setType(kind)}
+                onClick={() => {
+                  if (kind !== type) setFile(null);
+                  setType(kind);
+                }}
                 className={`rounded-lg px-4 py-2 text-sm border ${
                   type === kind
                     ? "border-accent bg-accent/15 text-accent"
@@ -127,11 +133,21 @@ export default function NewCapsulePage() {
             <label className="text-sm text-muted">
               {type === "AUDIO" ? t("audioFile") : t("videoFile")}
             </label>
+            {type === "VIDEO" && (
+              <CapsuleRecorder
+                file={file}
+                onRecorded={(video) => {
+                  setFile(video);
+                  setRecordings((n) => n + 1);
+                }}
+              />
+            )}
             <input
+              key={`${type}-${recordings}`}
               type="file"
               accept={type === "AUDIO" ? "audio/*" : "video/*"}
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              required
+              required={!file}
               className="text-sm text-muted file:mr-4 file:rounded-lg file:border-0 file:bg-accent file:px-4 file:py-2 file:text-sm file:font-semibold file:text-background"
             />
           </div>

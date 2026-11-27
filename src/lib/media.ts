@@ -6,6 +6,10 @@ export const MAX_MEDIA_BYTES = 50 * 1024 * 1024;
 /** Espacio total de archivos de cápsulas por persona (el plan es compartido). */
 export const MEDIA_QUOTA_BYTES = 200 * 1024 * 1024;
 
+/** Video grabado dentro de Akashia: duración y calidad que caben en el límite. */
+export const CAPSULE_RECORD_SECONDS = 120;
+export const CAPSULE_RECORD_BITS = 2_000_000;
+
 /** Nombre de archivo sin caracteres problemáticos. */
 export function safeFileName(name: string) {
   const clean = name

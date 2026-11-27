@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Avatar from "@/components/Avatar";
-import { IconCamera } from "@/components/icons";
+import { IconCamera, IconImage } from "@/components/icons";
 import { inputClass, primaryButtonClass } from "@/components/ui";
 import { useRouter } from "@/i18n/navigation";
 import { shrinkImage } from "@/lib/shrink-image";
@@ -21,6 +21,7 @@ export default function PostComposer({ me }: { me: Me }) {
   const common = useTranslations("common");
   const messages = useTranslations("messages");
   const uploads = useTranslations("uploads");
+  const camera = useTranslations("camera");
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
   const [isPublic, setIsPublic] = useState(true);
@@ -105,10 +106,12 @@ export default function PostComposer({ me }: { me: Me }) {
     }
   }
 
-  const fileInput = (
+  // Con "capture" se abre la cámara del teléfono; sin eso, la galería.
+  const fileInput = (capture?: "environment") => (
     <input
       type="file"
       accept="image/*"
+      capture={capture}
       className="sr-only"
       disabled={busy}
       onChange={(e) => {
@@ -121,6 +124,8 @@ export default function PostComposer({ me }: { me: Me }) {
   );
   const photoButtonClass =
     "inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold text-accent hover:bg-accent/10 focus-within:bg-accent/10";
+  // Solo en celulares y tabletas: en computador no abre la cámara.
+  const cameraClass = `${photoButtonClass} pointer-fine:hidden`;
 
   return (
     <section
@@ -149,12 +154,19 @@ export default function PostComposer({ me }: { me: Me }) {
                 {t("prompt", { name: me.name.split(" ")[0] })}
               </span>
             </button>
-            <label className={photoButtonClass}>
-              <IconCamera className="w-5 h-5" />
-              <span className="hidden sm:inline">{t("photo")}</span>
-              <span className="sr-only sm:hidden">{t("photo")}</span>
-              {fileInput}
-            </label>
+            <div className="flex shrink-0 items-center">
+              <label className={`${cameraClass} max-sm:px-2`}>
+                <IconCamera className="w-5 h-5" />
+                <span className="sr-only">{camera("takePhoto")}</span>
+                {fileInput("environment")}
+              </label>
+              <label className={`${photoButtonClass} max-sm:px-2`}>
+                <IconImage className="w-5 h-5" />
+                <span className="hidden sm:inline">{t("photo")}</span>
+                <span className="sr-only sm:hidden">{t("photo")}</span>
+                {fileInput()}
+              </label>
+            </div>
           </>
         )}
       </div>
@@ -200,11 +212,18 @@ export default function PostComposer({ me }: { me: Me }) {
           )}
 
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <label className={photoButtonClass}>
-              <IconCamera className="w-5 h-5" />
-              {photo ? t("changePhoto") : t("photo")}
-              {fileInput}
-            </label>
+            <div className="flex flex-wrap items-center">
+              <label className={cameraClass}>
+                <IconCamera className="w-5 h-5" />
+                {camera("takePhoto")}
+                {fileInput("environment")}
+              </label>
+              <label className={photoButtonClass}>
+                <IconImage className="w-5 h-5" />
+                {photo ? t("changePhoto") : t("photo")}
+                {fileInput()}
+              </label>
+            </div>
             <select
               value={isPublic ? "public" : "private"}
               onChange={(e) => setIsPublic(e.target.value === "public")}

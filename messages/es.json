@@ -687,5 +687,21 @@
     "completeSubtitle": "Antes de seguir, necesitamos estos datos.",
     "save": "Guardar y continuar",
     "meta": "Completa tus datos — Akashia"
+  },
+  "camera": {
+    "takePhoto": "Tomar foto",
+    "recordVideo": "Grabar video",
+    "title": "Grabar video",
+    "start": "Empezar a grabar",
+    "stop": "Detener",
+    "flip": "Cambiar de cámara",
+    "close": "Cerrar la cámara",
+    "opening": "Abriendo la cámara...",
+    "startHint": "Toca el botón rojo para grabar. Máximo {limit}.",
+    "stopHint": "Toca el cuadro rojo para terminar.",
+    "denied": "No tenemos permiso para usar la cámara y el micrófono. Actívalo en los ajustes de tu navegador y vuelve a intentarlo.",
+    "unsupported": "Este navegador no permite grabar aquí. Abre akashia.app en Chrome o Safari, o elige un video de tu galería.",
+    "failed": "No pudimos usar la cámara. Cierra otras aplicaciones que la estén usando e inténtalo de nuevo.",
+    "recorded": "Video grabado ({size} MB). Revísalo antes de guardar."
   }
 }

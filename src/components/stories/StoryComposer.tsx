@@ -5,13 +5,21 @@ import { createPortal } from "react-dom";
 import { uploadPresigned } from "@vercel/blob/client";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { IconCamera } from "@/components/icons";
-import { inputClass, primaryButtonClass } from "@/components/ui";
+import VideoRecorder, {
+  type Recording,
+} from "@/components/camera/VideoRecorder";
+import { IconCamera, IconImage, IconVideo } from "@/components/icons";
+import {
+  cameraButtonClass,
+  inputClass,
+  primaryButtonClass,
+} from "@/components/ui";
 import { shrinkImage } from "@/lib/shrink-image";
 import { MAX_UPLOAD_BYTES } from "@/lib/uploads";
 import {
   MAX_STORY_VIDEO_BYTES,
   MAX_STORY_VIDEO_SECONDS,
+  STORY_VIDEO_BITS,
   STORY_VIDEO_TYPES,
 } from "@/lib/story-video";
 import { readVideo } from "@/lib/video-poster";
@@ -25,6 +33,8 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
   const router = useRouter();
   const t = useTranslations("stories");
   const common = useTranslations("common");
+  const camera = useTranslations("camera");
+  const [recording, setRecording] = useState(false);
   const uploads = useTranslations("uploads");
   // La foto a publicar; en un video, su portada.
   const [file, setFile] = useState<File | null>(null);
@@ -41,7 +51,8 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
   const pickRef = useRef(0);
 
   const onKey = useEffectEvent((e: KeyboardEvent) => {
-    if (e.key === "Escape" && !busy) onClose();
+    // Con la cámara abierta, Escape solo la cierra a ella.
+    if (e.key === "Escape" && !busy && !recording) onClose();
   });
 
   useEffect(() => {
@@ -88,6 +99,21 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
     show(url);
     setVideo(picked);
     setFile(new File([info.poster], "portada.jpg", { type: "image/jpeg" }));
+  }
+
+  /** Un video grabado aquí: ya viene con su portada y dentro del tiempo. */
+  function onRecorded({ file: recorded, poster }: Recording) {
+    setRecording(false);
+    setError(null);
+    if (recorded.size > MAX_STORY_VIDEO_BYTES) {
+      setError(t("videoTooBig"));
+      return;
+    }
+    pickRef.current++;
+    setPreparing(false);
+    show(URL.createObjectURL(recorded));
+    setVideo(recorded);
+    setFile(new File([poster], "portada.jpg", { type: "image/jpeg" }));
   }
 
   async function onPick(picked: File | null) {
@@ -213,7 +239,7 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
             />
           ) : (
             <>
-              <IconCamera className="w-8 h-8 text-muted" />
+              <IconImage className="w-8 h-8 text-muted" />
               <span className="text-sm text-muted">
                 {preparing ? t("preparing") : t("choosePhoto")}
               </span>
@@ -230,6 +256,45 @@ export default function StoryComposer({ onClose }: { onClose: () => void }) {
         <p className="text-xs text-muted -mt-2">
           {previewUrl ? t("changePhoto") : t("videoLimits")}
         </p>
+
+        <div className="flex gap-2 -mt-1">
+          {/* "capture" abre la cámara solo en celulares y tabletas. */}
+          <label
+            className={`${cameraButtonClass} flex-1 pointer-fine:hidden`}
+          >
+            <IconCamera className="w-5 h-5" />
+            {camera("takePhoto")}
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="sr-only"
+              disabled={busy}
+              onChange={(e) => {
+                const taken = e.target.files?.[0] ?? null;
+                e.target.value = "";
+                onPick(taken);
+              }}
+            />
+          </label>
+          <button
+            type="button"
+            onClick={() => setRecording(true)}
+            disabled={busy}
+            className={`${cameraButtonClass} flex-1`}
+          >
+            <IconVideo className="w-5 h-5" />
+            {camera("recordVideo")}
+          </button>
+        </div>
+        {recording && (
+          <VideoRecorder
+            maxSeconds={MAX_STORY_VIDEO_SECONDS}
+            videoBitsPerSecond={STORY_VIDEO_BITS}
+            onDone={onRecorded}
+            onClose={() => setRecording(false)}
+          />
+        )}
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="story-caption" className="text-sm font-medium text-foreground">

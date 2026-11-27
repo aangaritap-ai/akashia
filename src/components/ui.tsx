@@ -10,6 +10,10 @@ export const labelClass = "text-sm font-medium text-foreground";
 export const primaryButtonClass =
   "rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground shadow-sm hover:brightness-110 disabled:opacity-60";
 
+// "Tomar foto" y "Grabar video".
+export const cameraButtonClass =
+  "inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-border bg-surface px-3 py-2.5 text-sm font-semibold text-accent hover:border-accent focus-within:border-accent disabled:opacity-60";
+
 // Botones a lo ancho de una tarjeta o repartidos en una fila.
 export const blockPrimaryClass =
   "w-full rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-accent-foreground hover:brightness-110 disabled:opacity-60";

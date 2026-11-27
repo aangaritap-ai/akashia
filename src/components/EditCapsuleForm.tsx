@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
+import CapsuleRecorder from "@/components/camera/CapsuleRecorder";
 import MailLanguageSelect from "@/components/MailLanguageSelect";
 import { uploadCapsuleMedia } from "@/lib/upload-media";
 import type { AppLocale } from "@/i18n/routing";
@@ -38,6 +39,8 @@ export default function EditCapsuleForm({
   const [type, setType] = useState<CapsuleType>(capsule.type);
   const [textContent, setTextContent] = useState(capsule.textContent ?? "");
   const [file, setFile] = useState<File | null>(null);
+  // Al grabar, el selector de archivo vuelve a quedar vacío.
+  const [recordings, setRecordings] = useState(0);
   const [existingMediaUrl, setExistingMediaUrl] = useState(capsule.mediaUrl);
   const [recipients, setRecipients] = useState(
     capsule.recipients.length > 0
@@ -127,7 +130,10 @@ export default function EditCapsuleForm({
               <button
                 key={kind}
                 type="button"
-                onClick={() => setType(kind)}
+                onClick={() => {
+                  if (kind !== type) setFile(null);
+                  setType(kind);
+                }}
                 className={`rounded-lg px-4 py-2 text-sm border ${
                   type === kind
                     ? "border-accent bg-accent/15 text-accent"
@@ -161,14 +167,25 @@ export default function EditCapsuleForm({
                 {t("existingFile")}
               </p>
             )}
+            {type === "VIDEO" && (
+              <CapsuleRecorder
+                file={file}
+                onRecorded={(video) => {
+                  setFile(video);
+                  setExistingMediaUrl(null);
+                  setRecordings((n) => n + 1);
+                }}
+              />
+            )}
             <input
+              key={`${type}-${recordings}`}
               type="file"
               accept={type === "AUDIO" ? "audio/*" : "video/*"}
               onChange={(e) => {
                 setFile(e.target.files?.[0] ?? null);
                 setExistingMediaUrl(null);
               }}
-              required={!existingMediaUrl}
+              required={!existingMediaUrl && !file}
               className="text-sm text-muted file:mr-4 file:rounded-lg file:border-0 file:bg-accent file:px-4 file:py-2 file:text-sm file:font-semibold file:text-background"
             />
           </div>

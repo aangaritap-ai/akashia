@@ -39,6 +39,12 @@ export default function PrivacyEn() {
           reactions.
         </li>
         <li>
+          <strong>Camera and microphone:</strong> if you record a video inside
+          Akashia, your browser asks for your permission. They are used only
+          while the camera is open, and nothing is uploaded until you post or
+          save.
+        </li>
+        <li>
           <strong>Other people’s data that you enter:</strong> the name, email
           and chosen email language of guardians and recipients, and the names
           and dates of your special dates. By entering them you confirm that you
