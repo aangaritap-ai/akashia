@@ -41,6 +41,7 @@ export default async function MemorialFeedPage() {
               <MessageCard
                 key={m.id}
                 m={m}
+                author={m.owner}
                 target={messageTarget(m)}
                 index={i}
               />

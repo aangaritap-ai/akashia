@@ -15,6 +15,7 @@ import FollowRequests from "@/components/inicio/FollowRequests";
 import ShortcutsSidebar from "@/components/inicio/ShortcutsSidebar";
 import UpcomingEvents from "@/components/inicio/UpcomingEvents";
 import MessageCard from "@/components/MessageCard";
+import PostComposer from "@/components/PostComposer";
 import StoriesBar from "@/components/stories/StoriesBar";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -63,7 +64,7 @@ export default async function HomePage() {
   const t = await getTranslations("home");
 
   // En el celular las piezas van en una columna en este orden: historias,
-  // fechas y feed. En pantallas anchas se reparten en tres columnas, y a la
+  // crear publicación, fechas y feed. En pantallas anchas se reparten en tres columnas, y a la
   // derecha aparecen además las solicitudes de seguimiento.
   return (
     <main className="flex-1 px-4 sm:px-6 py-6 sm:py-8">
@@ -78,8 +79,11 @@ export default async function HomePage() {
           />
         </aside>
 
-        <div className="min-w-0 rounded-2xl border border-border bg-surface px-4 py-4 shadow-sm lg:col-start-2 lg:row-start-1">
-          <StoriesBar groups={storyGroups} me={me} />
+        <div className="min-w-0 flex flex-col gap-4 lg:col-start-2 lg:row-start-1">
+          <div className="rounded-2xl border border-border bg-surface px-4 py-4 shadow-sm">
+            <StoriesBar groups={storyGroups} me={me} />
+          </div>
+          <PostComposer me={me} />
         </div>
 
         <aside className="min-w-0 flex flex-col gap-6 lg:col-start-3 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
@@ -104,8 +108,10 @@ export default async function HomePage() {
               <MessageCard
                 key={m.id}
                 m={m}
+                author={m.owner}
                 target={messageTarget(m)}
                 index={i}
+                canDelete={m.ownerId === userId}
               />
             ))
           )}

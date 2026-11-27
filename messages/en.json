@@ -643,5 +643,21 @@
     "termsTitle": "Terms of use",
     "updated": "Last updated: {date}",
     "home": "Home"
+  },
+  "composer": {
+    "title": "Create post",
+    "prompt": "What would you like to share, {name}?",
+    "label": "Your post",
+    "photo": "Photo",
+    "changePhoto": "Change photo",
+    "visibility": "Who can see it",
+    "everyone": "Public — shows in the feed",
+    "onlyMe": "Only me",
+    "publish": "Post",
+    "publishing": "Posting...",
+    "posted": "Your post is live.",
+    "savedPrivate": "Saved. Only you can see it.",
+    "failed": "It couldn't be posted. Please try again.",
+    "promptShort": "What would you like to share?"
   }
 }

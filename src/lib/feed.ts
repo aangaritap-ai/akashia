@@ -15,7 +15,7 @@ export function publicMessages(take: number) {
   return prisma.memorialMessage.findMany({
     where: { isPublic: true },
     include: {
-      owner: { select: { id: true, name: true } },
+      owner: { select: { id: true, name: true, avatarUrl: true } },
       pet: { select: { id: true, name: true } },
     },
     orderBy: { createdAt: "desc" },

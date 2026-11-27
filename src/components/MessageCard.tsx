@@ -13,6 +13,7 @@ type Message = {
   imageUrl: string | null;
   createdAt: Date;
   isPublic: boolean;
+  byOwner: boolean;
   heartCount: number;
   condolencesCount: number;
   congratsCount: number;
@@ -21,12 +22,15 @@ type Message = {
 
 export default function MessageCard({
   m,
+  author,
   target,
   showPrivacy = false,
   index = 0,
   canDelete = false,
 }: {
   m: Message;
+  // La dueña o el dueño de la página, para sus propias publicaciones.
+  author?: { id: string; name: string; avatarUrl: string | null };
   target?: { href: string; name: string; isPet: boolean };
   // En "Mi página" el dueño ve qué mensajes son públicos y cuáles privados.
   showPrivacy?: boolean;
@@ -37,6 +41,8 @@ export default function MessageCard({
   const t = useTranslations("messages");
   const time = useTranslations("time");
   const locale = useLocale();
+  const own = m.byOwner ? author : undefined;
+  const name = own?.name ?? m.authorName;
 
   return (
     <article
@@ -44,13 +50,19 @@ export default function MessageCard({
       style={{ animationDelay: `${Math.min(index, 6) * 60}ms` }}
     >
       <div className="px-5 pt-5 flex items-center gap-3">
-        <Avatar name={m.authorName} />
+        <Avatar name={name} src={own?.avatarUrl} />
         <div className="min-w-0 flex-1">
           <div className="font-semibold text-sm text-foreground truncate">
-            {m.authorName}
+            {own ? (
+              <Link href={`/memorial/${own.id}`} className="hover:underline">
+                {name}
+              </Link>
+            ) : (
+              name
+            )}
           </div>
           <div className="text-xs text-muted truncate">
-            {target && (
+            {target && !own && (
               <>
                 {t("to")}{" "}
                 <Link href={target.href} className="text-accent hover:underline">
@@ -85,9 +97,11 @@ export default function MessageCard({
         )}
       </div>
 
-      <div className="px-5 pt-4 text-[15px] leading-relaxed whitespace-pre-line text-foreground">
-        {m.message}
-      </div>
+      {m.message && (
+        <div className="px-5 pt-4 text-[15px] leading-relaxed whitespace-pre-line [overflow-wrap:anywhere] text-foreground">
+          {m.message}
+        </div>
+      )}
 
       {m.imageUrl && (
         <div className="px-5 pt-4">
@@ -110,7 +124,7 @@ export default function MessageCard({
             sadCount: m.sadCount,
           }}
         />
-        {canDelete && <DeleteMessageButton id={m.id} author={m.authorName} />}
+        {canDelete && <DeleteMessageButton id={m.id} author={name} />}
       </div>
     </article>
   );

@@ -643,5 +643,21 @@
     "termsTitle": "Términos de uso",
     "updated": "Última actualización: {date}",
     "home": "Inicio"
+  },
+  "composer": {
+    "title": "Crear publicación",
+    "prompt": "¿Qué quieres compartir, {name}?",
+    "label": "Tu publicación",
+    "photo": "Foto",
+    "changePhoto": "Cambiar foto",
+    "visibility": "Quién la ve",
+    "everyone": "Público — aparece en el feed",
+    "onlyMe": "Solo yo",
+    "publish": "Publicar",
+    "publishing": "Publicando...",
+    "posted": "Tu publicación ya está en línea.",
+    "savedPrivate": "Guardada. Solo tú la ves.",
+    "failed": "No se pudo publicar. Inténtalo de nuevo.",
+    "promptShort": "¿Qué quieres compartir?"
   }
 }

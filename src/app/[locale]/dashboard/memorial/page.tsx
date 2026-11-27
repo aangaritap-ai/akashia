@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import CopyLinkButton from "@/components/CopyLinkButton";
 import MessageCard from "@/components/MessageCard";
+import PostComposer from "@/components/PostComposer";
 import ProfileHeader from "@/components/ProfileHeader";
 import { profileDetails, profileSelect } from "@/lib/profile";
 import { Link } from "@/i18n/navigation";
@@ -54,6 +55,10 @@ export default async function MemorialSettingsPage() {
         {t("editProfile")}
       </Link>
 
+      <PostComposer
+        me={{ id: userId, name: me.name, avatarUrl: me.avatarUrl }}
+      />
+
       <div className="flex flex-col gap-4">
         {messages.length === 0 ? (
           <div className="rounded-2xl border border-border bg-surface px-6 py-16 text-center text-muted">
@@ -61,7 +66,14 @@ export default async function MemorialSettingsPage() {
           </div>
         ) : (
           messages.map((m, i) => (
-            <MessageCard key={m.id} m={m} showPrivacy index={i} canDelete />
+            <MessageCard
+              key={m.id}
+              m={m}
+              author={{ id: userId, name: me.name, avatarUrl: me.avatarUrl }}
+              showPrivacy
+              index={i}
+              canDelete
+            />
           ))
         )}
       </div>

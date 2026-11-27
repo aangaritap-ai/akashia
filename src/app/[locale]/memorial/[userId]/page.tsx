@@ -9,6 +9,7 @@ import { followBetween } from "@/lib/connections";
 import FollowButton from "@/components/FollowButton";
 import MemorialMessageForm from "@/components/MemorialMessageForm";
 import MessageCard from "@/components/MessageCard";
+import PostComposer from "@/components/PostComposer";
 import ProfileHeader from "@/components/ProfileHeader";
 import { profileDetails, profileSelect } from "@/lib/profile";
 
@@ -143,12 +144,19 @@ export default async function MemorialPage({
           </section>
         )}
 
-        <MemorialMessageForm
-          userId={owner.id}
-          canAttachPhoto={Boolean(viewerId)}
-          ownerName={owner.name}
-          isOwner={isOwner}
-        />
+        {/* En la página propia se publica; en la de otros se deja un mensaje. */}
+        {isOwner ? (
+          <PostComposer
+            me={{ id: owner.id, name: owner.name, avatarUrl: owner.avatarUrl }}
+          />
+        ) : (
+          <MemorialMessageForm
+            userId={owner.id}
+            canAttachPhoto={Boolean(viewerId)}
+            ownerName={owner.name}
+            isOwner={false}
+          />
+        )}
 
         <div className="flex flex-col gap-4">
           {owner.memorialMessages.length === 0 ? (
@@ -160,6 +168,7 @@ export default async function MemorialPage({
               <MessageCard
                 key={m.id}
                 m={m}
+                author={owner}
                 index={i}
                 canDelete={isOwner}
               />

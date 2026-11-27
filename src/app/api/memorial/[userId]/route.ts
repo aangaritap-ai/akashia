@@ -7,7 +7,8 @@ import { apiText } from "@/lib/api-locale";
 
 const schema = z.object({
   authorName: z.string().min(1).max(80),
-  message: z.string().min(1).max(2000),
+  // Puede ir vacío solo en una publicación propia con foto.
+  message: z.string().trim().max(2000),
   imageUrl: z.string().url().optional().nullable(),
   isPublic: z.boolean().optional(),
   petId: z.string().optional().nullable(),
@@ -37,8 +38,10 @@ export async function POST(
     );
   }
 
+  const viewerId = (await auth())?.user?.id ?? null;
+
   // Sin sesión no se aceptan fotos, tampoco enlaces a imágenes externas.
-  if (parsed.data.imageUrl && !(await auth())?.user?.id) {
+  if (parsed.data.imageUrl && !viewerId) {
     return NextResponse.json(
       { error: await apiText("loginForPhoto") },
       { status: 401 }
@@ -59,11 +62,22 @@ export async function POST(
     return NextResponse.json({ error: await apiText("notFound") }, { status: 404 });
   }
 
+  // Publicación propia: se decide con la sesión, no con lo que envíe el
+  // navegador, y lleva el nombre de la cuenta.
+  const byOwner = viewerId === userId && !petId;
+  if (!parsed.data.message && !(byOwner && parsed.data.imageUrl)) {
+    return NextResponse.json(
+      { error: await apiText("invalidData") },
+      { status: 400 }
+    );
+  }
+
   const created = await prisma.memorialMessage.create({
     data: {
       ownerId: userId,
       petId,
-      authorName: parsed.data.authorName,
+      byOwner,
+      authorName: byOwner ? owner.name : parsed.data.authorName,
       message: parsed.data.message,
       imageUrl: parsed.data.imageUrl ?? null,
       isPublic: parsed.data.isPublic ?? true,

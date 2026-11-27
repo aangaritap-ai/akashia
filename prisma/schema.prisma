@@ -146,6 +146,8 @@ model MemorialMessage {
   imageUrl   String?
   isPublic   Boolean  @default(true)
   createdAt  DateTime @default(now())
+  // Lo publicó la propia persona en su página (lo decide el servidor).
+  byOwner    Boolean  @default(false)
 
   heartCount       Int @default(0)
   condolencesCount Int @default(0)
