@@ -9,6 +9,7 @@ import {
   pendingReceivedCount,
 } from "@/lib/connections";
 import { messageTarget, publicMessages } from "@/lib/feed";
+import { withActivity } from "@/lib/posts-db";
 import { upcomingDates } from "@/lib/special-dates-db";
 import { getVisibleStories } from "@/lib/stories";
 import { requireContact } from "@/lib/require-contact";
@@ -59,7 +60,7 @@ export default async function HomePage() {
       prisma.notification.count({ where: { userId, read: false } }),
       getVisibleStories(userId),
       upcomingDates(userId),
-      publicMessages(FEED_SIZE),
+      publicMessages(FEED_SIZE).then((list) => withActivity(list, userId)),
       followRequests(userId, MAX_REQUESTS),
     ]);
 
@@ -117,6 +118,7 @@ export default async function HomePage() {
                 target={messageTarget(m)}
                 index={i}
                 canDelete={m.ownerId === userId}
+                signedIn
               />
             ))
           )}

@@ -6,6 +6,7 @@ import Avatar from "@/components/Avatar";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { followBetween } from "@/lib/connections";
+import { withActivity } from "@/lib/posts-db";
 import FollowButton from "@/components/FollowButton";
 import MemorialMessageForm from "@/components/MemorialMessageForm";
 import MessageCard from "@/components/MessageCard";
@@ -82,6 +83,7 @@ export default async function MemorialPage({
   });
 
   if (!owner) notFound();
+  const posts = await withActivity(owner.memorialMessages, viewerId);
   const t = await getTranslations("personPage");
   const locale = await getLocale();
 
@@ -164,13 +166,14 @@ export default async function MemorialPage({
               {t("empty")}
             </div>
           ) : (
-            owner.memorialMessages.map((m, i) => (
+            posts.map((m, i) => (
               <MessageCard
                 key={m.id}
                 m={m}
                 author={owner}
                 index={i}
                 canDelete={isOwner}
+                signedIn={Boolean(viewerId)}
               />
             ))
           )}

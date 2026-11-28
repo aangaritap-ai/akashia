@@ -177,6 +177,22 @@ export function IconDownload({ className = base }: IconProps) {
   );
 }
 
+export function IconComment({ className = base }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3.5 20.5l1.4-5.1A8.5 8.5 0 1 1 21 11.5Z" />
+    </svg>
+  );
+}
+
 export function IconLock({ className = base }: IconProps) {
   return (
     <svg

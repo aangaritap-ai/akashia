@@ -6,7 +6,9 @@ import ContactForm from "@/components/ContactForm";
 import DeleteAccountSection from "@/components/DeleteAccountSection";
 import { localizedPath } from "@/i18n/navigation";
 import { auth } from "@/lib/auth";
-import { contactSelect, isContactComplete, splitName } from "@/lib/contact";
+import { isAccountReady, readySelect } from "@/lib/account-ready";
+import { needsAgeCheck } from "@/lib/age";
+import { splitName } from "@/lib/contact";
 import { prisma } from "@/lib/prisma";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -26,16 +28,17 @@ export default async function CompleteContactPage({
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: contactSelect,
+    select: readySelect,
   });
   if (!user) redirect(localizedPath("/login", locale));
-  if (isContactComplete(user)) redirect(localizedPath("/inicio", locale));
+  if (isAccountReady(user)) redirect(localizedPath("/inicio", locale));
 
   const t = await getTranslations("contact");
 
   return (
     <AuthShell title={t("completeTitle")} subtitle={t("completeSubtitle")}>
       <ContactForm
+        askAge={needsAgeCheck(user)}
         values={{
           ...splitName(user.name, user.lastName),
           phone: user.phone ?? "",

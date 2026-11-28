@@ -2,9 +2,10 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import Avatar from "@/components/Avatar";
 import DeleteMessageButton from "@/components/DeleteMessageButton";
-import ReactionBar from "@/components/ReactionBar";
+import PostActivity from "@/components/posts/PostActivity";
 import { IconLock, IconPaw } from "@/components/icons";
 import { timeAgo } from "@/lib/format";
+import { postAnchor, type Activity } from "@/lib/posts";
 
 type Message = {
   id: string;
@@ -14,10 +15,7 @@ type Message = {
   createdAt: Date;
   isPublic: boolean;
   byOwner: boolean;
-  heartCount: number;
-  condolencesCount: number;
-  congratsCount: number;
-  sadCount: number;
+  activity: Activity;
 };
 
 export default function MessageCard({
@@ -27,6 +25,7 @@ export default function MessageCard({
   showPrivacy = false,
   index = 0,
   canDelete = false,
+  signedIn,
 }: {
   m: Message;
   // La dueña o el dueño de la página, para sus propias publicaciones.
@@ -37,6 +36,8 @@ export default function MessageCard({
   index?: number;
   // Solo para el dueño de la página.
   canDelete?: boolean;
+  // Quien mira tiene sesión: puede reaccionar y comentar.
+  signedIn: boolean;
 }) {
   const t = useTranslations("messages");
   const time = useTranslations("time");
@@ -46,7 +47,8 @@ export default function MessageCard({
 
   return (
     <article
-      className="reveal rounded-2xl border border-border bg-surface shadow-sm hover:shadow-md transition-shadow"
+      id={postAnchor(m.id)}
+      className="reveal scroll-mt-32 rounded-2xl border border-border bg-surface shadow-sm hover:shadow-md transition-shadow"
       style={{ animationDelay: `${Math.min(index, 6) * 60}ms` }}
     >
       <div className="px-5 pt-5 flex items-center gap-3">
@@ -114,18 +116,9 @@ export default function MessageCard({
         </div>
       )}
 
-      <div className="px-5 py-4 mt-4 border-t border-border flex flex-wrap items-center justify-between gap-3">
-        <ReactionBar
-          messageId={m.id}
-          initialCounts={{
-            heartCount: m.heartCount,
-            condolencesCount: m.condolencesCount,
-            congratsCount: m.congratsCount,
-            sadCount: m.sadCount,
-          }}
-        />
+      <PostActivity messageId={m.id} initial={m.activity} signedIn={signedIn}>
         {canDelete && <DeleteMessageButton id={m.id} author={name} />}
-      </div>
+      </PostActivity>
     </article>
   );
 }

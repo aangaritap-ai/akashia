@@ -5,5 +5,5 @@ export const LEGAL = {
   owner: "Anderson Angarita Parra",
   city: "Barichara, Colombia",
   contact: "contacto@akashia.app",
-  updated: "2026-11-27",
+  updated: "2026-11-28",
 };

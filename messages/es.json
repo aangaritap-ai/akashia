@@ -242,7 +242,10 @@
     "love": "Me encanta",
     "condolences": "Pésame",
     "congrats": "Felicitaciones",
-    "sad": "Tristeza"
+    "sad": "Tristeza",
+    "reactionButton": "{name}. Reacciones: {count}",
+    "chooseReaction": "Elige una reacción",
+    "reactionFailed": "No se pudo guardar la reacción"
   },
   "profileHeader": {
     "birthday": "Cumple el {date}",
@@ -430,7 +433,9 @@
     "textCONNECTION_ACCEPTED": "<b>{name}</b> aceptó tu solicitud. Ya puedes ver sus historias.",
     "textEVENT_REMINDER": "Hoy es el cumpleaños de <b>{name}</b>.",
     "textSTORY_LIKE": "A <b>{name}</b> le gustó tu historia.",
-    "textGUARDIAN_INVITE": "<b>{name}</b> te designó como guardián en Akashia."
+    "textGUARDIAN_INVITE": "<b>{name}</b> te designó como guardián en Akashia.",
+    "textPOST_REACTION": "<b>{name}</b> reaccionó a tu publicación {emoji}",
+    "textPOST_COMMENT": "<b>{name}</b> comentó tu publicación."
   },
   "capsules": {
     "typeTEXT": "Texto",
@@ -592,7 +597,12 @@
     "guardianAddedError": "El guardián se agregó, pero ocurrió un error inesperado enviando el correo.",
     "contactInvalid": "Completa nombre, apellido, un teléfono válido y tu ciudad.",
     "invalidVideo": "Video no válido",
-    "tooManyVideos": "Ya tienes 3 videos activos. Espera a que venzan o borra alguno."
+    "tooManyVideos": "Ya tienes 3 videos activos. Espera a que venzan o borra alguno.",
+    "completeData": "Completa los datos de tu cuenta para continuar.",
+    "commentInvalid": "Escribe un comentario de hasta 500 caracteres.",
+    "tooManyComments": "Has comentado muchas veces seguidas. Espera unos minutos.",
+    "birthInvalid": "Escribe una fecha de nacimiento válida.",
+    "underage": "Para usar Akashia debes ser mayor de 18 años. Si te equivocaste al escribir la fecha, escríbenos a contacto@akashia.app."
   },
   "language": {
     "label": "Idioma",
@@ -728,5 +738,25 @@
     "copy": "Copiar dirección",
     "copied": "Dirección copiada",
     "already": "Si ya la instalaste, búscala en la pantalla de inicio o entre tus aplicaciones."
+  },
+  "comments": {
+    "toggle": "Comentarios: {count}",
+    "placeholder": "Escribe un comentario",
+    "send": "Comentar",
+    "empty": "Todavía no hay comentarios.",
+    "signIn": "Inicia sesión para comentar",
+    "confirmDelete": "¿Borrar este comentario?",
+    "yesDelete": "Sí, borrar",
+    "failed": "No se pudo guardar. Inténtalo de nuevo.",
+    "loadFailed": "No se pudieron cargar los comentarios."
+  },
+  "age": {
+    "birthDate": "Fecha de nacimiento",
+    "day": "Día",
+    "month": "Mes",
+    "year": "Año",
+    "hint": "Solo la usamos para comprobar tu edad. No la guardamos ni la mostramos.",
+    "invalid": "Escribe una fecha de nacimiento válida.",
+    "underage": "Para usar Akashia debes ser mayor de 18 años. Si te equivocaste al escribir la fecha, escríbenos a contacto@akashia.app."
   }
 }

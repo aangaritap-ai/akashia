@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { messageTarget, publicMessages } from "@/lib/feed";
+import { withActivity } from "@/lib/posts-db";
 import MessageCard from "@/components/MessageCard";
 
 // Muestra nombres y mensajes de personas: fuera de los buscadores.
@@ -13,7 +14,7 @@ export default async function MemorialFeedPage() {
   const session = await auth();
   if (session?.user?.id) redirect("/inicio");
 
-  const messages = await publicMessages(100);
+  const messages = await withActivity(await publicMessages(100), null);
   const t = await getTranslations("feedPage");
 
   return (
@@ -44,6 +45,7 @@ export default async function MemorialFeedPage() {
                 author={m.owner}
                 target={messageTarget(m)}
                 index={i}
+                signedIn={false}
               />
             ))
           )}

@@ -5,6 +5,7 @@ import CopyLinkButton from "@/components/CopyLinkButton";
 import MessageCard from "@/components/MessageCard";
 import PostComposer from "@/components/PostComposer";
 import ProfileHeader from "@/components/ProfileHeader";
+import { withActivity } from "@/lib/posts-db";
 import { profileDetails, profileSelect } from "@/lib/profile";
 import { Link } from "@/i18n/navigation";
 
@@ -23,6 +24,7 @@ export default async function MemorialSettingsPage() {
     }),
   ]);
 
+  const posts = await withActivity(messages, userId);
   const t = await getTranslations("myPage");
   const locale = await getLocale();
   const url = `${process.env.APP_URL || "http://localhost:3000"}/memorial/${userId}`;
@@ -65,7 +67,7 @@ export default async function MemorialSettingsPage() {
             {t("empty")}
           </div>
         ) : (
-          messages.map((m, i) => (
+          posts.map((m, i) => (
             <MessageCard
               key={m.id}
               m={m}
@@ -73,6 +75,7 @@ export default async function MemorialSettingsPage() {
               showPrivacy
               index={i}
               canDelete
+              signedIn
             />
           ))
         )}

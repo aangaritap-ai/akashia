@@ -1,5 +1,6 @@
 import type { NotificationType, Prisma } from "@prisma/client";
 import { mutualsWith, type Mutuals, type Person } from "@/lib/connections";
+import { emojiFor } from "@/lib/posts";
 import { prisma } from "@/lib/prisma";
 
 export type NotificationView = {
@@ -15,6 +16,10 @@ export type NotificationView = {
   /** Llegó en las últimas 24 horas (sección "Nuevas"). */
   recent: boolean;
   actor: Person | null;
+  /** En reacciones: la que tiene puesta ahora esa persona. */
+  emoji: string | null;
+  /** En comentarios: lo que escribió. */
+  excerpt: string | null;
   /** Solo en solicitudes de seguimiento: si aún espera respuesta. */
   request: { connectionId: string; mutuals: Mutuals } | null;
   accepted: boolean;
@@ -30,7 +35,10 @@ export async function listNotifications(
 ): Promise<NotificationView[]> {
   const rows = await db.notification.findMany({
     where: { userId },
-    include: { actor: { select: { id: true, name: true, avatarUrl: true } } },
+    include: {
+      actor: { select: { id: true, name: true, avatarUrl: true } },
+      comment: { select: { text: true } },
+    },
     orderBy: { createdAt: "desc" },
     take,
   });
@@ -49,6 +57,19 @@ export async function listNotifications(
     connections.filter((c) => c.status === "PENDING").map((c) => c.requesterId),
     db
   );
+
+  const reacted = rows.filter(
+    (n) => n.type === "POST_REACTION" && n.messageId && n.actorId
+  );
+  const reactions = reacted.length
+    ? await db.postReaction.findMany({
+        where: {
+          messageId: { in: reacted.map((n) => n.messageId!) },
+          userId: { in: reacted.map((n) => n.actorId!) },
+        },
+        select: { messageId: true, userId: true, type: true },
+      })
+    : [];
 
   // Los botones van solo en el aviso más nuevo de cada solicitud.
   const used = new Set<string>();
@@ -71,6 +92,14 @@ export async function listNotifications(
       ageMs: now - n.createdAt.getTime(),
       recent: now - n.createdAt.getTime() < DAY,
       actor: n.actor,
+      emoji: (() => {
+        if (n.type !== "POST_REACTION") return null;
+        const type = reactions.find(
+          (r) => r.messageId === n.messageId && r.userId === n.actorId
+        )?.type;
+        return type ? emojiFor(type) : null;
+      })(),
+      excerpt: n.comment?.text ?? null,
       request:
         connection?.status === "PENDING"
           ? {

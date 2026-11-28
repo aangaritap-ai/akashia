@@ -35,8 +35,13 @@ export default function PrivacyEn() {
         </li>
         <li>
           <strong>What you create:</strong> capsules (text, audio or video),
-          messages and photos on memorial pages, stories, special dates and
-          reactions.
+          messages and photos on memorial pages, stories, special dates,
+          reactions and comments.
+        </li>
+        <li>
+          <strong>Age:</strong> when you create your account we ask for your date
+          of birth only to check that you are 18 or older. We don’t store it: we
+          store when it was checked.
         </li>
         <li>
           <strong>Camera and microphone:</strong> if you record a video inside
@@ -126,6 +131,11 @@ export default function PrivacyEn() {
           rules as memorial pages.
         </li>
         <li>
+          <strong>Reactions and comments:</strong> comments, with your name and
+          photo, and the number of reactions are seen by anyone who can see the
+          post. The page owner is told who reacted.
+        </li>
+        <li>
           <strong>Special dates:</strong> only you.
         </li>
         <li>
@@ -160,8 +170,10 @@ export default function PrivacyEn() {
       <h2>8. Cookies</h2>
       <p>
         We only use the cookies needed to start and keep your session securely
-        and to remember the language you chose. Your browser also stores locally
-        the reactions you mark and the people suggestions you hide.
+        and to remember the language you chose; and, if a date of birth shows
+        the age requirement isn’t met, one that prevents retrying for a day.
+        Your browser also stores locally the people suggestions you hide and
+        whether you close the invitation to install the app.
       </p>
 
       <h2>9. Your rights</h2>

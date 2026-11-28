@@ -29,8 +29,13 @@ export default function PrivacyEs() {
         </li>
         <li>
           <strong>Lo que creas:</strong> cápsulas (texto, audio o video),
-          mensajes y fotos en páginas memoriales, historias, fechas especiales y
-          reacciones.
+          mensajes y fotos en páginas memoriales, historias, fechas especiales,
+          reacciones y comentarios.
+        </li>
+        <li>
+          <strong>Edad:</strong> al crear la cuenta pedimos tu fecha de
+          nacimiento solo para comprobar que eres mayor de 18 años. No la
+          guardamos: guardamos cuándo se comprobó.
         </li>
         <li>
           <strong>Cámara y micrófono:</strong> si grabas un video desde Akashia,
@@ -122,6 +127,12 @@ export default function PrivacyEs() {
           las mismas reglas de las páginas memoriales.
         </li>
         <li>
+          <strong>Reacciones y comentarios:</strong> los comentarios, con tu
+          nombre y foto, y el número de reacciones los ve quien pueda ver la
+          publicación. Quién reaccionó se le avisa a la persona dueña de la
+          página.
+        </li>
+        <li>
           <strong>Fechas especiales:</strong> solo tú.
         </li>
         <li>
@@ -157,9 +168,11 @@ export default function PrivacyEs() {
       <h2>8. Cookies</h2>
       <p>
         Usamos solo las cookies necesarias para iniciar y mantener tu sesión de
-        forma segura y para recordar el idioma que elegiste. Tu navegador
-        también guarda localmente las reacciones que marcas y las sugerencias de
-        personas que ocultas.
+        forma segura y para recordar el idioma que elegiste; y, si la fecha de
+        nacimiento indica que no se cumple la edad, una que impide reintentar
+        durante un día. Tu navegador también guarda localmente las sugerencias
+        de personas que ocultas y si cierras la invitación a instalar la
+        aplicación.
       </p>
 
       <h2>9. Tus derechos</h2>

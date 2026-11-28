@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { petSubtitle } from "@/lib/pets";
+import { withActivity } from "@/lib/posts-db";
 import MemorialMessageForm from "@/components/MemorialMessageForm";
 import MessageCard from "@/components/MessageCard";
 import ProfileHeader from "@/components/ProfileHeader";
@@ -55,6 +56,8 @@ export default async function PetPage({
     where: { petId: pet.id, ...(isOwner ? {} : { isPublic: true }) },
     orderBy: { createdAt: "desc" },
   });
+
+  const posts = await withActivity(messages, viewerId);
 
   const t = await getTranslations("petsPage");
   const common = await getTranslations("common");
@@ -112,12 +115,13 @@ export default async function PetPage({
               {t("empty", { name: pet.name })}
             </div>
           ) : (
-            messages.map((m, i) => (
+            posts.map((m, i) => (
               <MessageCard
                 key={m.id}
                 m={m}
                 index={i}
                 canDelete={isOwner}
+                signedIn={Boolean(viewerId)}
               />
             ))
           )}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import BirthDateField from "@/components/BirthDateField";
 import ContactFields, { ConsentField } from "@/components/ContactFields";
 import { Callout, primaryButtonClass } from "@/components/ui";
 import { useRouter } from "@/i18n/navigation";
@@ -9,7 +10,10 @@ import { useRouter } from "@/i18n/navigation";
 // Completar los datos obligatorios de una cuenta que ya existe.
 export default function ContactForm({
   values,
+  askAge,
 }: {
+  // Falta comprobar la edad (cuentas nuevas que entran con Google).
+  askAge: boolean;
   values: {
     firstName: string;
     lastName: string;
@@ -37,6 +41,9 @@ export default function ContactForm({
           lastName: form.get("lastName"),
           phone: form.get("phone"),
           city: form.get("city"),
+          birthDay: form.get("birthDay"),
+          birthMonth: form.get("birthMonth"),
+          birthYear: form.get("birthYear"),
         }),
       });
       if (!res.ok) {
@@ -61,6 +68,7 @@ export default function ContactForm({
         </Callout>
       )}
       <ContactFields values={values} />
+      {askAge && <BirthDateField />}
       <ConsentField />
       <button type="submit" disabled={busy} className={primaryButtonClass}>
         {busy ? common("saving") : t("save")}

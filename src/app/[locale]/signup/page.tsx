@@ -5,8 +5,10 @@ import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { signIn } from "@/lib/auth";
+import { ageGate } from "@/lib/age-gate";
 import { contactData, contactSchema } from "@/lib/contact";
 import AuthShell from "@/components/AuthShell";
+import BirthDateField from "@/components/BirthDateField";
 import ContactFields, { ConsentField } from "@/components/ContactFields";
 import GoogleSignIn from "@/components/GoogleSignIn";
 import {
@@ -60,6 +62,21 @@ export default async function SignupPage({
       );
     }
 
+    // Menores de edad no pueden crear cuenta.
+    const age = await ageGate({
+      birthDay: formData.get("birthDay"),
+      birthMonth: formData.get("birthMonth"),
+      birthYear: formData.get("birthYear"),
+    });
+    if (age !== "adult") {
+      redirect(
+        localizedPath(
+          `/signup?error=${age === "underage" ? "underage" : "birth"}&callbackUrl=${encodeURIComponent(dest)}&email=${encodeURIComponent(email)}`,
+          locale
+        )
+      );
+    }
+
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
       redirect(
@@ -72,7 +89,13 @@ export default async function SignupPage({
 
     const passwordHash = await bcrypt.hash(password, 10);
     await prisma.user.create({
-      data: { ...contactData(contact.data), email, passwordHash, locale },
+      data: {
+        ...contactData(contact.data),
+        email,
+        passwordHash,
+        locale,
+        ageConfirmedAt: new Date(),
+      },
     });
 
     try {
@@ -129,11 +152,20 @@ export default async function SignupPage({
         </Callout>
       )}
 
+      {(error === "underage" || error === "birth") && (
+        <Callout tone="danger" className="!py-3">
+          {(await getTranslations("age"))(
+            error === "underage" ? "underage" : "invalid"
+          )}
+        </Callout>
+      )}
+
       <GoogleSignIn callbackUrl={callbackUrl} />
 
       <form action={signup} className="flex flex-col gap-4">
         <input type="hidden" name="callbackUrl" value={callbackUrl} />
         <ContactFields />
+        <BirthDateField />
         <div className="flex flex-col gap-1.5">
           <label htmlFor="email" className={labelClass}>
             {common("email")}

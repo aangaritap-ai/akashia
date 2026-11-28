@@ -9,6 +9,7 @@ import RequestButtons from "@/components/connections/RequestButtons";
 import {
   IconCalendar,
   IconCheck,
+  IconComment,
   IconDots,
   IconHeart,
   IconShield,
@@ -24,6 +25,8 @@ const KINDS = {
   EVENT_REMINDER: { icon: IconCalendar, tone: "bg-pink-600" },
   STORY_LIKE: { icon: IconHeart, tone: "bg-red-600" },
   GUARDIAN_INVITE: { icon: IconShield, tone: "bg-accent" },
+  POST_REACTION: { icon: IconHeart, tone: "bg-red-600" },
+  POST_COMMENT: { icon: IconComment, tone: "bg-emerald-600" },
 } as const;
 
 const menuItemClass =
@@ -43,6 +46,7 @@ function Text({ n }: { n: NotificationView }) {
   }
   return t.rich(`text${n.type}`, {
     name: n.actor.name,
+    emoji: n.emoji ?? "",
     b: (chunks) => <strong className="font-semibold">{chunks}</strong>,
   });
 }
@@ -99,6 +103,11 @@ function Item({
           <button type="button" onClick={onRead} className={cover}>
             <Text n={n} />
           </button>
+        )}
+        {n.excerpt && (
+          <p className="mt-0.5 line-clamp-2 text-sm text-muted [overflow-wrap:anywhere]">
+            “{n.excerpt}”
+          </p>
         )}
         <div
           className={`mt-0.5 text-xs ${n.read ? "text-muted" : "font-semibold text-sky-700"}`}
