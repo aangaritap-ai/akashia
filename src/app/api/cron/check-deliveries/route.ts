@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { deliverCapsule, finalizePendingDeaths } from "@/lib/delivery";
 import { cleanupExpiredStories } from "@/lib/stories";
+import { startOfTomorrow } from "@/lib/special-dates";
 import { createEventReminders } from "@/lib/special-dates-db";
 import { cleanupRateLimits } from "@/lib/rate-limit";
 
@@ -17,7 +18,7 @@ export async function GET(req: Request) {
   const due = await prisma.capsule.findMany({
     where: {
       triggerType: "DATE",
-      triggerDate: { lte: new Date() },
+      triggerDate: { lt: startOfTomorrow() },
       recipients: { some: { delivered: false } },
     },
     select: { id: true },

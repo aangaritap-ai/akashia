@@ -107,7 +107,9 @@ export default function PrivacyEn() {
           your birthday only to your approved followers if you turn it on.
         </li>
         <li>
-          <strong>Capsules:</strong> you and, once delivered, their recipients.
+          <strong>Capsules:</strong> you and, once delivered, their recipients. If you choose someone
+          who follows you, we keep their name and email in the capsule to
+          deliver it; you don’t see that email.
         </li>
         <li>
           <strong>Stories</strong> (photos and videos): you and the followers you

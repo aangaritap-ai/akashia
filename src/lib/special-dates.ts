@@ -52,6 +52,20 @@ export function todayIn(now: Date = new Date()): Day {
   return { year: get("year"), month: get("month"), day: get("day") };
 }
 
+/**
+ * Las cápsulas con fecha se envían desde que empieza el día elegido (hora de
+ * Colombia): están listas las anteriores a este momento.
+ */
+export function startOfTomorrow(now: Date = new Date()) {
+  const { year, month, day } = todayIn(now);
+  return new Date(Date.UTC(year, month - 1, day + 1));
+}
+
+/** El primer día que se puede elegir para una cápsula: mañana ("2026-03-14"). */
+export function firstDeliveryDate(now: Date = new Date()) {
+  return startOfTomorrow(now).toISOString().slice(0, 10);
+}
+
 export function isLeapYear(year: number) {
   return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 }

@@ -4,16 +4,28 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import CapsuleRecorder from "@/components/camera/CapsuleRecorder";
-import MailLanguageSelect from "@/components/MailLanguageSelect";
+import RecipientsField from "@/components/capsules/RecipientsField";
+import WhenField, { type TriggerType } from "@/components/capsules/WhenField";
+import {
+  emptyRow,
+  toPayload,
+  type Follower,
+  type RecipientRow,
+} from "@/lib/recipients";
 import { uploadCapsuleMedia } from "@/lib/upload-media";
 import type { AppLocale } from "@/i18n/routing";
 
 type CapsuleType = "TEXT" | "AUDIO" | "VIDEO";
-type TriggerType = "DATE" | "DEATH";
 
 export default function EditCapsuleForm({
   capsule,
+  followers,
+  guardianCount,
+  minDate,
 }: {
+  followers: Follower[];
+  guardianCount: number;
+  minDate: string;
   capsule: {
     id: string;
     title: string;
@@ -22,7 +34,7 @@ export default function EditCapsuleForm({
     mediaUrl: string | null;
     triggerType: TriggerType;
     triggerDate: string;
-    recipients: { name: string; email: string }[];
+    recipients: RecipientRow[];
     // Idioma elegido para el correo, si se guardó.
     locale: AppLocale | null;
   };
@@ -42,10 +54,8 @@ export default function EditCapsuleForm({
   // Al grabar, el selector de archivo vuelve a quedar vacío.
   const [recordings, setRecordings] = useState(0);
   const [existingMediaUrl, setExistingMediaUrl] = useState(capsule.mediaUrl);
-  const [recipients, setRecipients] = useState(
-    capsule.recipients.length > 0
-      ? capsule.recipients
-      : [{ name: "", email: "" }]
+  const [recipients, setRecipients] = useState<RecipientRow[]>(
+    capsule.recipients.length > 0 ? capsule.recipients : [emptyRow("primera")]
   );
   const [triggerType, setTriggerType] = useState<TriggerType>(
     capsule.triggerType
@@ -77,7 +87,7 @@ export default function EditCapsuleForm({
           type,
           textContent: type === "TEXT" ? textContent : null,
           mediaUrl,
-          recipients,
+          recipients: recipients.map(toPayload),
           locale: mailLocale,
           triggerType,
           triggerDate: triggerType === "DATE" ? triggerDate : null,
@@ -191,108 +201,22 @@ export default function EditCapsuleForm({
           </div>
         )}
 
-        <div className="flex flex-col gap-2">
-          <label className="text-sm text-muted">
-            {t("recipients")}
-          </label>
-          {recipients.map((r, i) => (
-            <div key={i} className="grid sm:grid-cols-2 gap-2 sm:gap-3 items-start">
-              <input
-                value={r.name}
-                onChange={(e) =>
-                  setRecipients((prev) =>
-                    prev.map((p, idx) =>
-                      idx === i ? { ...p, name: e.target.value } : p
-                    )
-                  )
-                }
-                required
-                placeholder={common("name")}
-                className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
-              />
-              <div className="flex gap-2">
-                <input
-                  type="email"
-                  value={r.email}
-                  onChange={(e) =>
-                    setRecipients((prev) =>
-                      prev.map((p, idx) =>
-                        idx === i ? { ...p, email: e.target.value } : p
-                      )
-                    )
-                  }
-                  required
-                  placeholder={common("email")}
-                  className="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
-                />
-                {recipients.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setRecipients((prev) => prev.filter((_, idx) => idx !== i))
-                    }
-                    aria-label={t("removeRecipient")}
-                    className="text-muted hover:text-red-600 px-2"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() =>
-              setRecipients((prev) => [...prev, { name: "", email: "" }])
-            }
-            className="self-start text-sm text-accent font-semibold mt-1"
-          >
-            {t("addRecipient")}
-          </button>
-          <MailLanguageSelect value={mailLocale} onChange={setMailLocale} />
-        </div>
+        <RecipientsField
+          rows={recipients}
+          onChange={setRecipients}
+          followers={followers}
+          mailLocale={mailLocale}
+          onMailLocale={setMailLocale}
+        />
 
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm text-muted">{t("when")}</label>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setTriggerType("DATE")}
-              className={`rounded-lg px-4 py-2 text-sm border ${
-                triggerType === "DATE"
-                  ? "border-accent bg-accent/15 text-accent"
-                  : "border-border text-muted"
-              }`}
-            >
-              {t("whenDate")}
-            </button>
-            <button
-              type="button"
-              onClick={() => setTriggerType("DEATH")}
-              className={`rounded-lg px-4 py-2 text-sm border ${
-                triggerType === "DEATH"
-                  ? "border-accent bg-accent/15 text-accent"
-                  : "border-border text-muted"
-              }`}
-            >
-              {t("whenGone")}
-            </button>
-          </div>
-          {triggerType === "DATE" && (
-            <input
-              type="date"
-              value={triggerDate}
-              onChange={(e) => setTriggerDate(e.target.value)}
-              required
-              className="mt-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-accent"
-            />
-          )}
-          {triggerType === "DEATH" && (
-            <p className="text-xs text-muted mt-1">
-              {t("deathHint")}
-            </p>
-          )}
-        </div>
+        <WhenField
+          type={triggerType}
+          onType={setTriggerType}
+          date={triggerDate}
+          onDate={setTriggerDate}
+          minDate={minDate}
+          guardianCount={guardianCount}
+        />
 
         <button
           type="submit"

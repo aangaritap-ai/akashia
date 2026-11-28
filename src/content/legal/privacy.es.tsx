@@ -100,7 +100,8 @@ export default function PrivacyEs() {
         </li>
         <li>
           <strong>Cápsulas:</strong> tú y, cuando se entreguen, sus
-          destinatarios.
+          destinatarios. Si eliges a alguien que te sigue, guardamos su nombre y
+          correo en la cápsula para entregársela; tú no ves ese correo.
         </li>
         <li>
           <strong>Historias</strong> (fotos y videos): tú y los seguidores que

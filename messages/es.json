@@ -445,7 +445,7 @@
     "subtitle": "Mensajes que dejas guardados para el momento justo.",
     "new": "+ Nueva cápsula",
     "pendingNotice": "Tus guardianes confirmaron tu fallecimiento el {date}. Tus cápsulas se entregarán en {hours} horas desde ese momento a menos que canceles esto.",
-    "noGuardians": "Aún no tienes guardianes. Sin ellos, tus cápsulas \"al fallecer\" nunca podrán entregarse.",
+    "noGuardians": "Tienes cápsulas \"Cuando yo falte\" y aún no tienes guardianes. Sin ellos no se podrán entregar. Las de fecha llegan solas.",
     "addGuardian": "Añadir guardián →",
     "emptyTitle": "Tu primera cápsula te espera",
     "emptyBody": "Escribe unas palabras para alguien que amas y elige cuándo deben llegar.",
@@ -480,7 +480,13 @@
     "tooBig": "El archivo no puede pesar más de 50 MB.",
     "sessionEnded": "Tu sesión terminó. Vuelve a entrar.",
     "cannotUpload": "No se puede subir el archivo",
-    "noSpace": "No te queda espacio para este archivo. Borra alguna cápsula con audio o video."
+    "noSpace": "No te queda espacio para este archivo. Borra alguna cápsula con audio o video.",
+    "recipientsHint": "Toca el campo Nombre para elegir entre tus seguidores, o escribe el nombre y el correo.",
+    "yourFollowers": "Tus seguidores",
+    "followerBadge": "Te sigue · le llega al correo de su cuenta",
+    "accountBadge": "Le llega al correo de su cuenta",
+    "dateHint": "Se enviará sola por correo en la mañana de ese día. No necesita guardianes.",
+    "deathNoGuardians": "Todavía no tienes guardianes: sin ellos no se puede entregar."
   },
   "guardians": {
     "title": "Tus guardianes",
@@ -602,7 +608,8 @@
     "commentInvalid": "Escribe un comentario de hasta 500 caracteres.",
     "tooManyComments": "Has comentado muchas veces seguidas. Espera unos minutos.",
     "birthInvalid": "Escribe una fecha de nacimiento válida.",
-    "underage": "Para usar Akashia debes ser mayor de 18 años. Si te equivocaste al escribir la fecha, escríbenos a contacto@akashia.app."
+    "underage": "Para usar Akashia debes ser mayor de 18 años. Si te equivocaste al escribir la fecha, escríbenos a contacto@akashia.app.",
+    "notFollower": "Una de las personas elegidas ya no está entre tus seguidores. Quítala y elígela de nuevo, o escribe su correo."
   },
   "language": {
     "label": "Idioma",

@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isOwnMedia } from "@/lib/media";
 import { apiText } from "@/lib/api-locale";
+import { recipientSchema, resolveRecipients } from "@/lib/recipients-db";
 import { routing } from "@/i18n/routing";
 
 const schema = z.object({
@@ -11,9 +12,7 @@ const schema = z.object({
   type: z.enum(["TEXT", "AUDIO", "VIDEO"]),
   textContent: z.string().optional().nullable(),
   mediaUrl: z.string().optional().nullable(),
-  recipients: z
-    .array(z.object({ name: z.string().min(1), email: z.string().email() }))
-    .min(1),
+  recipients: z.array(recipientSchema).min(1),
   triggerType: z.enum(["DATE", "DEATH"]),
   triggerDate: z.string().optional().nullable(),
   // Idioma del correo de entrega.
@@ -59,6 +58,11 @@ export async function POST(req: Request) {
     );
   }
 
+  const recipients = await resolveRecipients(session.user.id, data.recipients);
+  if (!recipients) {
+    return NextResponse.json({ error: await apiText("notFollower") }, { status: 400 });
+  }
+
   const capsule = await prisma.capsule.create({
     data: {
       ownerId: session.user.id,
@@ -71,11 +75,7 @@ export async function POST(req: Request) {
         ? new Date(`${data.triggerDate}T12:00:00`)
         : null,
       recipients: {
-        create: data.recipients.map((r) => ({
-          name: r.name,
-          email: r.email,
-          locale: data.locale,
-        })),
+        create: recipients.map((r) => ({ ...r, locale: data.locale })),
       },
     },
   });

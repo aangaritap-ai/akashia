@@ -306,6 +306,9 @@ model CapsuleRecipient {
   deliveredAt DateTime?
   // Idioma elegido para el correo de entrega si no tiene cuenta.
   locale     String?
+  // Elegido entre los seguidores: el correo es el de su cuenta y quien creó la
+  // cápsula no lo ve.
+  fromFollower Boolean @default(false)
 }
 
 enum SpecialDateKind {

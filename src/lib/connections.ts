@@ -34,6 +34,26 @@ export async function isFollowing(
   return row !== null;
 }
 
+/** Quienes me siguen (aprobados), para elegirlos como destinatarios. Solo
+ * nombre y foto. */
+export async function followersOf(
+  userId: string,
+  db: Prisma.TransactionClient = prisma
+): Promise<Person[]> {
+  const rows = await db.connection.findMany({
+    where: {
+      addresseeId: userId,
+      status: "ACCEPTED",
+      requester: { isDeceased: false },
+    },
+    select: {
+      requester: { select: { id: true, name: true, avatarUrl: true } },
+    },
+    orderBy: { requester: { name: "asc" } },
+  });
+  return rows.map((r) => r.requester);
+}
+
 /** Solicitudes para seguirme que aún no he respondido. */
 export function pendingReceivedCount(userId: string) {
   return prisma.connection.count({

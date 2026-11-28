@@ -33,6 +33,13 @@ export default async function DashboardPage() {
     }),
   ]);
   const locked = capsuleLockReason(me) !== null;
+  // Los guardianes solo hacen falta para las cápsulas "Cuando yo falte".
+  const needsGuardians =
+    guardianCount === 0 &&
+    capsules.some(
+      (c) =>
+        c.triggerType === "DEATH" && c.recipients.some((r) => !r.delivered)
+    );
   const t = await getTranslations("capsules");
   const common = await getTranslations("common");
   const locale = await getLocale();
@@ -66,7 +73,7 @@ export default async function DashboardPage() {
         </Callout>
       )}
 
-      {guardianCount === 0 && (
+      {needsGuardians && (
         <Callout
           tone="info"
           className="flex items-center justify-between gap-4"

@@ -445,7 +445,7 @@
     "subtitle": "Messages you save for just the right moment.",
     "new": "+ New capsule",
     "pendingNotice": "Your guardians confirmed your death on {date}. Your capsules will be delivered {hours} hours after that moment unless you cancel.",
-    "noGuardians": "You don't have guardians yet. Without them, your \"after I'm gone\" capsules can never be delivered.",
+    "noGuardians": "You have “When I’m gone” capsules and no guardians yet. Without them they can’t be delivered. Date capsules are sent on their own.",
     "addGuardian": "Add a guardian →",
     "emptyTitle": "Your first capsule is waiting",
     "emptyBody": "Write a few words to someone you love and choose when they should arrive.",
@@ -480,7 +480,13 @@
     "tooBig": "The file can't be larger than 50 MB.",
     "sessionEnded": "Your session ended. Please log in again.",
     "cannotUpload": "The file can't be uploaded",
-    "noSpace": "You don't have enough space for this file. Delete a capsule with audio or video."
+    "noSpace": "You don't have enough space for this file. Delete a capsule with audio or video.",
+    "recipientsHint": "Tap the Name field to choose one of your followers, or type a name and email.",
+    "yourFollowers": "Your followers",
+    "followerBadge": "Follows you · delivered to their account email",
+    "accountBadge": "Delivered to their account email",
+    "dateHint": "It’s sent by email on the morning of that day. No guardians needed.",
+    "deathNoGuardians": "You don’t have guardians yet: without them it can’t be delivered."
   },
   "guardians": {
     "title": "Your guardians",
@@ -602,7 +608,8 @@
     "commentInvalid": "Write a comment of up to 500 characters.",
     "tooManyComments": "You’ve commented many times in a row. Wait a few minutes.",
     "birthInvalid": "Enter a valid date of birth.",
-    "underage": "You must be 18 or older to use Akashia. If you mistyped the date, write to us at contacto@akashia.app."
+    "underage": "You must be 18 or older to use Akashia. If you mistyped the date, write to us at contacto@akashia.app.",
+    "notFollower": "One of the people you chose no longer follows you. Remove them and choose again, or type their email."
   },
   "language": {
     "label": "Language",
